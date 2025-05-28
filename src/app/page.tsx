@@ -1,12 +1,17 @@
+import Navbar from '@/components/layout/Navbar';
+import Hero from '@/components/layout/Hero';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="text-4xl font-bold">Welcome to Next.js!</h1>
-
-      <p className="mt-4 text-lg">
-        This is a simple Next.js application.
-      </p>
-    </main>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Contenido de la página */}
+      <div className="relative">
+        <Navbar />
+        <main>
+          <Hero />
+          {/* Aquí puedes agregar más secciones en el futuro */}
+        </main>
+      </div>
+    </div>
   );
 }
