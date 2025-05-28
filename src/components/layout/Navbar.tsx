@@ -21,8 +21,9 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="sticky top-0 z-50 transition-all duration-300 bg-black mt-6">
+        <nav className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300 bg-transparent  py-2">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Barra de navegación */}
                 <div className="flex justify-between items-center h-16">
                     {/* Logo a la izquierda */}
                     <div className="flex-shrink-0">
@@ -49,17 +50,17 @@ const Navbar = () => {
                                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-amber-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                             </Link>
                             <Link href="/torneos"
-                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2 text-sm font-medium relative group">
+                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2  font-medium relative group">
                                 <span>Torneos</span>
                                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-orange-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                             </Link>
                             <Link href="/equipos"
-                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2 text-sm font-medium relative group">
+                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2  font-medium relative group">
                                 <span>Equipos</span>
                                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-400 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                             </Link>
                             <Link href="/contacto"
-                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2 text-sm font-medium relative group">
+                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2  font-medium relative group">
                                 <span>Contacto</span>
                                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                             </Link>
@@ -91,14 +92,15 @@ const Navbar = () => {
 
             {/* Menú móvil */}
             {isOpen && (
-                <div className="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-md transition-all duration-300 shadow-lg">
+                <div className="md:hidden bg-black/80 backdrop-blur-md transition-all duration-300 shadow-lg mt-2 rounded-lg overflow-hidden">
                     <div className="pt-2 pb-3 space-y-1 px-4">
+                    {/* Enlaces del menú móvil */}
                         <Link href="/"
-                              className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-white bg-gradient-to-r from-amber-400/20 to-amber-300/20">
+                              className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition-colors duration-300">
                             Inicio
                         </Link>
                         <Link href="/torneos"
-                              className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-amber-400/10 hover:to-orange-400/10 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
+                              className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-white/10 hover:text-white transition-colors duration-300">
                             Torneos
                         </Link>
                         <Link href="/equipos"
@@ -109,11 +111,11 @@ const Navbar = () => {
                               className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-blue-600/10 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
                             Contacto
                         </Link>
-                        <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700/60">
+                        <div className="pt-4 pb-3 border-t border-gray-700/60">
                             <div className="flex items-center justify-between px-4">
                                 <button
                                     onClick={toggleTheme}
-                                    className="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-800/70 transition-colors duration-300 focus:outline-none"
+                                    className="p-2 rounded-full text-gray-200 hover:bg-white/20 transition-colors duration-300 focus:outline-none"
                                     aria-label="Cambiar tema"
                                 >
                                     {mounted && (
@@ -125,7 +127,7 @@ const Navbar = () => {
                                     )}
                                 </button>
                                 <button
-                                    className="w-full ml-4 bg-gradient-to-r from-amber-500 to-orange-400 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-amber-600 hover:to-orange-500 transition-all duration-300 shadow-md hover:shadow-lg">
+                                    className="w-full ml-4 bg-gradient-to-r from-amber-500 to-orange-400 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-amber-600 hover:to-orange-500 transition-all duration-300 shadow-md hover:shadow-lg shadow-amber-500/20">
                                     Iniciar Sesión
                                 </button>
                             </div>

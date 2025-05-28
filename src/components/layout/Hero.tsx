@@ -1,11 +1,10 @@
 "use client";
 
-import Link from 'next/link';
 import BrillarAnimation from '../animations/BrillarAnimation';
 
 const Hero = () => {
   return (
-    <div className="relative h-screen min-h-[600px] w-full overflow-hidden flex items-center">
+    <div className="relative h-screen min-h-[600px] w-full overflow-hidden flex items-center pt-24 md:pt-28">
         {/* Imagen de fondo a pantalla completa */}
         <div className="absolute inset-0 w-full h-full z-0">
           <img
@@ -14,38 +13,39 @@ const Hero = () => {
             className="w-full h-full object-cover object-center"
           />
           {/* Overlay oscuro general */}
-          <div className="absolute inset-0 bg-black/60"></div>
+          <div className="absolute inset-0 bg-black/45"></div>
           
           {/* Gradiente superior para integración con navbar */}
-          <div className="absolute top-0 left-0 right-0 h-[240px] bg-gradient-to-b from-black via-black/60 to-transparent z-10"></div>
+          {/* Gradiente superior para integración con navbar - ajustado para coincidir con la altura del navbar */}
+          <div className="absolute top-0 left-0 right-0 h-[80px] md:h-[333px] bg-gradient-to-b from-black/80 via-black/60 to-transparent z-10"></div>
         </div>
 
         {/* Efecto de luz dorada desde abajo */}
-        <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-primary/30 to-transparent z-[1]"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-primary/10 to-transparent z-[1]"></div>
 
         {/* Contenido centrado - ajustado para dar espacio a la navbar */}
-        <div className="container relative mx-auto px-4 z-10 pt-16">
+        <div className="container relative mx-auto px-4 z-10 pt-0">
           <div className="max-w-3xl mx-auto text-center">
             {/* Título principal con combinación de fuentes moderna y dinámica */}
             <h1 className="text-white flex flex-col items-center justify-center">
-              <span className="font-subtitle text-4xl md:text-6xl tracking-wide ">
+              <span className="font-subtitle uppercase text-4xl md:text-6xl tracking-wide ">
                 Tu Momento de
               </span>
               <span className="font-heading text-7xl md:text-9xl tracking-wider uppercase px-2">
                 <BrillarAnimation className="" />
               </span>
-              <span className="font-subtitle text-4xl md:text-6xl tracking-wide">
+              <span className="font-subtitle text-4xl uppercase md:text-6xl tracking-wide">
                 Ha Llegado
               </span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-xl md:text-2xl mb-10 text-white/90 font-subtitle mt-12">
+            <p className="text-xl md:text-2xl mb-4 text-white/90 font-subtitle mt-12">
               Únete al torneo más emocionante de fútbol indoor
             </p>
 
             {/* Botón de WhatsApp con diseño minimalista y elegante */}
-            <div className="relative inline-block mt-2">
+            <div className="relative inline-block ">
               <a
                 href="https://wa.me/593000000000"
                 target="_blank"
