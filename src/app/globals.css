@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/* Variables base para light mode */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* Paleta personalizada */
+  --color-goal-gold: #ffd700;
+  --color-goal-orange: #ff7f11;
+  --color-goal-blue: #006992;
+  --color-goal-black: #1a1a1a;
+  --color-goal-white: #f7f7ff;
+
+  --primary: #ffd700;
+  --secondary: #ff7f11;
+  --accent: #006992;
+
+  /* Sombras neón */
+  --shadow-card: 0 4px 20px -5px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.05);
+  --shadow-button: 0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 215, 0, 0.1);
+  --neon-gold: 0 0 7px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
+}
+
+/* Variables para dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+
+    /* Puedes ajustar la paleta si lo deseas para dark mode */
+    --primary: #ffd700;
+    --secondary: #ff7f11;
+    --accent: #006992;
+  }
+}
+
+/* Tailwind Theme Inline */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Paleta personalizada como tokens de Tailwind */
+  --color-goal-gold: var(--color-goal-gold);
+  --color-goal-orange: var(--color-goal-orange);
+  --color-goal-blue: var(--color-goal-blue);
+  --color-goal-black: var(--color-goal-black);
+  --color-goal-white: var(--color-goal-white);
+
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-button: var(--shadow-button);
+  --neon-gold: var(--neon-gold);
+
+  --font-sans: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  --font-mono: var(--font-geist-mono, monospace);
+}
+
+/* Estilos base */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
