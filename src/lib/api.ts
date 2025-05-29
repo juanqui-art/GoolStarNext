@@ -33,30 +33,23 @@ export async function fetchApi<T>(
   
   const url = `${API_URL}/${endpoint.startsWith('/') ? endpoint.slice(1) : endpoint}`;
   
-  try {
-    const response = await fetch(url, {
-      ...fetchOptions,
-      headers,
-      body: options.body && typeof options.body === 'object' && !(options.body instanceof FormData)
-        ? JSON.stringify(options.body)
-        : options.body,
-    });
-    
-    // Si la respuesta no es exitosa, lanzamos un error
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error en la solicitud' }));
-      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-    }
-    
-    // Para respuestas vacías (204 No Content)
-    if (response.status === 204) {
-      return {} as T;
-    }
-    
-    // Intentamos parsear la respuesta como JSON
-    return await response.json();
-  } catch (error) {
-    console.error('Error en la solicitud API:', error);
-    throw error;
+  const response = await fetch(url, {
+    ...fetchOptions,
+    headers,
+    body: options.body && typeof options.body === 'object' && !(options.body instanceof FormData)
+      ? JSON.stringify(options.body)
+      : options.body,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Error en la solicitud' }));
+    console.error('Error en la solicitud API:', errorData);
+    throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
   }
+
+  if (response.status === 204) {
+    return {} as T;
+  }
+
+  return await response.json();
 }
