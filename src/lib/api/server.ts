@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import type { components } from '@/types/api';
 
 type Equipo = components['schemas']['Equipo'];
