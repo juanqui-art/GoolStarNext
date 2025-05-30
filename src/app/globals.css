@@ -63,14 +63,14 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Clase para la fuente Playfair Display */
 .font-playfair {
-  font-family: var(--font-playfair);
+  font-family: var(--font-playfair), serif;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
