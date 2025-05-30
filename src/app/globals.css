@@ -17,10 +17,11 @@
   --secondary: #ff7f11;
   --accent: #006992;
 
-  /* Sombras neón */
+  /* Sombras neón - CORREGIDAS */
   --shadow-card: 0 4px 20px -5px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.05);
   --shadow-button: 0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 215, 0, 0.1);
-  --neon-gold: 0 0 7px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
+  --shadow-neon-gold: 0 0 7px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
+  --shadow-neon-blue: 0 0 7px rgba(0, 105, 146, 0.7), 0 0 25px rgba(0, 105, 146, 0.3);
 }
 
 /* Variables para dark mode */
@@ -28,15 +29,10 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-
-    /* Puedes ajustar la paleta si lo deseas para dark mode */
-    --primary: #ffd700;
-    --secondary: #ff7f11;
-    --accent: #006992;
   }
 }
 
-/* Tailwind Theme Inline */
+/* Tailwind Theme Inline - CORREGIDO */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -52,9 +48,11 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
 
+  /* Sombras como utilidades de Tailwind */
   --shadow-card: var(--shadow-card);
   --shadow-button: var(--shadow-button);
-  --neon-gold: var(--neon-gold);
+  --shadow-neon-gold: var(--shadow-neon-gold);
+  --shadow-neon-blue: var(--shadow-neon-blue);
 
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -73,6 +71,23 @@ body {
 /* Clase para la fuente Playfair Display */
 .font-playfair {
   font-family: var(--font-playfair);
-  font-weight: 700; /* Peso más grueso para mejor legibilidad */
-  letter-spacing: 0.05em; /* Ajuste fino del espaciado entre letras */
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Utilidades personalizadas para sombras */
+.shadow-neon-gold {
+  box-shadow: var(--shadow-neon-gold);
+}
+
+.shadow-neon-blue {
+  box-shadow: var(--shadow-neon-blue);
+}
+
+.hover\:shadow-neon-gold:hover {
+  box-shadow: var(--shadow-neon-gold);
+}
+
+.hover\:shadow-neon-blue:hover {
+  box-shadow: var(--shadow-neon-blue);
 }
