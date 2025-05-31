@@ -1,4 +1,4 @@
-// src/components/data/TablaList.server.tsx - CÓDIGO COMPLETO
+// src/components/data/TablaList.server.tsx - CÓDIGO COMPLETO ACTUALIZADO
 import Link from 'next/link';
 import { Trophy, TrendingUp, TrendingDown, Minus, AlertCircle, Target, Medal } from 'lucide-react';
 import type { components } from '@/types/api';
@@ -15,191 +15,39 @@ interface TablaListServerProps {
     showTitle?: boolean;
 }
 
-// Datos de ejemplo para la tabla de posiciones
+// Datos de ejemplo para la tabla de posiciones (agrupados)
 const TABLA_EJEMPLO = [
     {
         posicion: 1,
-        equipo: {
-            id: 1,
-            nombre: "Liverpool",
-            logo: null
-        },
-        puntos: 21,
-        partidos_jugados: 7,
-        partidos_ganados: 7,
-        partidos_empatados: 0,
-        partidos_perdidos: 0,
-        goles_favor: 45,
-        goles_contra: 28,
-        diferencia_goles: 17,
-        tendencia: "up",
-        grupo: "A"
+        equipo: { id: 1, nombre: "Liverpool", logo: null },
+        puntos: 21, partidos_jugados: 7, partidos_ganados: 7, partidos_empatados: 0, partidos_perdidos: 0,
+        goles_favor: 45, goles_contra: 28, diferencia_goles: 17,
+        tendencia: "up", grupo: "A"
     },
     {
         posicion: 2,
-        equipo: {
-            id: 2,
-            nombre: "Talleres M.A",
-            logo: null
-        },
-        puntos: 18,
-        partidos_jugados: 7,
-        partidos_ganados: 6,
-        partidos_empatados: 0,
-        partidos_perdidos: 1,
-        goles_favor: 38,
-        goles_contra: 22,
-        diferencia_goles: 16,
-        tendencia: "up",
-        grupo: "A"
+        equipo: { id: 2, nombre: "Talleres M.A", logo: null },
+        puntos: 18, partidos_jugados: 7, partidos_ganados: 6, partidos_empatados: 0, partidos_perdidos: 1,
+        goles_favor: 38, goles_contra: 22, diferencia_goles: 16,
+        tendencia: "up", grupo: "A"
     },
     {
-        posicion: 3,
-        equipo: {
-            id: 3,
-            nombre: "Real Madrid",
-            logo: null
-        },
-        puntos: 15,
-        partidos_jugados: 7,
-        partidos_ganados: 5,
-        partidos_empatados: 0,
-        partidos_perdidos: 2,
-        goles_favor: 32,
-        goles_contra: 18,
-        diferencia_goles: 14,
-        tendencia: "stable",
-        grupo: "A"
+        posicion: 1,
+        equipo: { id: 3, nombre: "Real Madrid", logo: null },
+        puntos: 15, partidos_jugados: 7, partidos_ganados: 5, partidos_empatados: 0, partidos_perdidos: 2,
+        goles_favor: 32, goles_contra: 18, diferencia_goles: 14,
+        tendencia: "stable", grupo: "B"
     },
     {
-        posicion: 4,
-        equipo: {
-            id: 4,
-            nombre: "Barcelona",
-            logo: null
-        },
-        puntos: 12,
-        partidos_jugados: 7,
-        partidos_ganados: 4,
-        partidos_empatados: 0,
-        partidos_perdidos: 3,
-        goles_favor: 28,
-        goles_contra: 25,
-        diferencia_goles: 3,
-        tendencia: "down",
-        grupo: "B"
-    },
-    {
-        posicion: 5,
-        equipo: {
-            id: 5,
-            nombre: "Manchester",
-            logo: null
-        },
-        puntos: 9,
-        partidos_jugados: 7,
-        partidos_ganados: 3,
-        partidos_empatados: 0,
-        partidos_perdidos: 4,
-        goles_favor: 22,
-        goles_contra: 28,
-        diferencia_goles: -6,
-        tendencia: "down",
-        grupo: "B"
-    },
-    {
-        posicion: 6,
-        equipo: {
-            id: 6,
-            nombre: "Chelsea",
-            logo: null
-        },
-        puntos: 6,
-        partidos_jugados: 7,
-        partidos_ganados: 2,
-        partidos_empatados: 0,
-        partidos_perdidos: 5,
-        goles_favor: 18,
-        goles_contra: 35,
-        diferencia_goles: -17,
-        tendencia: "down",
-        grupo: "B"
-    },
-    {
-        posicion: 7,
-        equipo: {
-            id: 7,
-            nombre: "Arsenal",
-            logo: null
-        },
-        puntos: 12,
-        partidos_jugados: 6,
-        partidos_ganados: 4,
-        partidos_empatados: 0,
-        partidos_perdidos: 2,
-        goles_favor: 24,
-        goles_contra: 16,
-        diferencia_goles: 8,
-        tendencia: "up",
-        grupo: "C"
-    },
-    {
-        posicion: 8,
-        equipo: {
-            id: 8,
-            nombre: "Juventus",
-            logo: null
-        },
-        puntos: 9,
-        partidos_jugados: 6,
-        partidos_ganados: 3,
-        partidos_empatados: 0,
-        partidos_perdidos: 3,
-        goles_favor: 19,
-        goles_contra: 18,
-        diferencia_goles: 1,
-        tendencia: "stable",
-        grupo: "C"
-    },
-    {
-        posicion: 9,
-        equipo: {
-            id: 9,
-            nombre: "Inter Milan",
-            logo: null
-        },
-        puntos: 6,
-        partidos_jugados: 6,
-        partidos_ganados: 2,
-        partidos_empatados: 0,
-        partidos_perdidos: 4,
-        goles_favor: 15,
-        goles_contra: 22,
-        diferencia_goles: -7,
-        tendencia: "down",
-        grupo: "C"
-    },
-    {
-        posicion: 10,
-        equipo: {
-            id: 10,
-            nombre: "AC Milan",
-            logo: null
-        },
-        puntos: 3,
-        partidos_jugados: 6,
-        partidos_ganados: 1,
-        partidos_empatados: 0,
-        partidos_perdidos: 5,
-        goles_favor: 12,
-        goles_contra: 28,
-        diferencia_goles: -16,
-        tendencia: "down",
-        grupo: "D"
+        posicion: 2,
+        equipo: { id: 4, nombre: "Barcelona", logo: null },
+        puntos: 12, partidos_jugados: 7, partidos_ganados: 4, partidos_empatados: 0, partidos_perdidos: 3,
+        goles_favor: 28, goles_contra: 25, diferencia_goles: 3,
+        tendencia: "down", grupo: "B"
     }
 ];
 
-// Función para obtener datos de la tabla
+// Función para obtener datos (con fallback a datos de ejemplo)
 async function obtenerTablaPosiciones(params: any) {
     try {
         // Intentar importar el API dinámicamente
@@ -215,33 +63,87 @@ async function obtenerTablaPosiciones(params: any) {
 
         // Obtener tabla de posiciones si hay torneo
         if (serverApi?.torneos?.getTablaPosiciones && params.torneoId) {
-            const data: TablaPosiciones = await serverApi.torneos.getTablaPosiciones(params.torneoId, {
+            const data = await serverApi.torneos.getTablaPosiciones(params.torneoId, {
                 grupo: params.grupo,
                 actualizar: params.actualizar
             });
 
-            if (data?.equipos) {
+            if (params.grupo) {
+                // Respuesta para grupo específico
                 return {
-                    tabla: data.equipos.map((equipo: EstadisticaEquipo, index: number) => ({
-                        posicion: index + 1,
-                        equipo: {
-                            id: equipo.equipo,
-                            nombre: equipo.equipo_nombre,
-                            logo: null
-                        },
-                        puntos: equipo.puntos,
-                        partidos_jugados: equipo.partidos_jugados,
-                        partidos_ganados: equipo.partidos_ganados,
-                        partidos_empatados: equipo.partidos_empatados,
-                        partidos_perdidos: equipo.partidos_perdidos,
-                        goles_favor: equipo.goles_favor,
-                        goles_contra: equipo.goles_contra,
-                        diferencia_goles: equipo.diferencia_goles,
-                        tendencia: index < 3 ? "up" : index > 6 ? "down" : "stable",
-                        grupo: data.grupo || "General"
-                    })),
+                    tablasPorGrupo: {
+                        [params.grupo]: data.equipos?.map((equipo: any, index: number) => ({
+                            posicion: index + 1,
+                            equipo: {
+                                id: equipo.equipo,
+                                nombre: equipo.equipo_nombre,
+                                logo: null
+                            },
+                            puntos: equipo.puntos,
+                            partidos_jugados: equipo.partidos_jugados,
+                            partidos_ganados: equipo.partidos_ganados,
+                            partidos_empatados: equipo.partidos_empatados,
+                            partidos_perdidos: equipo.partidos_perdidos,
+                            goles_favor: equipo.goles_favor,
+                            goles_contra: equipo.goles_contra,
+                            diferencia_goles: equipo.diferencia_goles,
+                            tarjetas_amarillas: equipo.tarjetas_amarillas,
+                            tarjetas_rojas: equipo.tarjetas_rojas,
+                            tendencia: index < 3 ? "up" : index > 6 ? "down" : "stable",
+                            grupo: params.grupo.toUpperCase()
+                        })) || []
+                    },
                     esEjemplo: false,
-                    grupo: data.grupo
+                    grupo: params.grupo,
+                    metadatos: {
+                        torneo_id: params.torneoId,
+                        tiene_fase_grupos: true
+                    }
+                };
+            } else {
+                // Respuesta agrupada automáticamente
+                const tablasPorGrupo: { [key: string]: any[] } = {};
+
+                // Agrupar equipos por su grupo
+                if (data.equipos && Array.isArray(data.equipos)) {
+                    // Agrupar por la propiedad grupo de cada equipo
+                    data.equipos.forEach((equipo: EstadisticaEquipo) => {
+                        const grupo = equipo.grupo || 'General';
+                        if (!tablasPorGrupo[grupo]) {
+                            tablasPorGrupo[grupo] = [];
+                        }
+
+                        tablasPorGrupo[grupo].push({
+                            posicion: tablasPorGrupo[grupo].length + 1,
+                            equipo: {
+                                id: equipo.equipo,
+                                nombre: equipo.equipo_nombre,
+                                logo: null
+                            },
+                            puntos: equipo.puntos,
+                            partidos_jugados: equipo.partidos_jugados,
+                            partidos_ganados: equipo.partidos_ganados,
+                            partidos_empatados: equipo.partidos_empatados,
+                            partidos_perdidos: equipo.partidos_perdidos,
+                            goles_favor: equipo.goles_favor,
+                            goles_contra: equipo.goles_contra,
+                            diferencia_goles: equipo.diferencia_goles,
+                            tarjetas_amarillas: equipo.tarjetas_amarillas,
+                            tarjetas_rojas: equipo.tarjetas_rojas,
+                            tendencia: tablasPorGrupo[grupo].length < 3 ? "up" : tablasPorGrupo[grupo].length > 6 ? "down" : "stable",
+                            grupo: String(grupo)
+                        });
+                    });
+                }
+
+                return {
+                    tablasPorGrupo,
+                    esEjemplo: false,
+                    metadatos: {
+                        torneo_id: params.torneoId,
+                        tiene_fase_grupos: Object.keys(tablasPorGrupo).length > 1,
+                        total_equipos: Object.values(tablasPorGrupo).reduce((total, equipos) => total + equipos.length, 0)
+                    }
                 };
             }
         }
@@ -249,23 +151,34 @@ async function obtenerTablaPosiciones(params: any) {
         console.warn('No se pudo conectar con la API de tabla, usando datos de ejemplo:', error);
     }
 
-    // Fallback a datos de ejemplo
-    let tablaEjemplo = [...TABLA_EJEMPLO];
+    // Fallback a datos de ejemplo agrupados
+    const tablaEjemplo = [...TABLA_EJEMPLO];
+    const tablasPorGrupo: { [key: string]: any[] } = {};
 
-    // Aplicar filtros a los datos de ejemplo
+    // Agrupar datos de ejemplo
+    tablaEjemplo.forEach(equipo => {
+        const grupo = equipo.grupo;
+        if (!tablasPorGrupo[grupo]) {
+            tablasPorGrupo[grupo] = [];
+        }
+        tablasPorGrupo[grupo].push(equipo);
+    });
+
+    // Aplicar filtro de grupo si se especificó
     if (params.grupo) {
-        tablaEjemplo = tablaEjemplo.filter(e => e.grupo === params.grupo.toUpperCase());
-        // Reajustar posiciones después del filtro
-        tablaEjemplo = tablaEjemplo.map((equipo, index) => ({
-            ...equipo,
-            posicion: index + 1
-        }));
+        const grupoFiltrado = params.grupo.toUpperCase();
+        return {
+            tablasPorGrupo: {
+                [grupoFiltrado]: tablasPorGrupo[grupoFiltrado] || []
+            },
+            esEjemplo: true,
+            grupo: grupoFiltrado
+        };
     }
 
     return {
-        tabla: tablaEjemplo,
-        esEjemplo: true,
-        grupo: params.grupo?.toUpperCase() || null
+        tablasPorGrupo,
+        esEjemplo: true
     };
 }
 
@@ -302,12 +215,6 @@ function PosicionIndicator({ posicion }: { posicion: number }) {
     } else if (posicion <= 8) {
         bgColor = 'bg-green-100 dark:bg-green-900/30';
         textColor = 'text-green-600 dark:text-green-400';
-    } else if (posicion <= 12) {
-        bgColor = 'bg-yellow-100 dark:bg-yellow-900/30';
-        textColor = 'text-yellow-600 dark:text-yellow-400';
-    } else {
-        bgColor = 'bg-red-100 dark:bg-red-900/30';
-        textColor = 'text-red-600 dark:text-red-400';
     }
 
     return (
@@ -407,6 +314,151 @@ function EquipoTablaRow({ equipo, posicion }: { equipo: any; posicion: number })
     );
 }
 
+// Componente para cada grupo individual
+function GrupoTabla({
+                        grupo,
+                        equipos,
+                        mostrarTituloGrupo
+                    }: {
+    grupo: string;
+    equipos: any[];
+    mostrarTituloGrupo: boolean;
+}) {
+    return (
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
+            {/* Título del grupo */}
+            {mostrarTituloGrupo && (
+                <div className="bg-gradient-to-r from-goal-blue/10 to-goal-gold/10 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
+                    <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-goal-blue" />
+                        Grupo {grupo}
+                        <span className="text-sm font-normal text-neutral-600 dark:text-neutral-400">
+                            ({equipos.length} equipos)
+                        </span>
+                    </h3>
+                </div>
+            )}
+
+            {/* Tabla para desktop */}
+            <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full">
+                    <thead className="bg-neutral-50 dark:bg-neutral-900/50">
+                    <tr>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            Pos
+                        </th>
+                        <th className="px-4 py-4 text-left text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            Equipo
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            Pts
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            PJ
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            G
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            E
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            P
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            GF
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            GC
+                        </th>
+                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+                            DG
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                    {equipos.map((equipo, index) => (
+                        <EquipoTablaRow
+                            key={equipo.equipo.id}
+                            equipo={equipo}
+                            posicion={index + 1}
+                        />
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Vista móvil */}
+            <div className="lg:hidden divide-y divide-neutral-200 dark:divide-neutral-700">
+                {equipos.map((equipo, index) => (
+                    <div key={equipo.equipo.id} className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                                <PosicionIndicator posicion={index + 1} />
+                                <Link
+                                    href={`/equipos/${equipo.equipo.id}`}
+                                    className="flex items-center gap-2 hover:text-goal-blue dark:hover:text-goal-gold transition-colors"
+                                >
+                                    {equipo.equipo.logo ? (
+                                        <img
+                                            src={equipo.equipo.logo}
+                                            alt={`Logo ${equipo.equipo.nombre}`}
+                                            className="w-6 h-6 object-contain rounded"
+                                        />
+                                    ) : (
+                                        <div className="w-6 h-6 bg-goal-gold/20 rounded flex items-center justify-center">
+                                            <span className="text-goal-gold font-bold text-xs">
+                                                {equipo.equipo.nombre.substring(0, 2).toUpperCase()}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                                        {equipo.equipo.nombre}
+                                    </span>
+                                </Link>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-bold text-xl text-goal-blue dark:text-goal-gold">
+                                    {equipo.puntos}
+                                </span>
+                                <span className="text-sm text-neutral-500 dark:text-neutral-400">pts</span>
+                                <TendenciaIcon tendencia={equipo.tendencia} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="text-center">
+                                <div className="text-neutral-500 dark:text-neutral-400">PJ</div>
+                                <div className="font-medium">{equipo.partidos_jugados}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-neutral-500 dark:text-neutral-400">G-E-P</div>
+                                <div className="font-medium">
+                                    <span className="text-green-600">{equipo.partidos_ganados}</span>-
+                                    <span className="text-yellow-600">{equipo.partidos_empatados}</span>-
+                                    <span className="text-red-600">{equipo.partidos_perdidos}</span>
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-neutral-500 dark:text-neutral-400">DG</div>
+                                <div className={`font-bold ${
+                                    equipo.diferencia_goles > 0
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : equipo.diferencia_goles < 0
+                                            ? 'text-red-600 dark:text-red-400'
+                                            : 'text-neutral-600 dark:text-neutral-400'
+                                }`}>
+                                    {equipo.diferencia_goles > 0 ? '+' : ''}{equipo.diferencia_goles}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 // Componente de aviso para datos de ejemplo
 function AvisoEjemplo() {
     return (
@@ -435,7 +487,7 @@ export default async function TablaListServer({
                                                   showTitle = true
                                               }: TablaListServerProps) {
 
-    const { tabla, esEjemplo, grupo: grupoActual } = await obtenerTablaPosiciones({
+    const { tablasPorGrupo, esEjemplo, metadatos } = await obtenerTablaPosiciones({
         torneoId,
         categoria,
         grupo,
@@ -443,9 +495,9 @@ export default async function TablaListServer({
     });
 
     // Estado vacío
-    if (tabla.length === 0) {
+    if (!tablasPorGrupo || Object.keys(tablasPorGrupo).length === 0) {
         return (
-            <div className="w-full max-w-6xl mx-auto">
+            <div className="w-full max-w-7xl mx-auto">
                 {showTitle && (
                     <h2 className="text-3xl font-heading text-center mb-6">
                         Tabla de Posiciones
@@ -483,8 +535,8 @@ export default async function TablaListServer({
                 <div className="text-center mb-8">
                     <h2 className="text-3xl font-heading mb-2">
                         Tabla de Posiciones
-                        {grupoActual && (
-                            <span className="text-goal-gold"> - Grupo {grupoActual}</span>
+                        {grupo && (
+                            <span className="text-goal-gold"> - Grupo {grupo}</span>
                         )}
                     </h2>
                     <p className="text-neutral-600 dark:text-neutral-400">
@@ -496,124 +548,16 @@ export default async function TablaListServer({
             {/* Aviso si son datos de ejemplo */}
             {esEjemplo && <AvisoEjemplo />}
 
-            {/* Tabla responsive */}
-            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
-                {/* Tabla para desktop */}
-                <div className="hidden lg:block overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-neutral-50 dark:bg-neutral-900/50">
-                        <tr>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                Pos
-                            </th>
-                            <th className="px-4 py-4 text-left text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                Equipo
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                Pts
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                PJ
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                G
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                E
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                P
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                GF
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                GC
-                            </th>
-                            <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                                DG
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                        {tabla.map((equipo) => (
-                            <EquipoTablaRow
-                                key={equipo.equipo.id}
-                                equipo={equipo}
-                                posicion={equipo.posicion}
-                            />
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Vista móvil */}
-                <div className="lg:hidden divide-y divide-neutral-200 dark:divide-neutral-700">
-                    {tabla.map((equipo) => (
-                        <div key={equipo.equipo.id} className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                    <PosicionIndicator posicion={equipo.posicion} />
-                                    <Link
-                                        href={`/equipos/${equipo.equipo.id}`}
-                                        className="flex items-center gap-2 hover:text-goal-blue dark:hover:text-goal-gold transition-colors"
-                                    >
-                                        {equipo.equipo.logo ? (
-                                            <img
-                                                src={equipo.equipo.logo}
-                                                alt={`Logo ${equipo.equipo.nombre}`}
-                                                className="w-6 h-6 object-contain rounded"
-                                            />
-                                        ) : (
-                                            <div className="w-6 h-6 bg-goal-gold/20 rounded flex items-center justify-center">
-                                                <span className="text-goal-gold font-bold text-xs">
-                                                    {equipo.equipo.nombre.substring(0, 2).toUpperCase()}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                                            {equipo.equipo.nombre}
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-xl text-goal-blue dark:text-goal-gold">
-                                        {equipo.puntos}
-                                    </span>
-                                    <span className="text-sm text-neutral-500 dark:text-neutral-400">pts</span>
-                                    <TendenciaIcon tendencia={equipo.tendencia} />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-4 text-sm">
-                                <div className="text-center">
-                                    <div className="text-neutral-500 dark:text-neutral-400">PJ</div>
-                                    <div className="font-medium">{equipo.partidos_jugados}</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-neutral-500 dark:text-neutral-400">G-E-P</div>
-                                    <div className="font-medium">
-                                        <span className="text-green-600">{equipo.partidos_ganados}</span>-
-                                        <span className="text-yellow-600">{equipo.partidos_empatados}</span>-
-                                        <span className="text-red-600">{equipo.partidos_perdidos}</span>
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-neutral-500 dark:text-neutral-400">DG</div>
-                                    <div className={`font-bold ${
-                                        equipo.diferencia_goles > 0
-                                            ? 'text-green-600 dark:text-green-400'
-                                            : equipo.diferencia_goles < 0
-                                                ? 'text-red-600 dark:text-red-400'
-                                                : 'text-neutral-600 dark:text-neutral-400'
-                                    }`}>
-                                        {equipo.diferencia_goles > 0 ? '+' : ''}{equipo.diferencia_goles}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            {/* Renderizar por grupos */}
+            <div className="space-y-8">
+                {Object.entries(tablasPorGrupo).map(([grupoLetra, equipos]) => (
+                    <GrupoTabla
+                        key={grupoLetra}
+                        grupo={grupoLetra}
+                        equipos={equipos}
+                        mostrarTituloGrupo={!grupo} // Solo mostrar título si no se filtró por grupo específico
+                    />
+                ))}
             </div>
 
             {/* Información adicional */}
@@ -622,15 +566,15 @@ export default async function TablaListServer({
                     <div className="flex items-center gap-2">
                         <Trophy className="w-4 h-4" />
                         <span>
-                            {tabla.length} equipos clasificados
+                            {Object.values(tablasPorGrupo).flat().length} equipos clasificados
                             {esEjemplo && ' (datos de ejemplo)'}
                         </span>
                     </div>
 
-                    {grupoActual && (
+                    {metadatos?.tiene_fase_grupos && (
                         <div className="flex items-center gap-2">
                             <Target className="w-4 h-4" />
-                            <span>Grupo {grupoActual}</span>
+                            <span>Fase de grupos activa</span>
                         </div>
                     )}
                 </div>
@@ -653,15 +597,15 @@ export default async function TablaListServer({
                 <div className="flex flex-wrap justify-center gap-4 text-sm">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-neutral-600 dark:text-neutral-400">1°-8° Clasifican a octavos</span>
+                        <span className="text-neutral-600 dark:text-neutral-400">1°-2° Clasifican a siguiente fase</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                        <span className="text-neutral-600 dark:text-neutral-400">9°-12° Zona de repechaje</span>
+                        <span className="text-neutral-600 dark:text-neutral-400">3°-4° Zona de repechaje</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        <span className="text-neutral-600 dark:text-neutral-400">13°+ Eliminados</span>
+                        <span className="text-neutral-600 dark:text-neutral-400">5°+ Eliminados</span>
                     </div>
                 </div>
             </div>
