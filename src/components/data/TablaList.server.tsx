@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Trophy, TrendingUp, TrendingDown, Minus, AlertCircle, Target, Medal } from 'lucide-react';
 import type { components } from '@/types/api';
+import * as Sentry from '@sentry/nextjs';
 
 // Usar los tipos ya definidos en la API
 type TablaPosiciones = components['schemas']['TablaPosiciones'];
@@ -50,29 +51,126 @@ const TABLA_EJEMPLO = [
 // Función para obtener datos (con fallback a datos de ejemplo)
 async function obtenerTablaPosiciones(params: any) {
     try {
+        // Agregar breadcrumb para seguimiento en Sentry
+        Sentry.addBreadcrumb({
+            category: 'tabla_posiciones',
+            message: `Obteniendo tabla de posiciones para torneo ID: ${params.torneoId || 'no especificado'}`,
+            level: 'info',
+            data: { torneoId: params.torneoId, timestamp: new Date().toISOString() }
+        });
+
         // Intentar importar el API dinámicamente
         const { serverApi } = await import('@/lib/api/server');
 
-        // Primero intentar obtener torneos activos para usar el primero
-        if (serverApi?.torneos?.getActivos && !params.torneoId) {
-            const torneosActivos = await serverApi.torneos.getActivos();
-            if (torneosActivos?.results?.length > 0) {
-                params.torneoId = torneosActivos.results[0].id;
+        let torneoIdUsado = params.torneoId;
+        
+        // Si no se proporcionó un ID de torneo, intentamos obtener el primero de la lista de torneos
+        if (!torneoIdUsado) {
+            try {
+                console.log('🔍 Buscando torneos disponibles...');
+                Sentry.addBreadcrumb({
+                    category: 'data',
+                    message: 'Buscando torneos disponibles',
+                    level: 'info'
+                });
+                
+                // Hacemos fetch directamente a la API de torneos principal
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api'}/torneos/`);
+                
+                if (!response.ok) {
+                    const errorMsg = `Error al obtener torneos: ${response.status}`;
+                    Sentry.captureMessage(errorMsg, 'error');
+                    throw new Error(errorMsg);
+                }
+                
+                const data = await response.json();
+                
+                if (data?.results && data.results.length > 0) {
+                    torneoIdUsado = data.results[0].id;
+                    console.log(`✅ Torneo encontrado: "${data.results[0].nombre}" con ID: ${torneoIdUsado}`);
+                    Sentry.addBreadcrumb({
+                        category: 'data',
+                        message: `Torneo encontrado: ${data.results[0].nombre} (ID: ${torneoIdUsado})`,
+                        level: 'info',
+                        data: {
+                            torneoId: torneoIdUsado,
+                            torneoNombre: data.results[0].nombre
+                        }
+                    });
+                } else {
+                    console.log('⚠️ No se encontraron torneos en los resultados');
+                    Sentry.addBreadcrumb({
+                        category: 'data',
+                        message: 'No se encontraron torneos en los resultados',
+                        level: 'warning'
+                    });
+                }
+            } catch (error) {
+                // Capturar el error al obtener torneos
+                Sentry.captureException(error, {
+                    tags: { component: 'TablaList', operation: 'getTorneos' }
+                });
+                
+                console.error('❌ Error al obtener torneos:', error);
+                
+                // Fallback a ID 1 en caso de error
+                torneoIdUsado = 1;
+                console.log('⚠️ Usando ID de torneo por defecto (1) debido a error');
+                Sentry.addBreadcrumb({
+                    category: 'fallback',
+                    message: 'Usando ID de torneo por defecto (1) debido a error',
+                    level: 'warning'
+                });
             }
         }
-
-        // Obtener tabla de posiciones si hay torneo
-        if (serverApi?.torneos?.getTablaPosiciones && params.torneoId) {
-            const data = await serverApi.torneos.getTablaPosiciones(params.torneoId, {
-                grupo: params.grupo,
-                actualizar: params.actualizar
+        
+        // Si aún no tenemos un ID, usar 1 como último recurso
+        if (!torneoIdUsado) {
+            torneoIdUsado = 1;
+            console.log('⚠️ No se encontraron torneos, usando ID por defecto: 1');
+            Sentry.addBreadcrumb({
+                category: 'fallback',
+                message: 'No se encontraron torneos, usando ID por defecto: 1',
+                level: 'warning'
             });
+        }
+        
+        console.log(`🏆 Usando torneoId: ${torneoIdUsado}`);
+        Sentry.setTag('torneoId', String(torneoIdUsado));
 
-            if (params.grupo) {
-                // Respuesta para grupo específico
-                return {
-                    tablasPorGrupo: {
-                        [params.grupo]: data.equipos?.map((equipo: any, index: number) => ({
+        // Obtener tabla de posiciones con el ID obtenido
+        if (typeof serverApi?.torneos?.getTablaPosiciones === 'function') {
+            try {
+                const data = await serverApi.torneos.getTablaPosiciones(torneoIdUsado, {
+                    grupo: params.grupo,
+                    actualizar: params.actualizar
+                });
+
+                // Verificar si tenemos datos válidos
+                if (data && data.grupos) {
+                    console.log('✅ Datos recibidos de la API con estructura válida');
+                    Sentry.addBreadcrumb({
+                        category: 'data',
+                        message: 'Datos de tabla de posiciones recibidos correctamente',
+                        level: 'info',
+                        data: {
+                            grupos: Object.keys(data.grupos),
+                            totalEquipos: data.total_equipos
+                        }
+                    });
+                    
+                    const tablasPorGrupo: { [key: string]: any[] } = {};
+                    
+                    // Procesar los datos según la estructura que devuelve la API
+                    Object.entries(data.grupos).forEach(([grupo, equipos]) => {
+                        if (!Array.isArray(equipos)) {
+                            console.error('❌ Datos inválidos para el grupo', grupo, equipos);
+                            return;
+                        }
+                        
+                        console.log(`📊 Procesando grupo ${grupo} con ${(equipos as any[]).length} equipos`);
+                        
+                        tablasPorGrupo[grupo] = equipos.map((equipo: any, index: number) => ({
                             posicion: index + 1,
                             equipo: {
                                 id: equipo.equipo,
@@ -90,68 +188,107 @@ async function obtenerTablaPosiciones(params: any) {
                             tarjetas_amarillas: equipo.tarjetas_amarillas,
                             tarjetas_rojas: equipo.tarjetas_rojas,
                             tendencia: index < 3 ? "up" : index > 6 ? "down" : "stable",
-                            grupo: params.grupo.toUpperCase()
-                        })) || []
-                    },
-                    esEjemplo: false,
-                    grupo: params.grupo,
-                    metadatos: {
-                        torneo_id: params.torneoId,
-                        tiene_fase_grupos: true
-                    }
-                };
-            } else {
-                // Respuesta agrupada automáticamente
-                const tablasPorGrupo: { [key: string]: any[] } = {};
-
-                // Agrupar equipos por su grupo
-                if (data.equipos && Array.isArray(data.equipos)) {
-                    // Agrupar por la propiedad grupo de cada equipo
-                    data.equipos.forEach((equipo: EstadisticaEquipo) => {
-                        const grupo = equipo.grupo || 'General';
-                        if (!tablasPorGrupo[grupo]) {
-                            tablasPorGrupo[grupo] = [];
-                        }
-
-                        tablasPorGrupo[grupo].push({
-                            posicion: tablasPorGrupo[grupo].length + 1,
-                            equipo: {
-                                id: equipo.equipo,
-                                nombre: equipo.equipo_nombre,
-                                logo: null
-                            },
-                            puntos: equipo.puntos,
-                            partidos_jugados: equipo.partidos_jugados,
-                            partidos_ganados: equipo.partidos_ganados,
-                            partidos_empatados: equipo.partidos_empatados,
-                            partidos_perdidos: equipo.partidos_perdidos,
-                            goles_favor: equipo.goles_favor,
-                            goles_contra: equipo.goles_contra,
-                            diferencia_goles: equipo.diferencia_goles,
-                            tarjetas_amarillas: equipo.tarjetas_amarillas,
-                            tarjetas_rojas: equipo.tarjetas_rojas,
-                            tendencia: tablasPorGrupo[grupo].length < 3 ? "up" : tablasPorGrupo[grupo].length > 6 ? "down" : "stable",
-                            grupo: String(grupo)
-                        });
+                            grupo: grupo.toUpperCase()
+                        }));
                     });
-                }
 
-                return {
-                    tablasPorGrupo,
-                    esEjemplo: false,
-                    metadatos: {
-                        torneo_id: params.torneoId,
-                        tiene_fase_grupos: Object.keys(tablasPorGrupo).length > 1,
-                        total_equipos: Object.values(tablasPorGrupo).reduce((total, equipos) => total + equipos.length, 0)
+                    // Si se especificó un grupo, filtrar solo ese grupo
+                    if (params.grupo) {
+                        const grupoFiltrado = params.grupo.toUpperCase();
+                        return {
+                            tablasPorGrupo: {
+                                [grupoFiltrado]: tablasPorGrupo[grupoFiltrado] || []
+                            },
+                            esEjemplo: false,
+                            grupo: grupoFiltrado,
+                            metadatos: {
+                                torneo_id: data.torneo_id,
+                                tiene_fase_grupos: data.tiene_fase_grupos,
+                                total_equipos: data.total_equipos,
+                                equipos_clasifican_por_grupo: data.equipos_clasifican_por_grupo
+                            }
+                        };
                     }
-                };
+
+                    // Devolver todos los grupos
+                    return {
+                        tablasPorGrupo,
+                        esEjemplo: false,
+                        metadatos: {
+                            torneo_id: data.torneo_id,
+                            tiene_fase_grupos: data.tiene_fase_grupos,
+                            total_equipos: data.total_equipos,
+                            equipos_clasifican_por_grupo: data.equipos_clasifican_por_grupo
+                        }
+                    };
+                } else {
+                    console.warn('⚠️ La API devolvió datos con formato incorrecto');
+                    Sentry.captureMessage('La API devolvió datos con formato incorrecto para tabla de posiciones', 'warning');
+                }
+            } catch (error) {
+                // Capturar la excepción para Sentry
+                Sentry.captureException(error, {
+                    tags: { 
+                        component: 'TablaList', 
+                        operation: 'getTablaPosiciones',
+                        torneoId: String(torneoIdUsado)
+                    }
+                });
+                
+                console.error('❌ Error al obtener tabla de posiciones:', error);
+                
+                // Notificar en Sentry que estamos usando datos de ejemplo
+                Sentry.captureMessage('Usando datos de ejemplo para tabla de posiciones debido a un error', {
+                    level: 'warning' as SeverityLevel,
+                    tags: { 
+                        component: 'TablaList', 
+                        issue: 'fallback_to_example_data'
+                    },
+                    extra: { torneoId: torneoIdUsado }
+                });
+                
+                // Devolver datos de ejemplo como fallback
+                return getFallbackData(params);
             }
+        } else {
+            const error = new Error('La función getTablaPosiciones no está disponible en serverApi.torneos');
+            console.error('❌', error.message);
+            Sentry.captureException(error, {
+                tags: { component: 'TablaList', operation: 'checkApiAvailable' }
+            });
         }
     } catch (error) {
-        console.warn('No se pudo conectar con la API de tabla, usando datos de ejemplo:', error);
+        // Capturar la excepción para Sentry
+        Sentry.captureException(error, {
+            tags: { component: 'TablaList', operation: 'general' }
+        });
+        
+        console.error('❌ Error general en obtenerTablaPosiciones:', error);
+        
+        // Notificar en Sentry que estamos usando datos de ejemplo
+        Sentry.captureMessage('Usando datos de ejemplo para tabla de posiciones debido a un error', {
+            level: 'warning' as SeverityLevel,
+            tags: { 
+                component: 'TablaList', 
+                issue: 'fallback_to_example_data'
+            }
+        });
+        
+        // Devolver datos de ejemplo como fallback
+        return getFallbackData(params);
     }
 
-    // Fallback a datos de ejemplo agrupados
+    // Si llegamos aquí, usar datos de ejemplo como fallback
+    return getFallbackData(params);
+}
+
+// Función auxiliar para obtener datos de ejemplo como fallback
+function getFallbackData(params: any) {
+    console.warn('⚠️ Usando datos de ejemplo como fallback');
+    
+    // Reportar a Sentry el uso de fallback como evento
+    Sentry.captureMessage('Usando datos de ejemplo como fallback para tabla de posiciones', 'warning');
+    
     const tablaEjemplo = [...TABLA_EJEMPLO];
     const tablasPorGrupo: { [key: string]: any[] } = {};
 
@@ -200,26 +337,31 @@ function PosicionIndicator({ posicion }: { posicion: number }) {
     let textColor = 'text-neutral-600 dark:text-neutral-400';
     let icon = null;
 
+    // Destacar posiciones especiales
     if (posicion === 1) {
-        bgColor = 'bg-goal-gold/20';
-        textColor = 'text-goal-gold';
-        icon = <Trophy className="w-4 h-4" />;
+        bgColor = 'bg-amber-100 dark:bg-amber-900';
+        textColor = 'text-amber-800 dark:text-amber-200';
+        icon = <Trophy className="w-3 h-3 text-amber-500" />;
     } else if (posicion === 2) {
-        bgColor = 'bg-neutral-300/20';
-        textColor = 'text-neutral-600';
-        icon = <Medal className="w-4 h-4" />;
+        bgColor = 'bg-zinc-100 dark:bg-zinc-800';
+        textColor = 'text-zinc-700 dark:text-zinc-300';
+        icon = <Medal className="w-3 h-3 text-zinc-500" />;
     } else if (posicion === 3) {
-        bgColor = 'bg-orange-300/20';
-        textColor = 'text-orange-600';
-        icon = <Medal className="w-4 h-4" />;
-    } else if (posicion <= 8) {
-        bgColor = 'bg-green-100 dark:bg-green-900/30';
-        textColor = 'text-green-600 dark:text-green-400';
+        bgColor = 'bg-amber-50 dark:bg-amber-950';
+        textColor = 'text-amber-700 dark:text-amber-300';
+        icon = <Target className="w-3 h-3 text-amber-400" />;
     }
 
     return (
-        <div className={`w-8 h-8 ${bgColor} rounded-lg flex items-center justify-center ${textColor} font-bold text-sm`}>
-            {icon || posicion}
+        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${bgColor}`}>
+            <div className="relative">
+                <span className={`text-sm font-semibold ${textColor}`}>{posicion}</span>
+                {icon && (
+                    <span className="absolute -top-1.5 -right-1.5">
+                        {icon}
+                    </span>
+                )}
+            </div>
         </div>
     );
 }
@@ -227,88 +369,65 @@ function PosicionIndicator({ posicion }: { posicion: number }) {
 // Componente individual de equipo en la tabla
 function EquipoTablaRow({ equipo, posicion }: { equipo: any; posicion: number }) {
     return (
-        <tr className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors">
-            {/* Posición */}
-            <td className="px-4 py-4 text-center">
-                <div className="flex items-center justify-center gap-2">
+        <tr className="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+            <td className="p-3 text-center">
+                <div className="flex justify-center">
                     <PosicionIndicator posicion={posicion} />
-                    <TendenciaIcon tendencia={equipo.tendencia} />
                 </div>
             </td>
-
-            {/* Equipo */}
-            <td className="px-4 py-4">
+            <td className="p-3">
                 <Link
                     href={`/equipos/${equipo.equipo.id}`}
-                    className="flex items-center gap-3 hover:text-goal-blue dark:hover:text-goal-gold transition-colors"
+                    className="flex items-center gap-2 font-medium text-neutral-800 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                 >
                     {equipo.equipo.logo ? (
                         <img
                             src={equipo.equipo.logo}
-                            alt={`Logo ${equipo.equipo.nombre}`}
-                            className="w-8 h-8 object-contain rounded"
+                            alt={equipo.equipo.nombre}
+                            className="w-6 h-6 object-contain"
                         />
                     ) : (
-                        <div className="w-8 h-8 bg-goal-gold/20 rounded flex items-center justify-center">
-                            <span className="text-goal-gold font-bold text-xs">
-                                {equipo.equipo.nombre.substring(0, 2).toUpperCase()}
-                            </span>
+                        <div className="w-6 h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400">
+                            {equipo.equipo.nombre.charAt(0)}
                         </div>
                     )}
-                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                        {equipo.equipo.nombre}
-                    </span>
+                    {equipo.equipo.nombre}
                 </Link>
             </td>
-
-            {/* Puntos */}
-            <td className="px-4 py-4 text-center">
-                <span className="font-bold text-lg text-goal-blue dark:text-goal-gold">
-                    {equipo.puntos}
-                </span>
+            <td className="p-3 text-center font-bold text-neutral-800 dark:text-neutral-200">
+                {equipo.puntos}
             </td>
-
-            {/* Partidos Jugados */}
-            <td className="px-4 py-4 text-center text-neutral-600 dark:text-neutral-400">
+            <td className="p-3 text-center text-neutral-600 dark:text-neutral-400">
                 {equipo.partidos_jugados}
             </td>
-
-            {/* Ganados */}
-            <td className="px-4 py-4 text-center text-green-600 dark:text-green-400 font-medium">
+            <td className="p-3 text-center text-green-600 dark:text-green-400">
                 {equipo.partidos_ganados}
             </td>
-
-            {/* Empatados */}
-            <td className="px-4 py-4 text-center text-yellow-600 dark:text-yellow-400 font-medium">
+            <td className="p-3 text-center text-blue-600 dark:text-blue-400">
                 {equipo.partidos_empatados}
             </td>
-
-            {/* Perdidos */}
-            <td className="px-4 py-4 text-center text-red-600 dark:text-red-400 font-medium">
+            <td className="p-3 text-center text-red-600 dark:text-red-400">
                 {equipo.partidos_perdidos}
             </td>
-
-            {/* Goles Favor */}
-            <td className="px-4 py-4 text-center text-neutral-600 dark:text-neutral-400">
+            <td className="p-3 text-center text-neutral-600 dark:text-neutral-400">
                 {equipo.goles_favor}
             </td>
-
-            {/* Goles Contra */}
-            <td className="px-4 py-4 text-center text-neutral-600 dark:text-neutral-400">
+            <td className="p-3 text-center text-neutral-600 dark:text-neutral-400">
                 {equipo.goles_contra}
             </td>
-
-            {/* Diferencia */}
-            <td className="px-4 py-4 text-center">
-                <span className={`font-bold ${
-                    equipo.diferencia_goles > 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : equipo.diferencia_goles < 0
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-neutral-600 dark:text-neutral-400'
-                }`}>
+            <td className="p-3 text-center">
+                <span className={`font-medium ${equipo.diferencia_goles > 0 
+                    ? 'text-green-600 dark:text-green-400' 
+                    : equipo.diferencia_goles < 0 
+                        ? 'text-red-600 dark:text-red-400' 
+                        : 'text-neutral-600 dark:text-neutral-400'}`}>
                     {equipo.diferencia_goles > 0 ? '+' : ''}{equipo.diferencia_goles}
                 </span>
+            </td>
+            <td className="p-3 text-center">
+                <div className="flex justify-center">
+                    <TendenciaIcon tendencia={equipo.tendencia} />
+                </div>
             </td>
         </tr>
     );
@@ -316,144 +435,80 @@ function EquipoTablaRow({ equipo, posicion }: { equipo: any; posicion: number })
 
 // Componente para cada grupo individual
 function GrupoTabla({
-                        grupo,
-                        equipos,
-                        mostrarTituloGrupo
-                    }: {
+    grupo,
+    equipos,
+    mostrarTituloGrupo
+}: {
     grupo: string;
     equipos: any[];
     mostrarTituloGrupo: boolean;
 }) {
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
-            {/* Título del grupo */}
+        <div className="overflow-hidden bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
             {mostrarTituloGrupo && (
-                <div className="bg-gradient-to-r from-goal-blue/10 to-goal-gold/10 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-                    <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
-                        <Target className="w-5 h-5 text-goal-blue" />
+                <div className="p-4 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+                    <h3 className="text-lg font-bold text-neutral-800 dark:text-neutral-200">
                         Grupo {grupo}
-                        <span className="text-sm font-normal text-neutral-600 dark:text-neutral-400">
-                            ({equipos.length} equipos)
-                        </span>
                     </h3>
                 </div>
             )}
-
-            {/* Tabla para desktop */}
-            <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-neutral-50 dark:bg-neutral-900/50">
-                    <tr>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            Pos
-                        </th>
-                        <th className="px-4 py-4 text-left text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            Equipo
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            Pts
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            PJ
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            G
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            E
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            P
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            GF
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            GC
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            DG
-                        </th>
-                    </tr>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <span className="sr-only">Posición</span>
+                                <span aria-hidden="true">#</span>
+                            </th>
+                            <th className="p-3 text-left whitespace-nowrap">Equipo</th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Puntos">PTS</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Partidos Jugados">PJ</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Partidos Ganados">PG</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Partidos Empatados">PE</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Partidos Perdidos">PP</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Goles a Favor">GF</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Goles en Contra">GC</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <abbr title="Diferencia de Goles">DIF</abbr>
+                            </th>
+                            <th className="p-3 text-center whitespace-nowrap">
+                                <span className="sr-only">Tendencia</span>
+                                <span aria-hidden="true">Forma</span>
+                            </th>
+                        </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                    {equipos.map((equipo, index) => (
-                        <EquipoTablaRow
-                            key={equipo.equipo.id}
-                            equipo={equipo}
-                            posicion={index + 1}
-                        />
-                    ))}
+                    <tbody>
+                        {equipos.length > 0 ? (
+                            equipos.map((equipo, index) => (
+                                <EquipoTablaRow 
+                                    key={`${equipo.equipo.id}-${index}`} 
+                                    equipo={equipo} 
+                                    posicion={equipo.posicion || index + 1} 
+                                />
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={11} className="p-8 text-center text-neutral-500 dark:text-neutral-400">
+                                    No hay equipos en este grupo
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
-            </div>
-
-            {/* Vista móvil */}
-            <div className="lg:hidden divide-y divide-neutral-200 dark:divide-neutral-700">
-                {equipos.map((equipo, index) => (
-                    <div key={equipo.equipo.id} className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                                <PosicionIndicator posicion={index + 1} />
-                                <Link
-                                    href={`/equipos/${equipo.equipo.id}`}
-                                    className="flex items-center gap-2 hover:text-goal-blue dark:hover:text-goal-gold transition-colors"
-                                >
-                                    {equipo.equipo.logo ? (
-                                        <img
-                                            src={equipo.equipo.logo}
-                                            alt={`Logo ${equipo.equipo.nombre}`}
-                                            className="w-6 h-6 object-contain rounded"
-                                        />
-                                    ) : (
-                                        <div className="w-6 h-6 bg-goal-gold/20 rounded flex items-center justify-center">
-                                            <span className="text-goal-gold font-bold text-xs">
-                                                {equipo.equipo.nombre.substring(0, 2).toUpperCase()}
-                                            </span>
-                                        </div>
-                                    )}
-                                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                                        {equipo.equipo.nombre}
-                                    </span>
-                                </Link>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-xl text-goal-blue dark:text-goal-gold">
-                                    {equipo.puntos}
-                                </span>
-                                <span className="text-sm text-neutral-500 dark:text-neutral-400">pts</span>
-                                <TendenciaIcon tendencia={equipo.tendencia} />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                            <div className="text-center">
-                                <div className="text-neutral-500 dark:text-neutral-400">PJ</div>
-                                <div className="font-medium">{equipo.partidos_jugados}</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-neutral-500 dark:text-neutral-400">G-E-P</div>
-                                <div className="font-medium">
-                                    <span className="text-green-600">{equipo.partidos_ganados}</span>-
-                                    <span className="text-yellow-600">{equipo.partidos_empatados}</span>-
-                                    <span className="text-red-600">{equipo.partidos_perdidos}</span>
-                                </div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-neutral-500 dark:text-neutral-400">DG</div>
-                                <div className={`font-bold ${
-                                    equipo.diferencia_goles > 0
-                                        ? 'text-green-600 dark:text-green-400'
-                                        : equipo.diferencia_goles < 0
-                                            ? 'text-red-600 dark:text-red-400'
-                                            : 'text-neutral-600 dark:text-neutral-400'
-                                }`}>
-                                    {equipo.diferencia_goles > 0 ? '+' : ''}{equipo.diferencia_goles}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
             </div>
         </div>
     );
@@ -462,17 +517,17 @@ function GrupoTabla({
 // Componente de aviso para datos de ejemplo
 function AvisoEjemplo() {
     return (
-        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                <div>
-                    <h3 className="text-blue-800 dark:text-blue-200 font-medium text-sm">
-                        Mostrando datos de ejemplo
-                    </h3>
-                    <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
-                        La conexión con la API está en desarrollo. Esta es una tabla de posiciones de ejemplo para demostrar la funcionalidad.
-                    </p>
-                </div>
+        <div className="p-4 mb-6 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-3">
+            <div className="flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5">
+                <AlertCircle size={20} />
+            </div>
+            <div>
+                <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    Datos de ejemplo
+                </h3>
+                <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                    Esta información es solo ilustrativa y no representa datos reales actualizados.
+                </p>
             </div>
         </div>
     );
@@ -480,135 +535,99 @@ function AvisoEjemplo() {
 
 // Componente principal
 export default async function TablaListServer({
-                                                  torneoId,
-                                                  categoria,
-                                                  grupo,
-                                                  actualizar = false,
-                                                  showTitle = true
-                                              }: TablaListServerProps) {
+    torneoId,
+    categoria,
+    grupo,
+    actualizar = false,
+    showTitle = true
+}: TablaListServerProps) {
+    console.log('Iniciando TablaListServer con params:', { torneoId, categoria, grupo, actualizar });
+    
+    try {
+        // Obtener datos de la tabla
+        const tablaData = await obtenerTablaPosiciones({
+            torneoId,
+            categoria,
+            grupo,
+            actualizar
+        });
 
-    const { tablasPorGrupo, esEjemplo, metadatos } = await obtenerTablaPosiciones({
-        torneoId,
-        categoria,
-        grupo,
-        actualizar
-    });
+        console.log('Datos obtenidos:', tablaData);
 
-    // Estado vacío
-    if (!tablasPorGrupo || Object.keys(tablasPorGrupo).length === 0) {
+        const gruposOrdenados = Object.keys(tablaData.tablasPorGrupo || {}).sort();
+        const tablaFiltrada = !!grupo;
+        const mostrarTituloGrupo = gruposOrdenados.length > 1 || !tablaFiltrada;
+        const esEjemplo = tablaData.esEjemplo || false;
+
         return (
-            <div className="w-full max-w-7xl mx-auto">
+            <div className="space-y-8">
                 {showTitle && (
-                    <h2 className="text-3xl font-heading text-center mb-6">
-                        Tabla de Posiciones
-                    </h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+                            Tabla de Posiciones
+                            {grupo && <span className="ml-2 text-primary-600 dark:text-primary-400">Grupo {grupo.toUpperCase()}</span>}
+                        </h2>
+                        {!tablaFiltrada && gruposOrdenados.length > 1 && (
+                            <div className="flex flex-wrap gap-2">
+                                {gruposOrdenados.map(grupoKey => (
+                                    <Link
+                                        key={grupoKey}
+                                        href={`/tabla?grupo=${grupoKey}`}
+                                        className="px-3 py-1.5 text-sm font-medium bg-neutral-100 dark:bg-neutral-800 hover:bg-primary-100 dark:hover:bg-primary-900 text-neutral-700 dark:text-neutral-300 hover:text-primary-700 dark:hover:text-primary-300 rounded-lg transition"
+                                    >
+                                        Grupo {grupoKey}
+                                    </Link>
+                                ))}
+                                <Link
+                                    href="/tabla"
+                                    className="px-3 py-1.5 text-sm font-medium bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-lg transition"
+                                >
+                                    Todos
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                 )}
 
-                <div className="text-center py-12">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center">
-                        <Trophy className="w-8 h-8 text-neutral-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                        No hay datos de clasificación
-                    </h3>
-                    <p className="text-neutral-500 dark:text-neutral-400 mb-4">
-                        {grupo
-                            ? `No hay equipos clasificados en el Grupo ${grupo} actualmente.`
-                            : 'La tabla de posiciones aún no está disponible.'
-                        }
-                    </p>
-                    <Link
-                        href="/partidos"
-                        className="inline-flex items-center bg-goal-blue hover:bg-goal-blue/90 text-white px-6 py-2 rounded-lg transition-colors"
-                    >
-                        <Target className="w-4 h-4 mr-2" />
-                        Ver partidos
-                    </Link>
-                </div>
-            </div>
-        );
-    }
+                {esEjemplo && <AvisoEjemplo />}
 
-    return (
-        <div className="w-full max-w-7xl mx-auto">
-            {showTitle && (
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl font-heading mb-2">
-                        Tabla de Posiciones
-                        {grupo && (
-                            <span className="text-goal-gold"> - Grupo {grupo}</span>
-                        )}
-                    </h2>
-                    <p className="text-neutral-600 dark:text-neutral-400">
-                        Clasificación actualizada del torneo
-                    </p>
-                </div>
-            )}
-
-            {/* Aviso si son datos de ejemplo */}
-            {esEjemplo && <AvisoEjemplo />}
-
-            {/* Renderizar por grupos */}
-            <div className="space-y-8">
-                {Object.entries(tablasPorGrupo).map(([grupoLetra, equipos]) => (
-                    <GrupoTabla
-                        key={grupoLetra}
-                        grupo={grupoLetra}
-                        equipos={equipos}
-                        mostrarTituloGrupo={!grupo} // Solo mostrar título si no se filtró por grupo específico
-                    />
-                ))}
-            </div>
-
-            {/* Información adicional */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-8 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-                    <div className="flex items-center gap-2">
-                        <Trophy className="w-4 h-4" />
-                        <span>
-                            {Object.values(tablasPorGrupo).flat().length} equipos clasificados
-                            {esEjemplo && ' (datos de ejemplo)'}
-                        </span>
-                    </div>
-
-                    {metadatos?.tiene_fase_grupos && (
-                        <div className="flex items-center gap-2">
-                            <Target className="w-4 h-4" />
-                            <span>Fase de grupos activa</span>
+                <div className="space-y-8">
+                    {gruposOrdenados.length > 0 ? (
+                        gruposOrdenados.map(grupoKey => (
+                            <GrupoTabla
+                                key={grupoKey}
+                                grupo={grupoKey}
+                                equipos={tablaData.tablasPorGrupo[grupoKey] || []}
+                                mostrarTituloGrupo={mostrarTituloGrupo}
+                            />
+                        ))
+                    ) : (
+                        <div className="p-8 text-center text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800">
+                            No hay datos disponibles para mostrar
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                    <Link
-                        href="/tabla?actualizar=true"
-                        className="text-goal-blue dark:text-goal-gold hover:underline text-sm"
-                    >
-                        Actualizar tabla →
-                    </Link>
+                <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                    <p>
+                        <strong>Leyenda:</strong> PTS (Puntos), PJ (Partidos Jugados), PG (Partidos Ganados),
+                        PE (Partidos Empatados), PP (Partidos Perdidos), GF (Goles a Favor),
+                        GC (Goles en Contra), DIF (Diferencia de Goles)
+                    </p>
                 </div>
             </div>
-
-            {/* Leyenda de clasificación */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-goal-blue/5 to-goal-gold/5 dark:from-goal-blue/10 dark:to-goal-gold/10 rounded-lg">
-                <h4 className="font-semibold mb-3 text-neutral-800 dark:text-neutral-200 text-center">
-                    Zona de Clasificación
-                </h4>
-                <div className="flex flex-wrap justify-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-neutral-600 dark:text-neutral-400">1°-2° Clasifican a siguiente fase</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                        <span className="text-neutral-600 dark:text-neutral-400">3°-4° Zona de repechaje</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        <span className="text-neutral-600 dark:text-neutral-400">5°+ Eliminados</span>
-                    </div>
-                </div>
+        );
+    } catch (error) {
+        console.error('Error en TablaListServer:', error);
+        return (
+            <div className="p-8 text-center bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg">
+                <h3 className="text-lg font-bold text-red-700 dark:text-red-300 mb-2">
+                    Error al cargar la tabla
+                </h3>
+                <p className="text-red-600 dark:text-red-400">
+                    No se pudieron cargar los datos. Por favor, inténtalo más tarde.
+                </p>
             </div>
-        </div>
-    );
+        );
+    }
 }
