@@ -13,9 +13,12 @@ interface TorneoPageProps {
 }
 
 export default async function TorneoPage({ params }: TorneoPageProps) {
+  // Desestructurar el id de los parámetros
+  const { id } = await params;
+  
   try {
     // Obtener datos del torneo
-    const torneo = await fetchTorneo(params.id);
+    const torneo = await fetchTorneo(id);
     
     if (!torneo) {
       return notFound();
@@ -29,7 +32,7 @@ export default async function TorneoPage({ params }: TorneoPageProps) {
         {/* Sección de Equipos Participantes */}
         <Suspense fallback={<LoadingSpinner />}>
           <TorneoEquiposParticipantes 
-            torneoId={params.id} 
+            torneoId={id} 
             titulo={`Equipos Participantes - ${torneo.nombre}`}
           />
         </Suspense>
@@ -45,8 +48,11 @@ export default async function TorneoPage({ params }: TorneoPageProps) {
 
 // Generar metadatos para SEO
 export async function generateMetadata({ params }: TorneoPageProps) {
+  // Desestructurar el id de los parámetros
+  const { id } = await params;
+  
   try {
-    const torneo = await fetchTorneo(params.id);
+    const torneo = await fetchTorneo(id);
     
     if (!torneo) {
       return {
