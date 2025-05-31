@@ -1,5 +1,5 @@
-// src/lib/api/server.ts - Actualizado con partidos
-import type { components } from '@/types/api';
+// src/lib/api/server.ts - FUNCIÓN CORREGIDA PARA TABLA
+import type {components} from '@/types/api';
 
 // Tipos para equipos
 type Equipo = components['schemas']['Equipo'];
@@ -15,7 +15,7 @@ type Partido = components['schemas']['Partido'];
 type PartidoDetalle = components['schemas']['PartidoDetalle'];
 type PaginatedPartidoList = components['schemas']['PaginatedPartidoList'];
 
-// Configuración base
+// Configuración base - CORREGIDA
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api';
 
 // Opciones de revalidación para diferentes tipos de data
@@ -28,15 +28,18 @@ const REVALIDATION = {
 } as const;
 
 /**
- * Función auxiliar para hacer peticiones al servidor
+ * Función auxiliar para hacer peticiones al servidor - MEJORADA CON LOGS
  */
 async function serverFetch<T>(
     endpoint: string,
     options: RequestInit & { revalidate?: number } = {}
 ): Promise<T> {
-    const { revalidate = REVALIDATION.DYNAMIC, ...fetchOptions } = options;
+    const {revalidate = REVALIDATION.DYNAMIC, ...fetchOptions} = options;
 
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+
+    console.log('🌐 Haciendo petición a:', url);
+    console.log('⚙️ Opciones:', {revalidate, ...fetchOptions});
 
     try {
         const response = await fetch(url, {
@@ -44,18 +47,28 @@ async function serverFetch<T>(
                 'Content-Type': 'application/json',
                 ...fetchOptions.headers,
             },
-            next: { revalidate },
+            next: {revalidate},
             ...fetchOptions,
+        });
+
+        console.log('📡 Respuesta recibida:', {
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok,
+            url: response.url
         });
 
         if (!response.ok) {
             // Manejo mejorado de errores HTTP
             const errorText = await response.text();
+            console.error('❌ Error en respuesta:', errorText);
+
             let errorMessage = `Error ${response.status}: ${response.statusText}`;
 
             try {
                 const errorData = JSON.parse(errorText);
                 errorMessage = errorData.detail || errorData.message || errorMessage;
+                console.error('📋 Datos de error parseados:', errorData);
             } catch {
                 // Si no es JSON, usar el texto directamente si es útil
                 if (errorText && errorText.length < 200) {
@@ -66,9 +79,14 @@ async function serverFetch<T>(
             throw new Error(errorMessage);
         }
 
-        return response.json();
+        const data = await response.json();
+        console.log('✅ Datos recibidos exitosamente, tipo:', typeof data, 'keys:', Object.keys(data || {}));
+        return data;
     } catch (error) {
+        console.error('💥 Error en serverFetch:', error);
         if (error instanceof Error) {
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
             throw error;
         }
         throw new Error('Error de conexión con el servidor');
@@ -102,7 +120,7 @@ export async function getServerEquipos(params?: {
 
         return serverFetch<PaginatedEquipoList>(
             `/equipos/?${queryParams.toString()}`,
-            { revalidate: REVALIDATION.DYNAMIC }
+            {revalidate: REVALIDATION.DYNAMIC}
         );
     };
 
@@ -147,7 +165,7 @@ export async function getServerEquipos(params?: {
 export async function getServerEquipoById(id: string | number): Promise<EquipoDetalle> {
     return serverFetch<EquipoDetalle>(
         `/equipos/${id}/`,
-        { revalidate: REVALIDATION.DYNAMIC }
+        {revalidate: REVALIDATION.DYNAMIC}
     );
 }
 
@@ -157,7 +175,7 @@ export async function getServerEquipoById(id: string | number): Promise<EquipoDe
 export async function getServerEquiposByCategoria(categoriaId: number): Promise<PaginatedEquipoList> {
     return serverFetch<PaginatedEquipoList>(
         `/equipos/por_categoria/?categoria_id=${categoriaId}`,
-        { revalidate: REVALIDATION.DYNAMIC }
+        {revalidate: REVALIDATION.DYNAMIC}
     );
 }
 
@@ -170,7 +188,7 @@ export async function getServerEquiposStats(): Promise<{
     por_categoria: Record<string, number>;
 }> {
     try {
-        const response = await getServerEquipos({ all_pages: true });
+        const response = await getServerEquipos({all_pages: true});
 
         const total = response.results.length;
         const activos = response.results.filter(equipo => equipo.activo).length;
@@ -233,7 +251,7 @@ export async function getServerPartidos(params?: {
 
         return serverFetch<PaginatedPartidoList>(
             `/partidos/?${queryParams.toString()}`,
-            { revalidate }
+            {revalidate}
         );
     };
 
@@ -275,7 +293,7 @@ export async function getServerPartidos(params?: {
 export async function getServerPartidoById(id: string | number): Promise<PartidoDetalle> {
     return serverFetch<PartidoDetalle>(
         `/partidos/${id}/`,
-        { revalidate: REVALIDATION.PARTIDO_DETAIL }
+        {revalidate: REVALIDATION.PARTIDO_DETAIL}
     );
 }
 
@@ -297,7 +315,7 @@ export async function getServerProximosPartidos(params?: {
 
     return serverFetch<PaginatedPartidoList>(
         `/partidos/proximos/?${queryParams.toString()}`,
-        { revalidate: REVALIDATION.REALTIME }
+        {revalidate: REVALIDATION.REALTIME}
     );
 }
 
@@ -307,7 +325,7 @@ export async function getServerProximosPartidos(params?: {
 export async function getServerPartidosByEquipo(equipoId: number): Promise<PaginatedPartidoList> {
     return serverFetch<PaginatedPartidoList>(
         `/partidos/por_equipo/?equipo_id=${equipoId}`,
-        { revalidate: REVALIDATION.PARTIDOS }
+        {revalidate: REVALIDATION.PARTIDOS}
     );
 }
 
@@ -317,7 +335,7 @@ export async function getServerPartidosByEquipo(equipoId: number): Promise<Pagin
 export async function getServerPartidosByJornada(jornadaId: number): Promise<PaginatedPartidoList> {
     return serverFetch<PaginatedPartidoList>(
         `/partidos/por_jornada/?jornada_id=${jornadaId}`,
-        { revalidate: REVALIDATION.PARTIDOS }
+        {revalidate: REVALIDATION.PARTIDOS}
     );
 }
 
@@ -332,8 +350,8 @@ export async function getServerPartidosStats(): Promise<{
 }> {
     try {
         const [allPartidos, proximosPartidos] = await Promise.all([
-            getServerPartidos({ all_pages: true }),
-            getServerProximosPartidos({ dias: 7 })
+            getServerPartidos({all_pages: true}),
+            getServerProximosPartidos({dias: 7})
         ]);
 
         const total = allPartidos.results.length;
@@ -358,11 +376,20 @@ export async function getServerPartidosStats(): Promise<{
     }
 }
 
+/* ============================================
+   FUNCIONES PARA TORNEOS - CORREGIDAS
+============================================ */
+
+/**
+ * Obtener torneos activos - CORREGIDA
+ */
 export async function getServerTorneosActivos(params?: {
     page?: number;
     ordering?: string;
     search?: string;
 }): Promise<PaginatedTorneoList> {
+    console.log('🏆 Obteniendo torneos activos con params:', params);
+
     const queryParams = new URLSearchParams();
 
     if (params?.page) queryParams.append('page', params.page.toString());
@@ -372,10 +399,15 @@ export async function getServerTorneosActivos(params?: {
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
     return serverFetch<PaginatedTorneoList>(
-        `/torneos/activos${query}`,
-        { revalidate: REVALIDATION.REALTIME }
+        `/torneos/activos/${query}`,
+        {revalidate: REVALIDATION.REALTIME}
     );
 }
+
+/**
+ * Obtener tabla de posiciones - FUNCIÓN PRINCIPAL CORREGIDA
+ */
+// En src/lib/api/server.ts - Actualizar getTablaPosiciones
 
 export async function getServerTablaPosiciones(
     torneoId: string | number,
@@ -383,7 +415,7 @@ export async function getServerTablaPosiciones(
         grupo?: string;
         actualizar?: boolean;
     }
-): Promise<TablaPosiciones> {
+): Promise<any> { // Actualizar tipo según nueva estructura
     const queryParams = new URLSearchParams();
 
     if (params?.grupo) queryParams.append('grupo', params.grupo);
@@ -391,15 +423,17 @@ export async function getServerTablaPosiciones(
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
-    return serverFetch<TablaPosiciones>(
+    return serverFetch<any>(
         `/torneos/${torneoId}/tabla_posiciones${query}`,
-        { revalidate: params?.actualizar ? 1 : REVALIDATION.DYNAMIC }
+        {revalidate: params?.actualizar ? 1 : REVALIDATION.DYNAMIC}
     );
 }
+
 export async function getServerTorneoById(id: string | number): Promise<TorneoDetalle> {
+    console.log('🏆 Obteniendo torneo por ID:', id);
     return serverFetch<TorneoDetalle>(
         `/torneos/${id}/`,
-        { revalidate: REVALIDATION.DYNAMIC }
+        {revalidate: REVALIDATION.DYNAMIC}
     );
 }
 
@@ -407,9 +441,10 @@ export async function getServerTorneoById(id: string | number): Promise<TorneoDe
  * Obtener estadísticas generales de un torneo
  */
 export async function getServerTorneoEstadisticas(torneoId: string | number): Promise<any> {
+    console.log('📈 Obteniendo estadísticas del torneo:', torneoId);
     return serverFetch<any>(
         `/torneos/${torneoId}/estadisticas/`,
-        { revalidate: REVALIDATION.DYNAMIC }
+        {revalidate: REVALIDATION.DYNAMIC}
     );
 }
 
@@ -420,6 +455,8 @@ export async function getServerJugadoresDestacados(
     torneoId: string | number,
     params?: { limite?: number }
 ): Promise<any> {
+    console.log('⭐ Obteniendo jugadores destacados del torneo:', torneoId);
+
     const queryParams = new URLSearchParams();
 
     if (params?.limite) queryParams.append('limite', params.limite.toString());
@@ -427,8 +464,8 @@ export async function getServerJugadoresDestacados(
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
     return serverFetch<any>(
-        `/torneos/${torneoId}/jugadores_destacados${query}`,
-        { revalidate: REVALIDATION.DYNAMIC }
+        `/torneos/${torneoId}/jugadores_destacados/${query}`,
+        {revalidate: REVALIDATION.DYNAMIC}
     );
 }
 
@@ -455,5 +492,4 @@ export const serverApi = {
         getEstadisticas: getServerTorneoEstadisticas,
         getJugadoresDestacados: getServerJugadoresDestacados
     }
-
 };
