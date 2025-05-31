@@ -403,12 +403,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Lista todos los goles (con logging) */
+        /** @description Lista todos los goles (con logging y métricas de rendimiento) */
         get: operations["goles_list"];
         put?: never;
-        /** @description API endpoint para gestionar los Goles marcados en los partidos.
-         *
-         *     Un gol es anotado por un jugador en un partido específico. */
+        /** @description Crea un nuevo gol con protección de transacción */
         post: operations["goles_create"];
         delete?: never;
         options?: never;
@@ -448,14 +446,10 @@ export interface paths {
         };
         /** @description Obtiene un gol específico (con logging) */
         get: operations["goles_retrieve"];
-        /** @description API endpoint para gestionar los Goles marcados en los partidos.
-         *
-         *     Un gol es anotado por un jugador en un partido específico. */
+        /** @description Actualiza un gol con protección de transacción */
         put: operations["goles_update"];
         post?: never;
-        /** @description API endpoint para gestionar los Goles marcados en los partidos.
-         *
-         *     Un gol es anotado por un jugador en un partido específico. */
+        /** @description Elimina un gol con protección de transacción */
         delete: operations["goles_destroy"];
         options?: never;
         head?: never;
@@ -873,6 +867,7 @@ export interface components {
             readonly equipo: number;
             readonly equipo_nombre: string;
             readonly torneo: number;
+            readonly grupo: components["schemas"]["GrupoEnum"] | components["schemas"]["BlankEnum"];
             readonly puntos: number;
             readonly partidos_jugados: number;
             readonly partidos_ganados: number;
@@ -906,6 +901,9 @@ export interface components {
             readonly id: number;
             readonly jugador_nombre: string;
             readonly partido_descripcion: string;
+            readonly equipo_nombre: string;
+            readonly torneo_nombre: string;
+            readonly fecha_partido: string;
             /** Minuto (opcional) */
             minuto?: number | null;
             autogol?: boolean;
@@ -2353,6 +2351,8 @@ export interface operations {
                 ordering?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
                 /** @description A search term. */
                 search?: string;
             };
