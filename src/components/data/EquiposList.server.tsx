@@ -1,7 +1,7 @@
+// src/components/data/EquiposList.server.tsx - MEJORADO
 import { getServerEquipos } from '@/lib/api/server';
-import { Metadata } from 'next';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Users, Trophy, Calendar } from 'lucide-react';
 
 interface EquiposListServerProps {
     categoria?: number;
@@ -56,6 +56,70 @@ function EquiposError({ error, retry }: { error: string; retry?: () => void }) {
     );
 }
 
+// Componente individual de equipo mejorado
+function EquipoCard({ equipo }: { equipo: any }) {
+    return (
+        <Link
+            href={`/equipos/${equipo.id}`}
+            className="group block bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md hover:border-goal-gold/50 transition-all duration-300"
+        >
+            <div className="flex items-center gap-4">
+                {/* Logo del equipo */}
+                {equipo.logo ? (
+                    <div className="w-12 h-12 relative">
+                        <img
+                            src={equipo.logo}
+                            alt={`Logo ${equipo.nombre}`}
+                            className="w-full h-full object-contain rounded"
+                        />
+                    </div>
+                ) : (
+                    <div className="w-12 h-12 bg-goal-gold/20 rounded-lg flex items-center justify-center">
+                        <span className="text-goal-gold font-bold text-lg">
+                            {equipo.nombre.substring(0, 2).toUpperCase()}
+                        </span>
+                    </div>
+                )}
+
+                {/* Información del equipo */}
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 group-hover:text-goal-blue dark:group-hover:text-goal-gold transition-colors">
+                        {equipo.nombre}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                            {equipo.categoria_nombre}
+                        </span>
+
+                        {equipo.grupo && (
+                            <span className="text-xs bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 px-2 py-1 rounded-full">
+                                Grupo {equipo.grupo}
+                            </span>
+                        )}
+
+                        {!equipo.activo && (
+                            <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded-full">
+                                Inactivo
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Icono de enlace */}
+                <svg
+                    className="w-5 h-5 text-neutral-400 group-hover:text-goal-blue dark:group-hover:text-goal-gold transition-colors opacity-0 group-hover:opacity-100"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </div>
+        </Link>
+    );
+}
+
 // Componente principal del listado
 export default async function EquiposListServer({
                                                     categoria,
@@ -68,9 +132,9 @@ export default async function EquiposListServer({
         const data = await getServerEquipos({
             categoria,
             ordering: 'nombre',
-            all_pages: true,
-            page_size: 50,
-            search: searchQuery // Agregar soporte para búsqueda
+            all_pages: !limit, // Solo todas las páginas si no hay límite
+            page_size: limit || 50,
+            search: searchQuery
         });
 
         // Aplicar límite si se especificó
@@ -88,9 +152,7 @@ export default async function EquiposListServer({
 
                     <div className="text-center py-12">
                         <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
+                            <Users className="w-8 h-8 text-neutral-400" />
                         </div>
                         <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                             No hay equipos registrados
@@ -103,77 +165,98 @@ export default async function EquiposListServer({
                                     : 'Aún no se han registrado equipos en el torneo.'
                             }
                         </p>
+                        <Link
+                            href="/contacto"
+                            className="inline-flex items-center bg-goal-blue hover:bg-goal-blue/90 text-white px-6 py-2 rounded-lg transition-colors"
+                        >
+                            <Trophy className="w-4 h-4 mr-2" />
+                            Inscribir mi equipo
+                        </Link>
                     </div>
                 </div>
             );
         }
 
         return (
-            <div className="w-full max-w-4xl mx-auto">
+            <div className="w-full max-w-6xl mx-auto">
                 {showTitle && (
-                    <div className="text-center mb-6">
+                    <div className="text-center mb-8">
                         <h2 className="text-3xl font-heading mb-2">
                             Equipos Participantes
                         </h2>
+                        {searchQuery && (
+                            <p className="text-neutral-600 dark:text-neutral-400">
+                                Resultados para: "{searchQuery}"
+                            </p>
+                        )}
                         {categoria && (
                             <p className="text-neutral-600 dark:text-neutral-400">
-                                Categoría: {/* Aquí podrías mostrar el nombre de la categoría */}
+                                Categoría seleccionada
                             </p>
                         )}
                     </div>
                 )}
 
-                {/* Lista mejorada de equipos */}
-                <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6 border border-neutral-200 dark:border-neutral-700">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
-                        {equipos.map((equipo) => (
-                            <Link
-                                key={equipo.id}
-                                href={`/equipos/${equipo.id}`} // Ruta para detalle del equipo
-                                className="py-2 flex items-center space-x-3 group hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-md px-2 -mx-2 transition-colors"
-                            >
-                                <div className="w-2 h-2 rounded-full bg-goal-gold/70 group-hover:bg-goal-gold transition-colors"></div>
-                                <span className="text-neutral-700 dark:text-neutral-200 group-hover:text-goal-blue dark:group-hover:text-goal-gold transition-colors flex-1">
-                                    {equipo.nombre}
-                                </span>
-                                {/* Indicador de grupo si existe */}
-                                {equipo.grupo && (
-                                    <span className="text-xs bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 px-2 py-1 rounded-full">
-                                        Grupo {equipo.grupo}
-                                    </span>
-                                )}
-                                {/* Icono de enlace */}
-                                <svg className="w-4 h-4 text-neutral-400 group-hover:text-goal-blue dark:group-hover:text-goal-gold transition-colors opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
-                        ))}
-                    </div>
+                {/* Grid mejorado de equipos */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {equipos.map((equipo) => (
+                        <EquipoCard key={equipo.id} equipo={equipo} />
+                    ))}
                 </div>
 
-                {/* Información adicional */}
-                <div className="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-neutral-500 dark:text-neutral-400">
-                    <p>
-                        {equipos.length} equipo{equipos.length !== 1 ? 's' : ''}
-                        {limit && data.results.length > limit && ` de ${data.results.length} total`}
-                        {categoria ? ' en esta categoría' : ' participantes en el torneo'}
-                    </p>
+                {/* Información adicional mejorada */}
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-8 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
+                    <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
+                        <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            <span>
+                                {equipos.length} equipo{equipos.length !== 1 ? 's' : ''}
+                                {limit && data.results.length > limit && ` de ${data.results.length} total`}
+                            </span>
+                        </div>
+
+                        {categoria && (
+                            <div className="flex items-center gap-2">
+                                <Trophy className="w-4 h-4" />
+                                <span>Categoría filtrada</span>
+                            </div>
+                        )}
+                    </div>
 
                     {limit && data.results.length > limit && (
                         <Link
                             href="/equipos"
-                            className="text-goal-blue dark:text-goal-gold hover:underline mt-2 sm:mt-0"
+                            className="flex items-center gap-2 text-goal-blue dark:text-goal-gold hover:underline mt-2 sm:mt-0"
                         >
-                            Ver todos los equipos →
+                            <span>Ver todos los equipos</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </Link>
                     )}
                 </div>
+
+                {/* CTA para inscripción */}
+                {!limit && (
+                    <div className="mt-8 text-center p-6 bg-gradient-to-r from-goal-blue/10 to-goal-gold/10 rounded-xl">
+                        <h3 className="text-lg font-semibold mb-2">¿Tu equipo quiere participar?</h3>
+                        <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+                            Únete a la próxima edición del torneo GoolStar
+                        </p>
+                        <Link
+                            href="/contacto"
+                            className="inline-flex items-center bg-goal-gold hover:bg-goal-gold/90 text-white px-6 py-2 rounded-lg transition-colors"
+                        >
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Inscribir equipo
+                        </Link>
+                    </div>
+                )}
             </div>
         );
     } catch (error) {
         console.error('Error al cargar equipos:', error);
         const errorMessage = error instanceof Error ? error.message : 'Error desconocido al cargar los equipos.';
-
         return <EquiposError error={errorMessage} />;
     }
 }
