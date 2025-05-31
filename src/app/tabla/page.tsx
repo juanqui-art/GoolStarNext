@@ -1,6 +1,6 @@
-// src/app/tabla/page.tsx - CÓDIGO COMPLETO
-import TablaListServer from '@/components/data/TablaList.server';
-import TablaLoading from "@/components/data/TablaLoading";
+// src/app/tabla/page.tsx
+import TablaListServer from '@/components/data/TablaList.server'
+import TablaLoading from '@/components/data/TablaLoading';
 import TablaLayout from '@/components/tabla/TablaLayout';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
@@ -8,55 +8,28 @@ import { Suspense } from 'react';
 // Props de página con searchParams como Promise en Next.js 15
 interface TablaPageProps {
     searchParams: Promise<{
-        torneo?: string;
-        categoria?: string;
         grupo?: string;
         actualizar?: string;
+        torneo?: string;
     }>;
 }
 
-// Metadata dinámica para SEO
+// Metadata dinámica
 export async function generateMetadata({ searchParams }: TablaPageProps): Promise<Metadata> {
     try {
-        // Await searchParams antes de usar sus propiedades
         const params = await searchParams;
 
         const baseTitle = 'Tabla de Posiciones | GoolStar';
-        const baseDescription = 'Consulta la tabla de posiciones actualizada del torneo GoolStar - Puntos, partidos jugados, goles y clasificación';
+        const baseDescription = 'Consulta la tabla de posiciones actualizada del torneo de fútbol indoor GoolStar';
 
-        // Personalizar según filtros
         if (params.grupo) {
             return {
                 title: `Tabla Grupo ${params.grupo.toUpperCase()} | GoolStar`,
-                description: `Tabla de posiciones del Grupo ${params.grupo.toUpperCase()} - Clasificación actualizada`,
+                description: `Clasificación del Grupo ${params.grupo.toUpperCase()} en el torneo GoolStar`,
                 openGraph: {
                     title: `Tabla Grupo ${params.grupo.toUpperCase()} | GoolStar`,
-                    description: `Tabla de posiciones del Grupo ${params.grupo.toUpperCase()} - Clasificación actualizada`,
+                    description: `Clasificación del Grupo ${params.grupo.toUpperCase()} en el torneo GoolStar`,
                     images: ['/images/tabla-grupo-og.jpg'],
-                },
-            };
-        }
-
-        if (params.categoria) {
-            return {
-                title: `Tabla Categoría ${params.categoria} | GoolStar`,
-                description: `Tabla de posiciones de la categoría ${params.categoria} en GoolStar`,
-                openGraph: {
-                    title: `Tabla Categoría ${params.categoria} | GoolStar`,
-                    description: `Tabla de posiciones de la categoría ${params.categoria} en GoolStar`,
-                    images: ['/images/tabla-categoria-og.jpg'],
-                },
-            };
-        }
-
-        if (params.torneo) {
-            return {
-                title: `Tabla de Posiciones - Torneo ${params.torneo} | GoolStar`,
-                description: `Clasificación completa del torneo ${params.torneo} en GoolStar`,
-                openGraph: {
-                    title: `Tabla de Posiciones - Torneo ${params.torneo} | GoolStar`,
-                    description: `Clasificación completa del torneo ${params.torneo} en GoolStar`,
-                    images: ['/images/tabla-torneo-og.jpg'],
                 },
             };
         }
@@ -64,7 +37,7 @@ export async function generateMetadata({ searchParams }: TablaPageProps): Promis
         return {
             title: baseTitle,
             description: baseDescription,
-            keywords: ['tabla posiciones', 'clasificación', 'fútbol indoor', 'GoolStar', 'puntos', 'torneo'],
+            keywords: ['tabla', 'posiciones', 'clasificación', 'fútbol indoor', 'GoolStar'],
             openGraph: {
                 title: baseTitle,
                 description: baseDescription,
@@ -86,17 +59,10 @@ export async function generateMetadata({ searchParams }: TablaPageProps): Promis
             },
         };
     } catch (error) {
-        console.error('Error generando metadata:', error);
-        // Fallback metadata si hay error
+        console.error('Error generando metadata para tabla:', error);
         return {
             title: 'Tabla de Posiciones | GoolStar',
-            description: 'Consulta la tabla de posiciones actualizada del torneo GoolStar',
-            keywords: ['tabla posiciones', 'clasificación', 'GoolStar'],
-            openGraph: {
-                title: 'Tabla de Posiciones | GoolStar',
-                description: 'Consulta la tabla de posiciones actualizada del torneo GoolStar',
-                images: ['/images/default-og.jpg'],
-            },
+            description: 'Tabla de posiciones del torneo',
         };
     }
 }
@@ -106,45 +72,23 @@ export default async function TablaPage({ searchParams }: TablaPageProps) {
     const params = await searchParams;
 
     // Convertir searchParams a props del componente
-    const torneoId = params.torneo ? parseInt(params.torneo) : undefined;
-    const categoria = params.categoria;
-    const grupo = params.grupo?.toUpperCase();
+    const grupo = params.grupo;
     const actualizar = params.actualizar === 'true';
+    const torneoId = params.torneo ? parseInt(params.torneo) : undefined;
 
     return (
         <TablaLayout>
             <Suspense
                 fallback={<TablaLoading />}
-                key={`${torneoId}-${categoria}-${grupo}-${actualizar}`} // Key para re-suspensar en cambios
+                key={`${grupo}-${actualizar}-${torneoId}`} // Key para re-suspensar en cambios
             >
                 <TablaListServer
                     showTitle={false}
-                    torneoId={torneoId}
-                    categoria={categoria}
                     grupo={grupo}
                     actualizar={actualizar}
+                    torneoId={torneoId}
                 />
             </Suspense>
         </TablaLayout>
     );
-}
-
-// Generar rutas estáticas para grupos principales (opcional)
-export async function generateStaticParams() {
-    try {
-        // Generar params para grupos comunes
-        return [
-            { grupo: 'a' },
-            { grupo: 'b' },
-            { grupo: 'c' },
-            { grupo: 'd' },
-            // Categorías comunes
-            { categoria: 'varones' },
-            { categoria: 'senior' },
-            { categoria: 'libre' },
-        ];
-    } catch (error) {
-        console.error('Error generando static params para tabla:', error);
-        return [];
-    }
 }
