@@ -26,11 +26,16 @@ export async function getTorneos(params?: { page?: number; ordering?: string; se
 }
 
 // Obtener torneos activos
-export async function getTorneosActivos(params?: { page?: number; ordering?: string; search?: string }): Promise<components['schemas']['PaginatedTorneoList']> {
+export async function getTorneosActivos(params?: { page?: number; page_size?: number; ordering?: string; search?: string }): Promise<components['schemas']['PaginatedTorneoList']> {
   const queryParams = new URLSearchParams();
+  console.log('queryParams', queryParams);
   
   if (params?.page) {
     queryParams.append('page', params.page.toString());
+  }
+  
+  if (params?.page_size) {
+    queryParams.append('page_size', params.page_size.toString());
   }
   
   if (params?.ordering) {
@@ -42,12 +47,12 @@ export async function getTorneosActivos(params?: { page?: number; ordering?: str
   }
   
   const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-  return apiClient.get<components['schemas']['PaginatedTorneoList']>(`/torneos/activos${query}`);
+  return apiClient.get<components['schemas']['PaginatedTorneoList']>(`torneos/activos${query}`);
 }
 
 // Obtener un torneo por ID
 export async function getTorneoById(id: string): Promise<components['schemas']['TorneoDetalle']> {
-  return apiClient.get<components['schemas']['TorneoDetalle']>(`/torneos/${id}`);
+  return apiClient.get<components['schemas']['TorneoDetalle']>(`torneos/${id}`);
 }
 
 // Interfaz para las estadísticas del torneo
@@ -58,7 +63,7 @@ export interface TorneoEstadisticas {
 
 // Obtener estadísticas de un torneo
 export async function getTorneoEstadisticas(id: string): Promise<TorneoEstadisticas> {
-  return apiClient.get<TorneoEstadisticas>(`/torneos/${id}/estadisticas`);
+  return apiClient.get<TorneoEstadisticas>(`torneos/${id}/estadisticas`);
 }
 
 // Interfaz para jugadores destacados
@@ -77,7 +82,7 @@ export interface JugadorDestacado {
 
 // Obtener jugadores destacados de un torneo
 export async function getTorneoJugadoresDestacados(id: string): Promise<JugadorDestacado[]> {
-  return apiClient.get<JugadorDestacado[]>(`/torneos/${id}/jugadores_destacados`);
+  return apiClient.get<JugadorDestacado[]>(`torneos/${id}/jugadores_destacados`);
 }
 
 // Interfaz para tabla de posiciones
@@ -90,8 +95,19 @@ export interface TablaPosicion {
 }
 
 // Obtener tabla de posiciones de un torneo
-export async function getTorneoTablaPosiciones(id: string): Promise<TablaPosicion> {
-  return apiClient.get<TablaPosicion>(`/torneos/${id}/tabla_posiciones`);
+export async function getTorneoTablaPosiciones(id: string, params?: { grupo?: string; actualizar?: boolean }): Promise<TablaPosicion> {
+  const queryParams = new URLSearchParams();
+  
+  if (params?.grupo) {
+    queryParams.append('grupo', params.grupo);
+  }
+  
+  if (params?.actualizar) {
+    queryParams.append('actualizar', 'true');
+  }
+  
+  const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  return apiClient.get<TablaPosicion>(`torneos/${id}/tabla_posiciones${query}`);
 }
 
 /**
@@ -127,7 +143,7 @@ export async function createTorneo(data: components['schemas']['TorneoRequest'])
     // Formatear datos antes de enviar
     const formattedData = formatTorneoData(data);
     
-    return await apiClient.post<components['schemas']['Torneo']>('/torneos/', formattedData);
+    return await apiClient.post<components['schemas']['Torneo']>('torneos/', formattedData);
   } catch (error) {
     console.error('Error al crear torneo:', error);
     throw error;
@@ -145,7 +161,7 @@ export async function updateTorneo(id: string, data: components['schemas']['Torn
     // Formatear datos antes de enviar
     const formattedData = formatTorneoData(data);
     
-    return await apiClient.put<components['schemas']['Torneo']>(`/torneos/${id}/`, formattedData);
+    return await apiClient.put<components['schemas']['Torneo']>(`torneos/${id}/`, formattedData);
   } catch (error) {
     console.error(`Error al actualizar torneo ${id}:`, error);
     throw error;
@@ -164,7 +180,7 @@ export async function patchTorneo(id: string, data: Partial<components['schemas'
     const formattedData = formatTorneoData(data);
     
     // Necesitamos agregar un método patch al cliente API
-    return await apiClient.request<components['schemas']['Torneo']>(`/torneos/${id}/`, {
+    return await apiClient.request<components['schemas']['Torneo']>(`torneos/${id}/`, {
       method: 'PATCH',
       body: JSON.stringify(formattedData),
     });
@@ -180,7 +196,7 @@ export async function patchTorneo(id: string, data: Partial<components['schemas'
  */
 export async function deleteTorneo(id: string): Promise<void> {
   try {
-    await apiClient.delete<void>(`/torneos/${id}/`);
+    await apiClient.delete<void>(`torneos/${id}/`);
   } catch (error) {
     console.error(`Error al eliminar torneo ${id}:`, error);
     throw error;

@@ -5,6 +5,10 @@ import type { components } from '@/types/api';
 type Equipo = components['schemas']['Equipo'];
 type EquipoDetalle = components['schemas']['EquipoDetalle'];
 type PaginatedEquipoList = components['schemas']['PaginatedEquipoList'];
+type TablaPosiciones = components['schemas']['TablaPosiciones'];
+type EstadisticaEquipo = components['schemas']['EstadisticaEquipo'];
+type PaginatedTorneoList = components['schemas']['PaginatedTorneoList'];
+type TorneoDetalle = components['schemas']['TorneoDetalle'];
 
 // Tipos para partidos
 type Partido = components['schemas']['Partido'];
@@ -354,6 +358,80 @@ export async function getServerPartidosStats(): Promise<{
     }
 }
 
+export async function getServerTorneosActivos(params?: {
+    page?: number;
+    ordering?: string;
+    search?: string;
+}): Promise<PaginatedTorneoList> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.ordering) queryParams.append('ordering', params.ordering);
+    if (params?.search) queryParams.append('search', params.search);
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    return serverFetch<PaginatedTorneoList>(
+        `/torneos/activos${query}`,
+        { revalidate: REVALIDATION.REALTIME }
+    );
+}
+
+export async function getServerTablaPosiciones(
+    torneoId: string | number,
+    params?: {
+        grupo?: string;
+        actualizar?: boolean;
+    }
+): Promise<TablaPosiciones> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.grupo) queryParams.append('grupo', params.grupo);
+    if (params?.actualizar) queryParams.append('actualizar', 'true');
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    return serverFetch<TablaPosiciones>(
+        `/torneos/${torneoId}/tabla_posiciones${query}`,
+        { revalidate: params?.actualizar ? 1 : REVALIDATION.DYNAMIC }
+    );
+}
+export async function getServerTorneoById(id: string | number): Promise<TorneoDetalle> {
+    return serverFetch<TorneoDetalle>(
+        `/torneos/${id}/`,
+        { revalidate: REVALIDATION.DYNAMIC }
+    );
+}
+
+/**
+ * Obtener estadísticas generales de un torneo
+ */
+export async function getServerTorneoEstadisticas(torneoId: string | number): Promise<any> {
+    return serverFetch<any>(
+        `/torneos/${torneoId}/estadisticas/`,
+        { revalidate: REVALIDATION.DYNAMIC }
+    );
+}
+
+/**
+ * Obtener jugadores destacados de un torneo
+ */
+export async function getServerJugadoresDestacados(
+    torneoId: string | number,
+    params?: { limite?: number }
+): Promise<any> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.limite) queryParams.append('limite', params.limite.toString());
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    return serverFetch<any>(
+        `/torneos/${torneoId}/jugadores_destacados${query}`,
+        { revalidate: REVALIDATION.DYNAMIC }
+    );
+}
+
 // Exportar todas las funciones en un objeto para facilitar el uso
 export const serverApi = {
     equipos: {
@@ -369,5 +447,13 @@ export const serverApi = {
         getByEquipo: getServerPartidosByEquipo,
         getByJornada: getServerPartidosByJornada,
         getStats: getServerPartidosStats
+    },
+    torneos: {
+        getActivos: getServerTorneosActivos,
+        getById: getServerTorneoById,
+        getTablaPosiciones: getServerTablaPosiciones,
+        getEstadisticas: getServerTorneoEstadisticas,
+        getJugadoresDestacados: getServerJugadoresDestacados
     }
+
 };
