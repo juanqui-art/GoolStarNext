@@ -249,6 +249,10 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                     <div className="container mx-auto px-4">
                         <div className="max-w-3xl mx-auto bg-gradient-to-r from-goal-gold/5 to-goal-orange/5 dark:from-goal-gold/10 dark:to-goal-orange/10 rounded-2xl overflow-hidden shadow-lg border border-neutral-200/80 dark:border-neutral-700/80">
                             <div className="p-8 md:p-10 relative">
+                                {/* Elementos decorativos de fondo */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-goal-gold/10 rounded-full blur-2xl -translate-y-8 translate-x-8"></div>
+                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-goal-orange/10 rounded-full blur-xl translate-y-6 -translate-x-6"></div>
+
                                 <div className="text-center relative z-10">
                                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-neutral-800 dark:text-neutral-100">
                                         ¿Quieres ser goleador?
@@ -260,27 +264,44 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                                     </p>
 
                                     <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                                        {/* Botón primario - Dorado */}
                                         <Link
                                             href="/contacto"
-                                            className="bg-goal-gold hover:bg-goal-gold/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
+                                            className="group relative bg-goal-gold/60 hover:bg-goal-gold/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-gold/30"
                                         >
-                                            Inscribir mi equipo
+                                            <span className="relative z-10">Inscribir mi equipo</span>
+                                            {/* Efecto de brillo */}
+                                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-pulse"></div>
                                         </Link>
 
+                                        {/* Botón secundario - Azul */}
                                         <Link
                                             href="/partidos"
-                                            className="bg-white dark:bg-neutral-700 border border-goal-blue hover:border-goal-blue/80 text-neutral-800 dark:text-neutral-200 font-medium py-3 px-8 rounded-full transition-all duration-300 hover:bg-goal-blue/5"
+                                            className="group relative bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-blue/30"
                                         >
-                                            Ver partidos
+                                            <span className="relative z-10">Ver partidos</span>
+                                            {/* Efecto de brillo */}
+                                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-pulse"></div>
                                         </Link>
 
+                                        {/* Botón terciario - Contorno */}
                                         <Link
                                             href="/tabla"
-                                            className="bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-sm hover:shadow-md"
+                                            className="group relative bg-white dark:bg-neutral-700 border-2 border-goal-orange hover:border-goal-orange/80 hover:bg-goal-orange/5 dark:hover:bg-goal-orange/10 text-neutral-800 dark:text-neutral-200 hover:text-goal-orange dark:hover:text-goal-orange font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-orange/30"
                                         >
-                                            Tabla posiciones
+                                            <span className="relative z-10">Tabla posiciones</span>
+                                            {/* Efecto de brillo sutil */}
+                                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-goal-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         </Link>
                                     </div>
+
+                                    {/* Texto adicional pequeño */}
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-6">
+                                        ¿Tienes preguntas?
+                                        <Link href="/contacto" className="ml-1 text-goal-blue hover:text-goal-blue/80 underline transition-colors">
+                                            Contáctanos aquí
+                                        </Link>
+                                    </p>
                                 </div>
                             </div>
                         </div>

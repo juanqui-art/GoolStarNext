@@ -1,8 +1,15 @@
 // src/components/data/GoleadoresList.server.tsx
 import Link from 'next/link';
-import { Trophy, Target, Users, AlertCircle, Medal, TrendingUp } from 'lucide-react';
-import * as Sentry from '@sentry/nextjs';
+import { Trophy, Target, Users, Medal, TrendingUp } from 'lucide-react';
+import { serverApi } from '@/lib/api/server';
+import type { components } from '@/types/api';
+import Image from 'next/image';
 
+// Usar los tipos generados automáticamente de la API
+// type Jugador = components['schemas']['Jugador'];
+type PaginatedTorneoList = components['schemas']['PaginatedTorneoList'];
+
+// Interfaz para las props del componente
 interface GoleadoresListServerProps {
     torneo_id?: number;
     equipo_id?: number;
@@ -11,291 +18,230 @@ interface GoleadoresListServerProps {
     searchQuery?: string;
 }
 
-// Datos de ejemplo para fallback
-const GOLEADORES_EJEMPLO = [
-    {
-        id: 1,
-        jugador_nombre: "Carlos Rodríguez",
-        equipo_nombre: "Liverpool",
-        total_goles: 12,
-        partidos_jugados: 7,
-        promedio_goles: 1.71,
-        foto: null
-    },
-    {
-        id: 2,
-        jugador_nombre: "Miguel Santos",
-        equipo_nombre: "Talleres M.A",
-        total_goles: 10,
-        partidos_jugados: 7,
-        promedio_goles: 1.43,
-        foto: null
-    },
-    {
-        id: 3,
-        jugador_nombre: "Diego Pérez",
-        equipo_nombre: "Real Madrid",
-        total_goles: 9,
-        partidos_jugados: 6,
-        promedio_goles: 1.5,
-        foto: null
-    },
-    {
-        id: 4,
-        jugador_nombre: "Juan López",
-        equipo_nombre: "Barcelona",
-        total_goles: 8,
-        partidos_jugados: 7,
-        promedio_goles: 1.14,
-        foto: null
-    },
-    {
-        id: 5,
-        jugador_nombre: "Pedro García",
-        equipo_nombre: "Manchester",
-        total_goles: 7,
-        partidos_jugados: 6,
-        promedio_goles: 1.17,
-        foto: null
-    },
-    {
-        id: 6,
-        jugador_nombre: "Luis Martínez",
-        equipo_nombre: "Chelsea",
-        total_goles: 6,
-        partidos_jugados: 7,
-        promedio_goles: 0.86,
-        foto: null
-    },
-    {
-        id: 7,
-        jugador_nombre: "Roberto Silva",
-        equipo_nombre: "Arsenal",
-        total_goles: 5,
-        partidos_jugados: 5,
-        promedio_goles: 1.0,
-        foto: null
-    },
-    {
-        id: 8,
-        jugador_nombre: "Fernando Torres",
-        equipo_nombre: "Juventus",
-        total_goles: 5,
-        partidos_jugados: 6,
-        promedio_goles: 0.83,
-        foto: null
-    }
-];
+// Tipo extendido para estadísticas de goleadores
+interface GoleadorEstadistica {
+    id: number;
+    jugador_nombre: string;
+    equipo_nombre: string;
+    total_goles: number;
+    promedio_goles: number;
+    posicion: number;
+    foto?: string | null;
+}
 
-// Función para obtener datos (con fallback a datos de ejemplo)
-async function obtenerGoleadores(params: any) {
+interface GoleadoresResult {
+    goleadores: GoleadorEstadistica[];
+    total: number;
+    metadatos?: {
+        torneo_id: number;
+        actualizado: string;
+    };
+}
+
+// Función para normalizar datos de goleador desde la respuesta de la API
+function normalizarGoleadorDesdeApi(goleadorApi: Record<string, unknown>, index: number): GoleadorEstadistica {
+    console.log('🔍 Datos del goleador desde API:', goleadorApi);
+
+    // Helper function para acceder a propiedades de objetos anidados de forma segura
+    const getNestedProperty = (obj: unknown, property: string): unknown => {
+        if (obj && typeof obj === 'object') {
+            return (obj as Record<string, unknown>)[property];
+        }
+        return undefined;
+    };
+
+    // Intentar diferentes posibles nombres de campos para el jugador
+    const posiblesNombresJugador = [
+        goleadorApi.jugador_nombre,
+        goleadorApi.nombre_completo,
+        goleadorApi.nombre,
+        goleadorApi.jugador,
+        goleadorApi.player_name,
+        // Si hay un objeto jugador anidado
+        getNestedProperty(goleadorApi.jugador, 'nombre_completo'),
+        getNestedProperty(goleadorApi.jugador, 'nombre'),
+    ];
+
+    const jugadorNombre = posiblesNombresJugador.find(nombre =>
+        typeof nombre === 'string' && nombre.trim().length > 0
+    ) as string || `Jugador ${index + 1}`;
+
+    // Intentar diferentes posibles nombres de campos para el equipo
+    const posiblesNombresEquipo = [
+        goleadorApi.equipo_nombre,
+        goleadorApi.equipo,
+        goleadorApi.team_name,
+        // Si hay un objeto equipo anidado
+        getNestedProperty(goleadorApi.equipo, 'nombre'),
+    ];
+
+    const equipoNombre = posiblesNombresEquipo.find(nombre =>
+        typeof nombre === 'string' && nombre.trim().length > 0
+    ) as string || 'Equipo';
+
+    // Intentar diferentes posibles nombres de campos para los goles
+    const posiblesGoles = [
+        goleadorApi.total_goles,
+        goleadorApi.goles,
+        goleadorApi.goals,
+        goleadorApi.total_goals,
+    ];
+
+    const totalGoles = posiblesGoles.find(goles =>
+        typeof goles === 'number' && goles >= 0
+    ) as number || 0;
+
+    const promedioGoles = typeof goleadorApi.promedio_goles === 'number'
+        ? goleadorApi.promedio_goles
+        : totalGoles; // Si no hay promedio, usar el total como fallback
+
+    const id = typeof goleadorApi.id === 'number' ? goleadorApi.id : index + 1;
+    const foto = typeof goleadorApi.foto === 'string' ? goleadorApi.foto : null;
+
+    console.log('✅ Goleador normalizado:', {
+        id,
+        jugador_nombre: jugadorNombre,
+        equipo_nombre: equipoNombre,
+        total_goles: totalGoles,
+        promedio_goles: promedioGoles
+    });
+
+    return {
+        id,
+        jugador_nombre: jugadorNombre,
+        equipo_nombre: equipoNombre,
+        total_goles: totalGoles,
+        promedio_goles: promedioGoles,
+        foto,
+        posicion: index + 1
+    };
+}
+
+// Función principal para obtener datos de goleadores
+async function obtenerGoleadores(params: {
+    torneo_id?: number;
+    equipo_id?: number;
+    limit?: number;
+    searchQuery?: string;
+}): Promise<GoleadoresResult> {
     try {
-        // Agregar breadcrumb para seguimiento en Sentry
-        Sentry.addBreadcrumb({
-            category: 'goleadores',
-            message: `Obteniendo goleadores para torneo ID: ${params.torneo_id || 'no especificado'}`,
-            level: 'info',
-            data: { torneoId: params.torneo_id, timestamp: new Date().toISOString() }
-        });
-
-        // Intentar importar el API dinámicamente
-        const { serverApi } = await import('@/lib/api/server');
-
         let torneoIdUsado = params.torneo_id;
-        
-        // Si no se proporcionó un ID de torneo, intentamos obtener el primero de la lista de torneos
+
+        // Si no se proporcionó un ID de torneo, obtener el primero disponible
         if (!torneoIdUsado) {
             try {
-                console.log('🔍 Buscando torneos disponibles para goleadores...');
-                Sentry.addBreadcrumb({
-                    category: 'data',
-                    message: 'Buscando torneos disponibles para goleadores',
-                    level: 'info'
-                });
-                
-                // Hacemos fetch directamente a la API de torneos principal
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api'}/torneos/`);
-                
-                if (!response.ok) {
-                    const errorMsg = `Error al obtener torneos: ${response.status}`;
-                    Sentry.captureMessage(errorMsg, 'error');
-                    throw new Error(errorMsg);
-                }
-                
-                const data = await response.json();
-                
-                if (data?.results && data.results.length > 0) {
-                    torneoIdUsado = data.results[0].id;
-                    console.log(`✅ Torneo encontrado para goleadores: "${data.results[0].nombre}" con ID: ${torneoIdUsado}`);
-                    Sentry.addBreadcrumb({
-                        category: 'data',
-                        message: `Torneo encontrado para goleadores: ${data.results[0].nombre} (ID: ${torneoIdUsado})`,
-                        level: 'info',
-                        data: {
-                            torneoId: torneoIdUsado,
-                            torneoNombre: data.results[0].nombre
-                        }
-                    });
-                } else {
-                    console.log('⚠️ No se encontraron torneos en los resultados');
-                    Sentry.addBreadcrumb({
-                        category: 'data',
-                        message: 'No se encontraron torneos en los resultados para goleadores',
-                        level: 'warning'
-                    });
+                console.log('🔍 Buscando torneos activos...');
+                const torneosData: PaginatedTorneoList = await serverApi.torneos.getActivos({ page: 1 });
+                if (torneosData?.results && torneosData.results.length > 0) {
+                    torneoIdUsado = torneosData.results[0].id;
+                    console.log(`✅ Torneo encontrado: ID ${torneoIdUsado}`);
                 }
             } catch (error) {
-                console.error('❌ Error al obtener torneos para goleadores:', error);
-                Sentry.captureException(error, {
-                    tags: { component: 'GoleadoresList', operation: 'obtenerTorneos' },
-                    level: 'error'
-                });
-                // Fallback a ID 1 en caso de error
+                console.warn('⚠️ Error al obtener torneos activos:', error);
                 torneoIdUsado = 1;
-                console.log('⚠️ Usando ID de torneo por defecto (1) para goleadores debido a error');
-                Sentry.addBreadcrumb({
-                    category: 'fallback',
-                    message: 'Usando ID de torneo por defecto (1) para goleadores debido a error',
-                    level: 'warning'
-                });
             }
         }
-        
+
         // Si aún no tenemos un ID, usar 1 como último recurso
         if (!torneoIdUsado) {
             torneoIdUsado = 1;
-            console.log('⚠️ No se encontraron torneos, usando ID por defecto: 1');
-            Sentry.addBreadcrumb({
-                category: 'fallback',
-                message: 'No se encontraron torneos para goleadores, usando ID por defecto: 1',
-                level: 'warning'
-            });
+            console.log('⚠️ Usando ID de torneo por defecto: 1');
         }
-        
-        console.log(`🏆 Usando torneoId para goleadores: ${torneoIdUsado}`);
-        Sentry.setTag('torneoId', String(torneoIdUsado));
 
-        // Obtener jugadores destacados con el ID obtenido
-        if (typeof serverApi?.goleadores?.getAll === 'function') {
-            try {
-                const queryParams: any = {
-                    limite: params.limit || 50
-                };
-                
-                if (params.equipo_id) {
-                    queryParams.equipo_id = params.equipo_id;
-                }
-                
-                if (params.searchQuery) {
-                    queryParams.search = params.searchQuery;
-                }
-                
-                console.log('📊 Obteniendo goleadores con parámetros:', queryParams);
-                Sentry.addBreadcrumb({
-                    category: 'data',
-                    message: 'Obteniendo goleadores de la API',
-                    level: 'info',
-                    data: queryParams
-                });
-                
-                const data = await serverApi.goleadores.getAll(torneoIdUsado, queryParams);
+        console.log(`🏆 Obteniendo goleadores para torneo ID: ${torneoIdUsado}`);
 
-                if (data?.goleadores && Array.isArray(data.goleadores)) {
-                    console.log(`✅ Se encontraron ${data.goleadores.length} goleadores`);
-                    Sentry.addBreadcrumb({
-                        category: 'data',
-                        message: `Se encontraron ${data.goleadores.length} goleadores`,
-                        level: 'info'
-                    });
-                    
-                    let goleadores = data.goleadores.map((goleador: any, index: number) => ({
-                        id: goleador.id || index + 1,
-                        jugador_nombre: goleador.jugador_nombre || goleador.nombre || 'Jugador',
-                        equipo_nombre: goleador.equipo_nombre || goleador.equipo || 'Equipo',
-                        total_goles: goleador.total_goles || goleador.goles || 0,
-                        partidos_jugados: goleador.partidos_jugados || 1,
-                        promedio_goles: goleador.promedio_goles ||
-                            ((goleador.total_goles || goleador.goles || 0) / (goleador.partidos_jugados || 1)),
-                        foto: goleador.foto || null,
-                        posicion: index + 1
-                    }));
-
-                    // Aplicar filtros adicionales si es necesario (aunque ya deberían venir filtrados de la API)
-                    if (params.limit && goleadores.length > params.limit) {
-                        goleadores = goleadores.slice(0, params.limit);
-                    }
-
-                    return {
-                        goleadores,
-                        esEjemplo: false,
-                        total: goleadores.length,
-                        metadatos: {
-                            torneo_id: torneoIdUsado,
-                            actualizado: new Date().toISOString()
-                        }
-                    };
-                } else {
-                    console.warn('⚠️ La API devolvió datos con formato incorrecto para goleadores');
-                    Sentry.captureMessage('La API devolvió datos con formato incorrecto para goleadores', 'warning');
-                }
-            } catch (error) {
-                console.error('❌ Error al obtener goleadores:', error);
-                Sentry.captureException(error, {
-                    tags: { 
-                        component: 'GoleadoresList', 
-                        operation: 'getGoleadores',
-                        torneoId: String(torneoIdUsado)
-                    }
-                });
-            }
-        } else {
-            const error = new Error('La función getAll no está disponible en serverApi.goleadores');
-            console.error('❌', error.message);
-            Sentry.captureException(error, {
-                tags: { component: 'GoleadoresList', operation: 'checkApiAvailable' }
+        // Intentar obtener jugadores destacados del torneo
+        try {
+            const data = await serverApi.torneos.getJugadoresDestacados(torneoIdUsado, {
+                limite: params.limit || 50
             });
+
+            console.log('📊 Respuesta completa de la API:', data);
+
+            // Verificar si la respuesta tiene goleadores
+            let goleadoresData: Record<string, unknown>[] = [];
+
+            if (data && typeof data === 'object') {
+                // Intentar diferentes estructuras posibles de la respuesta
+                if ('goleadores' in data && Array.isArray(data.goleadores)) {
+                    goleadoresData = data.goleadores as Record<string, unknown>[];
+                    console.log('✅ Encontrados goleadores en data.goleadores');
+                } else if (Array.isArray(data)) {
+                    goleadoresData = data as Record<string, unknown>[];
+                    console.log('✅ La respuesta es directamente un array');
+                } else if ('results' in data && Array.isArray(data.results)) {
+                    goleadoresData = (data as { results: Record<string, unknown>[] }).results;
+                    console.log('✅ Encontrados goleadores en data.results');
+                } else {
+                    console.log('🔍 Estructura de datos no reconocida, intentando buscar arrays en las propiedades...');
+                    // Buscar cualquier propiedad que sea un array
+                    Object.entries(data).forEach(([key, value]) => {
+                        if (Array.isArray(value) && value.length > 0) {
+                            console.log(`📋 Encontrado array en: ${key}`, value);
+                            if (goleadoresData.length === 0) { // Solo tomar el primero que encontremos
+                                goleadoresData = value as Record<string, unknown>[];
+                            }
+                        }
+                    });
+                }
+            }
+
+            console.log(`📈 Total de goleadores encontrados: ${goleadoresData.length}`);
+
+            if (goleadoresData.length > 0) {
+                // Mostrar el primer elemento para debug
+                console.log('🔍 Primer goleador (estructura):', goleadoresData[0]);
+
+                let goleadores = goleadoresData.map((goleador: Record<string, unknown>, index: number): GoleadorEstadistica =>
+                    normalizarGoleadorDesdeApi(goleador, index)
+                );
+
+                // Filtrar goleadores sin goles
+                goleadores = goleadores.filter(g => g.total_goles > 0);
+
+                // Ordenar por goles (descendente)
+                goleadores.sort((a, b) => b.total_goles - a.total_goles);
+
+                // Recalcular posiciones después del ordenamiento
+                goleadores = goleadores.map((g, index) => ({ ...g, posicion: index + 1 }));
+
+                // Aplicar filtros si es necesario
+                if (params.searchQuery) {
+                    const query = params.searchQuery.toLowerCase();
+                    goleadores = goleadores.filter(g =>
+                        g.jugador_nombre.toLowerCase().includes(query) ||
+                        g.equipo_nombre.toLowerCase().includes(query)
+                    );
+                }
+
+                if (params.limit && goleadores.length > params.limit) {
+                    goleadores = goleadores.slice(0, params.limit);
+                }
+
+                console.log(`✅ Goleadores procesados exitosamente: ${goleadores.length}`);
+
+                return {
+                    goleadores,
+                    total: goleadores.length,
+                    metadatos: {
+                        torneo_id: torneoIdUsado,
+                        actualizado: new Date().toISOString()
+                    }
+                };
+            } else {
+                console.warn('⚠️ No se encontraron goleadores en la respuesta de la API');
+            }
+        } catch (error) {
+            console.error('❌ Error al obtener goleadores de la API:', error);
         }
     } catch (error) {
         console.error('❌ Error general en obtenerGoleadores:', error);
-        Sentry.captureException(error, {
-            tags: { component: 'GoleadoresList', operation: 'general' }
-        });
     }
 
-    // Si llegamos aquí, usar datos de ejemplo como fallback
-    return getFallbackData(params);
-}
-
-// Función auxiliar para obtener datos de ejemplo como fallback
-function getFallbackData(params: any) {
-    console.warn('⚠️ Usando datos de ejemplo como fallback para goleadores');
-    
-    // Reportar a Sentry el uso de fallback como evento
-    Sentry.captureMessage('Usando datos de ejemplo como fallback para goleadores', 'warning');
-    
-    let goleadoresEjemplo = [...GOLEADORES_EJEMPLO];
-
-    // Aplicar filtros a los datos de ejemplo
-    if (params.equipo_id) {
-        goleadoresEjemplo = goleadoresEjemplo.filter(g => g.equipo_nombre.includes('Liverpool')); // Ejemplo
-    }
-
-    if (params.searchQuery) {
-        const query = params.searchQuery.toLowerCase();
-        goleadoresEjemplo = goleadoresEjemplo.filter(g =>
-            g.jugador_nombre.toLowerCase().includes(query) ||
-            g.equipo_nombre.toLowerCase().includes(query)
-        );
-    }
-
-    if (params.limit) {
-        goleadoresEjemplo = goleadoresEjemplo.slice(0, params.limit);
-    }
-
+    // Retornar estructura vacía si no hay datos
     return {
-        goleadores: goleadoresEjemplo.map((g, index) => ({ ...g, posicion: index + 1 })),
-        esEjemplo: true,
-        total: goleadoresEjemplo.length
+        goleadores: [],
+        total: 0
     };
 }
 
@@ -303,7 +249,7 @@ function getFallbackData(params: any) {
 function PosicionBadge({ posicion }: { posicion: number }) {
     let bgColor = 'bg-neutral-100 dark:bg-neutral-700';
     let textColor = 'text-neutral-600 dark:text-neutral-400';
-    let icon = null;
+    let icon: React.ReactNode = null;
 
     if (posicion === 1) {
         bgColor = 'bg-goal-gold/20';
@@ -311,7 +257,7 @@ function PosicionBadge({ posicion }: { posicion: number }) {
         icon = <Trophy className="w-4 h-4" />;
     } else if (posicion === 2) {
         bgColor = 'bg-neutral-300/20';
-        textColor = 'text-neutral-600';
+        textColor = 'text-gray-300';
         icon = <Medal className="w-4 h-4" />;
     } else if (posicion === 3) {
         bgColor = 'bg-orange-300/20';
@@ -329,8 +275,11 @@ function PosicionBadge({ posicion }: { posicion: number }) {
     );
 }
 
-// Componente individual de goleador
-function GoleadorCard({ goleador, showRanking = true }: { goleador: any; showRanking?: boolean }) {
+// Componente individual de goleador para vista móvil
+function GoleadorCard({ goleador, showRanking = true }: {
+    goleador: GoleadorEstadistica;
+    showRanking?: boolean;
+}) {
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md hover:border-goal-gold/50 transition-all duration-300">
             <div className="flex items-center gap-4">
@@ -340,9 +289,11 @@ function GoleadorCard({ goleador, showRanking = true }: { goleador: any; showRan
 
                     {goleador.foto ? (
                         <div className="w-12 h-12 relative">
-                            <img
+                            <Image
                                 src={goleador.foto}
                                 alt={goleador.jugador_nombre}
+                                width={48}
+                                height={48}
                                 className="w-full h-full object-cover rounded-full"
                             />
                         </div>
@@ -374,10 +325,7 @@ function GoleadorCard({ goleador, showRanking = true }: { goleador: any; showRan
                         </span>
                     </div>
                     <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                        {goleador.promedio_goles.toFixed(2)} por partido
-                    </div>
-                    <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                        {goleador.partidos_jugados} partidos
+                        {goleador.promedio_goles.toFixed(2)} promedio
                     </div>
                 </div>
             </div>
@@ -385,8 +333,8 @@ function GoleadorCard({ goleador, showRanking = true }: { goleador: any; showRan
     );
 }
 
-// Componente de tabla para desktop
-function GoleadoresTable({ goleadores }: { goleadores: any[] }) {
+// Componente de tabla para desktop (SIN columna de Partidos)
+function GoleadoresTable({ goleadores }: { goleadores: GoleadorEstadistica[] }) {
     return (
         <div className="hidden lg:block bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
             <div className="overflow-x-auto">
@@ -406,9 +354,6 @@ function GoleadoresTable({ goleadores }: { goleadores: any[] }) {
                             Goles
                         </th>
                         <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                            Partidos
-                        </th>
-                        <th className="px-4 py-4 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
                             Promedio
                         </th>
                     </tr>
@@ -423,27 +368,29 @@ function GoleadoresTable({ goleadores }: { goleadores: any[] }) {
                             <td className="px-4 py-4">
                                 <div className="flex items-center gap-3">
                                     {goleador.foto ? (
-                                        <img
+                                        <Image
                                             src={goleador.foto}
                                             alt={goleador.jugador_nombre}
+                                            width={40}
+                                            height={40}
                                             className="w-10 h-10 object-cover rounded-full"
                                         />
                                     ) : (
                                         <div className="w-10 h-10 bg-goal-blue/20 rounded-full flex items-center justify-center">
-                                                <span className="text-goal-blue font-bold">
-                                                    {goleador.jugador_nombre.charAt(0)}
-                                                </span>
+                                            <span className="text-goal-blue font-bold">
+                                                {goleador.jugador_nombre.charAt(0)}
+                                            </span>
                                         </div>
                                     )}
                                     <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                                            {goleador.jugador_nombre}
-                                        </span>
+                                        {goleador.jugador_nombre}
+                                    </span>
                                 </div>
                             </td>
 
                             <td className="px-4 py-4">
                                 <Link
-                                    href={`/equipos?search=${goleador.equipo_nombre}`}
+                                    href={`/equipos?search=${encodeURIComponent(goleador.equipo_nombre)}`}
                                     className="text-goal-blue dark:text-goal-gold hover:underline"
                                 >
                                     {goleador.equipo_nombre}
@@ -451,20 +398,16 @@ function GoleadoresTable({ goleadores }: { goleadores: any[] }) {
                             </td>
 
                             <td className="px-4 py-4 text-center">
-                                    <span className="font-bold text-2xl text-goal-gold">
-                                        {goleador.total_goles}
-                                    </span>
-                            </td>
-
-                            <td className="px-4 py-4 text-center text-neutral-600 dark:text-neutral-400">
-                                {goleador.partidos_jugados}
+                                <span className="font-bold text-2xl text-goal-gold">
+                                    {goleador.total_goles}
+                                </span>
                             </td>
 
                             <td className="px-4 py-4 text-center">
                                 <div className="flex items-center justify-center gap-1">
-                                        <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                                            {goleador.promedio_goles.toFixed(2)}
-                                        </span>
+                                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                                        {goleador.promedio_goles.toFixed(2)}
+                                    </span>
                                     {goleador.promedio_goles >= 1.5 && (
                                         <TrendingUp className="w-4 h-4 text-green-500" />
                                     )}
@@ -479,19 +422,48 @@ function GoleadoresTable({ goleadores }: { goleadores: any[] }) {
     );
 }
 
-// Componente de aviso para datos de ejemplo
-function AvisoEjemplo() {
+// Componente del podio de los 3 primeros
+function PodioGoleadores({ goleadores }: { goleadores: GoleadorEstadistica[] }) {
+    if (goleadores.length < 3) return null;
+
     return (
-        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                <div>
-                    <h3 className="text-blue-800 dark:text-blue-200 font-medium text-sm">
-                        Mostrando datos de ejemplo
-                    </h3>
-                    <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
-                        La conexión con la API está en desarrollo. Esta es una tabla de goleadores de ejemplo para demostrar la funcionalidad.
-                    </p>
+        <div className="mt-8 bg-gradient-to-r from-goal-gold/5 to-goal-orange/5 dark:from-goal-gold/10 dark:to-goal-orange/10 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-center mb-6 text-neutral-800 dark:text-neutral-100">
+                🏆 Podio de Goleadores
+            </h3>
+
+            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+                {/* Segundo lugar */}
+                <div className="text-center order-1">
+                    <div className="bg-neutral-300/20 rounded-lg p-4 h-24 flex flex-col justify-end mb-2">
+                        <div className="text-2xl mb-1">🥈</div>
+                        <div className="text-sm font-medium">{goleadores[1]?.jugador_nombre}</div>
+                    </div>
+                    <div className="font-bold text-xl text-neutral-600">
+                        {goleadores[1]?.total_goles} goles
+                    </div>
+                </div>
+
+                {/* Primer lugar */}
+                <div className="text-center order-2">
+                    <div className="bg-goal-gold/20 rounded-lg p-4 h-32 flex flex-col justify-end mb-2">
+                        <div className="text-3xl mb-1">🏆</div>
+                        <div className="text-sm font-medium">{goleadores[0]?.jugador_nombre}</div>
+                    </div>
+                    <div className="font-bold text-2xl text-goal-gold">
+                        {goleadores[0]?.total_goles} goles
+                    </div>
+                </div>
+
+                {/* Tercer lugar */}
+                <div className="text-center order-3">
+                    <div className="bg-orange-300/20 rounded-lg p-4 h-20 flex flex-col justify-end mb-2">
+                        <div className="text-xl mb-1">🥉</div>
+                        <div className="text-sm font-medium">{goleadores[2]?.jugador_nombre}</div>
+                    </div>
+                    <div className="font-bold text-lg text-orange-600">
+                        {goleadores[2]?.total_goles} goles
+                    </div>
                 </div>
             </div>
         </div>
@@ -507,7 +479,7 @@ export default async function GoleadoresListServer({
                                                        searchQuery
                                                    }: GoleadoresListServerProps) {
 
-    const { goleadores, esEjemplo, total, metadatos } = await obtenerGoleadores({
+    const { goleadores, total, metadatos } = await obtenerGoleadores({
         torneo_id,
         equipo_id,
         limit,
@@ -558,7 +530,7 @@ export default async function GoleadoresListServer({
                     <h2 className="text-3xl font-heading mb-2">
                         Máximos Goleadores
                         {searchQuery && (
-                            <span className="text-goal-gold"> - "{searchQuery}"</span>
+                            <span className="text-goal-gold"> - &#34;{searchQuery}&#34;</span>
                         )}
                     </h2>
                     <p className="text-neutral-600 dark:text-neutral-400">
@@ -567,10 +539,7 @@ export default async function GoleadoresListServer({
                 </div>
             )}
 
-            {/* Aviso si son datos de ejemplo */}
-            {esEjemplo && <AvisoEjemplo />}
-
-            {/* Tabla para desktop */}
+            {/* Tabla para desktop (sin columna Partidos) */}
             <GoleadoresTable goleadores={goleadores} />
 
             {/* Vista móvil con cards */}
@@ -588,7 +557,6 @@ export default async function GoleadoresListServer({
                         <span>
                             {goleadores.length} goleador{goleadores.length !== 1 ? 'es' : ''}
                             {limit && total > goleadores.length && ` de ${total} total`}
-                            {esEjemplo && ' (datos de ejemplo)'}
                         </span>
                     </div>
 
@@ -611,48 +579,7 @@ export default async function GoleadoresListServer({
             </div>
 
             {/* Podio de los 3 primeros */}
-            {goleadores.length >= 3 && !limit && (
-                <div className="mt-8 bg-gradient-to-r from-goal-gold/5 to-goal-orange/5 dark:from-goal-gold/10 dark:to-goal-orange/10 rounded-xl p-6">
-                    <h3 className="text-xl font-bold text-center mb-6 text-neutral-800 dark:text-neutral-100">
-                        🏆 Podio de Goleadores
-                    </h3>
-
-                    <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-                        {/* Segundo lugar */}
-                        <div className="text-center order-1">
-                            <div className="bg-neutral-300/20 rounded-lg p-4 h-24 flex flex-col justify-end mb-2">
-                                <div className="text-2xl mb-1">🥈</div>
-                                <div className="text-sm font-medium">{goleadores[1]?.jugador_nombre}</div>
-                            </div>
-                            <div className="font-bold text-xl text-neutral-600">
-                                {goleadores[1]?.total_goles} goles
-                            </div>
-                        </div>
-
-                        {/* Primer lugar */}
-                        <div className="text-center order-2">
-                            <div className="bg-goal-gold/20 rounded-lg p-4 h-32 flex flex-col justify-end mb-2">
-                                <div className="text-3xl mb-1">🏆</div>
-                                <div className="text-sm font-medium">{goleadores[0]?.jugador_nombre}</div>
-                            </div>
-                            <div className="font-bold text-2xl text-goal-gold">
-                                {goleadores[0]?.total_goles} goles
-                            </div>
-                        </div>
-
-                        {/* Tercer lugar */}
-                        <div className="text-center order-3">
-                            <div className="bg-orange-300/20 rounded-lg p-4 h-20 flex flex-col justify-end mb-2">
-                                <div className="text-xl mb-1">🥉</div>
-                                <div className="text-sm font-medium">{goleadores[2]?.jugador_nombre}</div>
-                            </div>
-                            <div className="font-bold text-lg text-orange-600">
-                                {goleadores[2]?.total_goles} goles
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {!limit && <PodioGoleadores goleadores={goleadores} />}
 
             {/* Enlaces relacionados */}
             <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
