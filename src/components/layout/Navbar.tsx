@@ -1,261 +1,384 @@
 "use client";
 
 import gsap from 'gsap';
-import {X} from 'lucide-react';
-import {useTheme} from 'next-themes';
+import { X, Menu } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Image from "next/image";
 import Link from 'next/link';
-import {useEffect, useRef, useState, useLayoutEffect} from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 
-const Navbar = () => {
+interface NavbarProps {
+    variant?: 'transparent' | 'solid';
+    className?: string;
+}
+
+const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
     const [isOpen, setIsOpen] = useState(false);
-    const {theme, setTheme} = useTheme();
+    const [isScrolled, setIsScrolled] = useState(false);
+    const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
-    const mobileMenuRef = useRef(null);
-    const menuButtonRef = useRef(null);
-    const menuItemsRef = useRef([]);
-    const navbarRef = useRef(null);
-    const mainLogoRef = useRef(null);
-    const mobileLogoRef = useRef(null);
-    const mobileHeaderRef = useRef(null);
+    const pathname = usePathname();
+
+    // Refs para animaciones - optimizados
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
+    const menuItemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
+    const navbarRef = useRef<HTMLElement>(null);
+    const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
     // Solo se ejecuta en el cliente después de que el componente se monte
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Sincroniza la posición exacta del logo móvil con el logo principal
-    useLayoutEffect(() => {
-        if (!isOpen || !mainLogoRef.current || !mobileLogoRef.current || !mobileHeaderRef.current || !navbarRef.current) return;
-        
-        // Calculamos las posiciones exactas
-        const navbarRect = navbarRef.current.getBoundingClientRect();
-        const logoRect = mainLogoRef.current.getBoundingClientRect();
-        
-        // Aplicamos la posición exacta al logo móvil para evitar saltos
-        gsap.set(mobileHeaderRef.current, {
-            paddingTop: navbarRect.top > 0 ? navbarRect.top : 0,
-            height: navbarRect.height
-        });
-    }, [isOpen]);
+    // Manejar scroll con throttling mejorado
+    const handleScroll = useCallback(() => {
+        const scrollTop = window.scrollY;
+        const shouldBeScrolled = scrollTop > 10;
 
-    // Efecto para manejar las animaciones del menú móvil
+        if (shouldBeScrolled !== isScrolled) {
+            setIsScrolled(shouldBeScrolled);
+        }
+    }, [isScrolled]);
+
+    useEffect(() => {
+        if (variant !== 'transparent') return;
+
+        let rafId: number;
+        let lastScrollY = window.scrollY;
+
+        const optimizedScrollHandler = () => {
+            const currentScrollY = window.scrollY;
+
+            // Solo actualizar si hay cambio significativo
+            if (Math.abs(currentScrollY - lastScrollY) > 5) {
+                handleScroll();
+                lastScrollY = currentScrollY;
+            }
+        };
+
+        const throttledScroll = () => {
+            if (rafId) return;
+            rafId = requestAnimationFrame(() => {
+                optimizedScrollHandler();
+                rafId = 0;
+            });
+        };
+
+        window.addEventListener('scroll', throttledScroll, { passive: true });
+        handleScroll(); // Check inicial
+
+        return () => {
+            window.removeEventListener('scroll', throttledScroll);
+            if (rafId) cancelAnimationFrame(rafId);
+        };
+    }, [variant, handleScroll]);
+
+    // Cerrar menú móvil al cambiar de ruta
+    useEffect(() => {
+        if (isOpen) {
+            setIsOpen(false);
+        }
+    }, [pathname]);
+
+    // Animaciones del menú móvil optimizadas
     useEffect(() => {
         if (!mobileMenuRef.current) return;
 
-        const menuTl = gsap.timeline({paused: true});
+        // Limpiar timeline anterior
+        if (timelineRef.current) {
+            timelineRef.current.kill();
+        }
 
-        // Animación para el menú móvil (solo fade in/out, sin movimiento vertical)
-        menuTl.fromTo(
-            mobileMenuRef.current,
-            {
-                opacity: 0,
-                pointerEvents: 'none'
-            },
-            {
-                opacity: 1,
-                duration: 0.3,
-                ease: "power3.out",
-                pointerEvents: 'auto'
-            }
-        );
+        const tl = gsap.timeline({
+            paused: true,
+            defaults: { ease: "power3.out" }
+        });
+        timelineRef.current = tl;
 
-        // Animación para cada elemento del menú
-        menuItemsRef.current.forEach((item, index) => {
-            if (!item) return;
-            menuTl.fromTo(
-                item,
-                {opacity: 0, y: -10},
-                {opacity: 1, y: 0, duration: 0.2, ease: "power2.out"},
-                "-=0.15"
-            );
+        // Configurar estados iniciales
+        gsap.set(mobileMenuRef.current, {
+            opacity: 0,
+            pointerEvents: 'none'
         });
 
+        const validItems = menuItemsRef.current.filter(Boolean);
+        if (validItems.length > 0) {
+            gsap.set(validItems, {
+                opacity: 0,
+                y: 30,
+                scale: 0.9
+            });
+        }
+
+        // Crear animación
+        tl.to(mobileMenuRef.current, {
+            opacity: 1,
+            duration: 0.3,
+            pointerEvents: 'auto'
+        })
+            .to(validItems, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.4,
+                stagger: 0.08,
+                ease: "back.out(1.4)"
+            }, "-=0.2");
+
         if (isOpen) {
-            menuTl.play();
-            // Bloquear el scroll cuando el menú está abierto
+            tl.play();
             document.body.style.overflow = 'hidden';
         } else {
-            menuTl.reverse();
-            // Restaurar el scroll cuando el menú está cerrado
-            document.body.style.overflow = 'auto';
+            tl.reverse();
+            document.body.style.overflow = '';
         }
 
         return () => {
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
+            if (timelineRef.current) {
+                timelineRef.current.kill();
+            }
         };
     }, [isOpen]);
 
-    // Animación para el botón hamburguesa
+    // Animación del botón hamburguesa optimizada
     useEffect(() => {
         if (!menuButtonRef.current) return;
 
-        const lines = menuButtonRef.current.querySelectorAll('span:not(.sr-only)');
-        if (lines.length < 3) return;
+        const button = menuButtonRef.current;
+        const menuIcon = button.querySelector('[data-menu-icon]') as HTMLElement;
+        const closeIcon = button.querySelector('[data-close-icon]') as HTMLElement;
+
+        if (!menuIcon || !closeIcon) return;
 
         if (isOpen) {
-            gsap.to(lines[0], {rotation: 45, y: 8, duration: 0.3, ease: "power2.inOut"});
-            gsap.to(lines[1], {opacity: 0, duration: 0.2, ease: "power2.inOut"});
-            gsap.to(lines[2], {rotation: -45, y: -8, duration: 0.3, ease: "power2.inOut"});
+            gsap.to(menuIcon, {
+                opacity: 0,
+                rotate: 90,
+                scale: 0.8,
+                duration: 0.2
+            });
+            gsap.to(closeIcon, {
+                opacity: 1,
+                rotate: 0,
+                scale: 1,
+                duration: 0.3,
+                delay: 0.1,
+                ease: "back.out(1.4)"
+            });
         } else {
-            gsap.to(lines[0], {rotation: 0, y: 0, duration: 0.3, ease: "power2.inOut"});
-            gsap.to(lines[1], {opacity: 1, duration: 0.2, ease: "power2.inOut", delay: 0.1});
-            gsap.to(lines[2], {rotation: 0, y: 0, duration: 0.3, ease: "power2.inOut"});
+            gsap.to(closeIcon, {
+                opacity: 0,
+                rotate: -90,
+                scale: 0.8,
+                duration: 0.2
+            });
+            gsap.to(menuIcon, {
+                opacity: 1,
+                rotate: 0,
+                scale: 1,
+                duration: 0.3,
+                delay: 0.1,
+                ease: "back.out(1.4)"
+            });
         }
     }, [isOpen]);
 
-    const closeMenu = () => {
+    const closeMenu = useCallback(() => {
         setIsOpen(false);
-    };
+    }, []);
 
-    // Función para asignar las referencias a los elementos del menú
-    const setMenuItemRef = (el, index) => {
+    const toggleMenu = useCallback(() => {
+        setIsOpen(prev => !prev);
+    }, []);
+
+    const setMenuItemRef = useCallback((el: HTMLAnchorElement | null, index: number) => {
         menuItemsRef.current[index] = el;
-    };
+    }, []);
 
-    return (
-        <nav 
-            ref={navbarRef}
-            className="absolute top-0 left-0 right-0 z-[100] transition-all duration-300 bg-transparent">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Barra de navegación */}
-                <div className="flex justify-between items-center h-16">
-                    {/* Logo a la izquierda */}
-                    <div className="flex-shrink-0">
-                        <Link href="/" className="flex items-center">
-                          <span className="text-xl font-bold">
-                            <Image
-                                ref={mainLogoRef}
-                                alt="GoolStar Logo"
-                                src="/images/logos/logooficial.svg"
-                                width={120}
-                                height={60}
-                                className="h-12 w-auto transition-transform duration-300 hover:scale-105"
-                                priority
-                            />
-                          </span>
-                        </Link>
-                    </div>
+    // Memoizar enlaces de navegación
+    const navLinks = useMemo(() => [
+        { href: '/', label: 'Inicio', gradient: 'from-amber-400 to-amber-300' },
+        { href: '/torneos', label: 'Torneos', gradient: 'from-amber-400 to-orange-400' },
+        { href: '/equipos', label: 'Equipos', gradient: 'from-orange-400 to-blue-500' },
+        { href: '/partidos', label: 'Partidos', gradient: 'from-blue-500 to-purple-500' },
+        { href: '/tabla', label: 'Tabla', gradient: 'from-purple-500 to-pink-500' },
+        { href: '/goleadores', label: 'Goleadores', gradient: 'from-pink-500 to-goal-gold' },
+        { href: '/contacto', label: 'Contacto', gradient: 'from-goal-gold to-goal-orange' }
+    ], []);
 
-                    {/* Enlaces centrados */}
-                    <div className="hidden md:flex md:justify-end md:flex-1">
-                        <div className="flex space-x-20">
-                            <Link href="/"
-                                  className="text-gray-700 dark:text-gray-100 flex flex-col items-center px-3 py-2 font-medium relative group">
-                                <span>Inicio</span>
-                                <span
-                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-amber-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                            </Link>
-                            <Link href="/torneos"
-                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2  font-medium relative group">
-                                <span>Torneos</span>
-                                <span
-                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-orange-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                            </Link>
-                            <Link href="/equipos"
-                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2  font-medium relative group">
-                                <span>Equipos</span>
-                                <span
-                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-400 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                            </Link>
-                            <Link href="/contacto"
-                                  className="text-gray-600 dark:text-gray-300 flex flex-col items-center px-3 py-2  font-medium relative group">
-                                <span>Contacto</span>
-                                <span
-                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                            </Link>
+    const isActive = useCallback((href: string) => {
+        if (href === '/') return pathname === '/';
+        return pathname.startsWith(href);
+    }, [pathname]);
+
+    // Memoizar clases del navbar
+    const navbarClasses = useMemo(() => {
+        const baseClasses = "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out h-16 md:h-20";
+        const variantClasses = variant === 'solid' || isScrolled
+            ? "bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-lg border-b border-neutral-200/50 dark:border-neutral-700/50"
+            : "bg-transparent";
+
+        return `${baseClasses} ${variantClasses} ${className}`;
+    }, [variant, isScrolled, className]);
+
+    // No renderizar hasta que esté montado para evitar hidration mismatch
+    if (!mounted) {
+        return (
+            <nav className="fixed top-0 left-0 right-0 z-50 h-16 md:h-20 bg-transparent">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+                    <div className="flex justify-between items-center h-full">
+                        <div className="flex-shrink-0 h-full flex items-center">
+                            <div className="h-8 md:h-10 lg:h-12 w-[120px] bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                        </div>
+                        <div className="lg:hidden">
+                            <div className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
                         </div>
                     </div>
-
-                    {/* Botón de menú móvil mejorado */}
-                    <div className="flex items-center md:hidden">
-                        <button
-                            ref={menuButtonRef}
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="inline-flex flex-col items-center justify-center p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white focus:outline-none"
-                            aria-expanded={isOpen}
-                            aria-label="Menú principal"
-                        >
-                            <span className="sr-only">Abrir menú principal</span>
-                            <span
-                                className="w-6 h-0.5 bg-current mb-1.5 transform transition-transform duration-300"></span>
-                            <span
-                                className="w-6 h-0.5 bg-current mb-1.5 transform transition-opacity duration-300"></span>
-                            <span 
-                                className="w-6 h-0.5 bg-current transform transition-transform duration-300"></span>
-                        </button>
-                    </div>
                 </div>
-            </div>
+            </nav>
+        );
+    }
 
-            {/* Menú móvil mejorado - no se anima verticalmente para evitar saltos */}
-            <div
-                ref={mobileMenuRef}
-                className={`md:hidden fixed inset-0 bg-gradient-to-b from-black/90 to-black/75 backdrop-blur-lg z-50 ${isOpen ? '' : 'pointer-events-none opacity-0'}`}
-                style={{ top: 0 }}
-            >
-                <div className="h-full flex flex-col">
-                    {/* Cabecera del menú móvil con exactamente la misma estructura que la principal */}
-                    <div
-                        ref={mobileHeaderRef}
-                        className="flex justify-between items-center px-4 sm:px-6 lg:px-8 border-b border-gray-700/30"
-                    >
-                        <div className="flex-shrink-0">
-                            <div className="flex items-center">
+    return (
+        <>
+            <nav ref={navbarRef} className={navbarClasses}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+                    <div className="flex justify-between items-center h-full">
+                        {/* Logo */}
+                        <div className="flex-shrink-0 h-full flex items-center">
+                            <Link
+                                href="/"
+                                className="block h-8 md:h-10 lg:h-12 w-auto transition-transform duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-goal-gold focus:ring-offset-2 rounded"
+                                aria-label="GoolStar - Ir al inicio"
+                            >
                                 <Image
-                                    ref={mobileLogoRef}
                                     alt="GoolStar Logo"
                                     src="/images/logos/logooficial.svg"
                                     width={120}
-                                    height={60}
-                                    className="h-12 w-auto"
+                                    height={40}
+                                    className="h-full w-auto object-contain"
                                     priority
                                 />
-                            </div>
+                            </Link>
                         </div>
+
+                        {/* Enlaces de navegación - Desktop */}
+                        <div className="hidden lg:flex lg:items-center lg:space-x-8">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`
+                                        relative px-3 py-2 text-sm font-medium transition-colors duration-300 group rounded-md
+                                        focus:outline-none focus:ring-2 focus:ring-goal-gold focus:ring-offset-2
+                                        ${isActive(link.href)
+                                        ? 'text-goal-gold dark:text-goal-gold'
+                                        : 'text-gray-700 dark:text-gray-100 hover:text-goal-blue dark:hover:text-goal-gold'
+                                    }
+                                    `}
+                                    aria-current={isActive(link.href) ? 'page' : undefined}
+                                >
+                                    {link.label}
+                                    <span className={`
+                                        absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r ${link.gradient} 
+                                        transform origin-left transition-transform duration-300 
+                                        ${isActive(link.href) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
+                                    `}></span>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Botón de menú móvil */}
+                        <div className="flex items-center lg:hidden">
+                            <button
+                                ref={menuButtonRef}
+                                onClick={toggleMenu}
+                                className="relative inline-flex items-center justify-center p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-goal-gold transition-colors duration-200"
+                                aria-expanded={isOpen}
+                                aria-label={isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+                                aria-controls="mobile-menu"
+                            >
+                                <Menu
+                                    className="h-6 w-6 absolute inset-0 m-auto"
+                                    data-menu-icon
+                                    aria-hidden="true"
+                                />
+                                <X
+                                    className="h-6 w-6 absolute inset-0 m-auto"
+                                    data-close-icon
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Menú móvil */}
+            <div
+                ref={mobileMenuRef}
+                id="mobile-menu"
+                className="lg:hidden fixed inset-0 z-40 bg-gradient-to-br from-black/95 to-neutral-900/95 backdrop-blur-lg"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mobile-menu-title"
+                style={{ pointerEvents: 'none', opacity: 0 }}
+            >
+                <div className="flex flex-col h-full">
+                    {/* Header del menú móvil */}
+                    <div className="flex justify-between items-center p-4 border-b border-white/10">
+                        <Image
+                            alt="GoolStar Logo"
+                            src="/images/logos/logooficial.svg"
+                            width={120}
+                            height={40}
+                            className="h-10 w-auto"
+                        />
                         <button
                             onClick={closeMenu}
-                            className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors duration-300"
-                            aria-label="Cerrar menú"
+                            className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+                            aria-label="Cerrar menú de navegación"
                         >
                             <X className="h-6 w-6"/>
                         </button>
                     </div>
 
                     {/* Enlaces del menú móvil */}
-                    <div className="flex-1 flex flex-col justify-center overflow-y-auto py-6 px-4 space-y-2">
-                        <Link href="/"
-                              onClick={closeMenu}
-                              ref={(el) => setMenuItemRef(el, 0)}
-                              className="block px-5 py-4 rounded-xl text-lg font-semibold text-gray-100 hover:bg-gradient-to-r hover:from-amber-400/20 hover:to-amber-300/20 hover:text-amber-300 transition-colors duration-300 text-center"
-                        >
-                            Inicio
-                        </Link>
-                        <Link href="/torneos"
-                              onClick={closeMenu}
-                              ref={(el) => setMenuItemRef(el, 1)}
-                              className="block px-5 py-4 rounded-xl text-lg font-semibold text-gray-100 hover:bg-gradient-to-r hover:from-amber-400/20 hover:to-orange-400/20 hover:text-orange-300 transition-colors duration-300 text-center"
-                        >
-                            Torneos
-                        </Link>
-                        <Link href="/equipos"
-                              onClick={closeMenu}
-                              ref={(el) => setMenuItemRef(el, 2)}
-                              className="block px-5 py-4 rounded-xl text-lg font-semibold text-gray-100 hover:bg-gradient-to-r hover:from-orange-400/20 hover:to-blue-500/20 hover:text-blue-300 transition-colors duration-300 text-center"
-                        >
-                            Equipos
-                        </Link>
-                        <Link href="/contacto"
-                              onClick={closeMenu}
-                              ref={(el) => setMenuItemRef(el, 3)}
-                              className="block px-5 py-4 rounded-xl text-lg font-semibold text-gray-100 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-blue-600/20 hover:text-blue-300 transition-colors duration-300 text-center"
-                        >
-                            Contacto
-                        </Link>
+                    <div className="flex-1 flex flex-col justify-center px-4 space-y-2">
+                        <h2 id="mobile-menu-title" className="sr-only">Menú de navegación</h2>
+                        {navLinks.map((link, index) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                onClick={closeMenu}
+                                ref={(el) => setMenuItemRef(el, index)}
+                                className={`
+                                    block px-5 py-4 rounded-xl text-lg font-semibold text-center transition-all duration-300
+                                    focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent
+                                    ${isActive(link.href)
+                                    ? 'bg-goal-gold/20 text-goal-gold border border-goal-gold/30 shadow-lg'
+                                    : 'text-white hover:bg-white/10 border border-transparent hover:border-white/20'
+                                }
+                                `}
+                                aria-current={isActive(link.href) ? 'page' : undefined}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* Footer opcional del menú móvil */}
+                    <div className="p-4 border-t border-white/10 text-center">
+                        <p className="text-white/60 text-sm">
+                            © 2025 GoolStar. Tu momento de brillar.
+                        </p>
                     </div>
                 </div>
             </div>
-        </nav>
+        </>
     );
 };
 

@@ -1,12 +1,14 @@
+
 "use client";
 
 import BrillarAnimation from '../animations/BrillarAnimation';
 
 const Hero = () => {
   return (
-    <div className="relative h-screen min-h-[600px] w-full overflow-hidden flex items-center pt-24 md:pt-28">
-        {/* Imagen de fondo a pantalla completa */}
-        <div className="absolute inset-0 w-full h-full z-0">
+    <div className="relative w-full overflow-hidden">
+      {/* Contenedor para la imagen de fondo que ocupa toda la pantalla */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 w-full h-screen">
           <img
             src="/images/pelota.webp"
             alt="Fútbol Indoor"
@@ -16,22 +18,26 @@ const Hero = () => {
           <div className="absolute inset-0 bg-black/45"></div>
           
           {/* Gradiente superior para integración con navbar */}
-          {/* Gradiente superior para integración con navbar - ajustado para coincidir con la altura del navbar */}
-          <div className="absolute top-0 left-0 right-0 h-[80px] md:h-[333px] bg-gradient-to-b from-black/80 via-black/60 to-transparent z-10"></div>
+          <div className="absolute top-0 left-0 right-0 h-[80px] md:h-[333px] bg-gradient-to-b from-black/80 via-black/60 to-transparent"></div>
+          
+          {/* Efecto de luz dorada desde abajo */}
+          <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-primary/10 to-transparent"></div>
         </div>
+      </div>
+      
+      {/* Contenido del hero con padding para el navbar */}
+      <div className="h-screen min-h-[600px] w-full flex items-center pt-24 md:pt-28">
 
-        {/* Efecto de luz dorada desde abajo */}
-        <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-primary/10 to-transparent z-[1]"></div>
 
         {/* Contenido centrado - ajustado para dar espacio a la navbar */}
-        <div className="container relative mx-auto px-4 z-10 pt-0">
+        <div className="container relative mx-auto px-4 pt-0">
           <div className="max-w-3xl mx-auto text-center">
             {/* Título principal con combinación de fuentes moderna y dinámica */}
             <h1 className="text-white flex flex-col items-center justify-center">
               <span className="font-subtitle uppercase text-4xl md:text-6xl tracking-wide ">
                 Tu Momento de
               </span>
-              <span className="font-heading text-7xl md:text-9xl tracking-wider uppercase px-2">
+              <span className=" text-7xl md:text-9xl tracking-wider uppercase px-2">
                 <BrillarAnimation className="" />
               </span>
               <span className="font-subtitle text-4xl uppercase md:text-6xl tracking-wide">
@@ -72,6 +78,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
+    </div>
   );
 };
 

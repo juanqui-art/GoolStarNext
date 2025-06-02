@@ -78,7 +78,7 @@ const BrillarAnimation: React.FC<BrillarAnimationProps> = ({ className }) => {
   const text = "BRILLAR";
   
   return (
-    <span ref={textRef} className={`inline-block font-playfair ${className}`}>
+    <span ref={textRef} className={`inline-block font-bold ${className}`}>
       {text.split('').map((letter, index) => (
         <span
           key={index}
