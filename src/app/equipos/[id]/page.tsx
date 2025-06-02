@@ -1,10 +1,16 @@
-// src/app/equipos/[id]/page.tsx
+// src/app/equipos/[id]/page.tsx - VERSIÓN CON TIPOS CORREGIDOS
 import { serverApi } from '@/lib/api/server';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import type { components } from '@/types/api';
+
+// ✅ TIPOS CORRECTOS - Importados de la API
+type EquipoDetalle = components['schemas']['EquipoDetalle'];
+type Jugador = components['schemas']['Jugador'];
+// type Categoria = components['schemas']['Categoria'];
 
 // Props corregidas para Next.js 15
 interface EquipoDetailPageProps {
@@ -38,7 +44,7 @@ export async function generateMetadata({ params }: EquipoDetailPageProps): Promi
     }
 }
 
-// Componente de loading para jugadores
+// Componente de loading para jugadores con tipo específico
 function JugadoresLoading() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -52,8 +58,8 @@ function JugadoresLoading() {
     );
 }
 
-// Componente de información del equipo
-function EquipoInfo({ equipo }: { equipo: any }) {
+// ✅ COMPONENTE CON TIPOS CORRECTOS
+function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden">
             {/* Header del equipo */}
@@ -70,30 +76,30 @@ function EquipoInfo({ equipo }: { equipo: any }) {
                         </div>
                     ) : (
                         <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-              <span className="text-2xl font-bold">
-                {equipo.nombre.substring(0, 2).toUpperCase()}
-              </span>
+                            <span className="text-2xl font-bold">
+                                {equipo.nombre.substring(0, 2).toUpperCase()}
+                            </span>
                         </div>
                     )}
 
                     <div>
                         <h1 className="text-3xl font-bold mb-2">{equipo.nombre}</h1>
                         <div className="flex flex-wrap gap-2">
-              <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-                {equipo.categoria?.nombre || 'Sin categoría'}
-              </span>
+                            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
+                                {equipo.categoria?.nombre || 'Sin categoría'}
+                            </span>
                             {equipo.grupo && (
                                 <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-                  Grupo {equipo.grupo}
-                </span>
+                                    Grupo {equipo.grupo}
+                                </span>
                             )}
                             <span className={`px-3 py-1 rounded-full text-sm ${
                                 equipo.activo
                                     ? 'bg-green-500/20 text-green-100'
                                     : 'bg-red-500/20 text-red-100'
                             }`}>
-                {equipo.activo ? 'Activo' : 'Inactivo'}
-              </span>
+                                {equipo.activo ? 'Activo' : 'Inactivo'}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -110,19 +116,19 @@ function EquipoInfo({ equipo }: { equipo: any }) {
                         <div className="space-y-3">
                             <div className="flex justify-between">
                                 <span className="text-neutral-600 dark:text-neutral-400">Estado:</span>
-                                <span className="font-medium">{equipo.estado || 'Activo'}</span>
+                                <span className="font-medium capitalize">{equipo.estado || 'Activo'}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-neutral-600 dark:text-neutral-400">Nivel:</span>
                                 <span className="font-medium">
-                  {equipo.nivel ? `Nivel ${equipo.nivel}` : 'No especificado'}
-                </span>
+                                    {equipo.nivel ? `Nivel ${equipo.nivel}` : 'No especificado'}
+                                </span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-neutral-600 dark:text-neutral-400">Fecha registro:</span>
                                 <span className="font-medium">
-                  {new Date(equipo.fecha_registro).toLocaleDateString('es-ES')}
-                </span>
+                                    {new Date(equipo.fecha_registro).toLocaleDateString('es-ES')}
+                                </span>
                             </div>
                             {equipo.color_principal && (
                                 <div className="flex justify-between items-center">
@@ -153,14 +159,14 @@ function EquipoInfo({ equipo }: { equipo: any }) {
                                 <span className="text-neutral-600 dark:text-neutral-400">Inasistencias:</span>
                                 <span className="font-medium">{equipo.inasistencias || 0}</span>
                             </div>
-                            {equipo.clasificado_fase_grupos !== undefined && (
+                            {typeof equipo.clasificado_fase_grupos === 'boolean' && (
                                 <div className="flex justify-between">
                                     <span className="text-neutral-600 dark:text-neutral-400">Clasificado:</span>
                                     <span className={`font-medium ${
                                         equipo.clasificado_fase_grupos ? 'text-green-600' : 'text-red-600'
                                     }`}>
-                    {equipo.clasificado_fase_grupos ? 'Sí' : 'No'}
-                  </span>
+                                        {equipo.clasificado_fase_grupos ? 'Sí' : 'No'}
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -171,8 +177,8 @@ function EquipoInfo({ equipo }: { equipo: any }) {
     );
 }
 
-// Componente de lista de jugadores
-function JugadoresList({ jugadores }: { jugadores: any[] }) {
+// ✅ COMPONENTE CON TIPOS CORRECTOS
+function JugadoresList({ jugadores }: { jugadores: Jugador[] }) {
     if (!jugadores || jugadores.length === 0) {
         return (
             <div className="bg-white dark:bg-neutral-800 rounded-xl p-8 text-center">
@@ -218,9 +224,9 @@ function JugadoresList({ jugadores }: { jugadores: any[] }) {
                                     </div>
                                 ) : (
                                     <div className="w-12 h-12 bg-goal-gold/20 rounded-full flex items-center justify-center">
-                    <span className="text-goal-gold font-bold text-lg">
-                      {jugador.primer_nombre?.charAt(0) || '?'}
-                    </span>
+                                        <span className="text-goal-gold font-bold text-lg">
+                                            {jugador.primer_nombre?.charAt(0) || '?'}
+                                        </span>
                                     </div>
                                 )}
 
@@ -231,13 +237,13 @@ function JugadoresList({ jugadores }: { jugadores: any[] }) {
                                     <div className="flex items-center gap-2 mt-1">
                                         {jugador.numero_dorsal && (
                                             <span className="bg-goal-blue text-white text-xs px-2 py-1 rounded">
-                        #{jugador.numero_dorsal}
-                      </span>
+                                                #{jugador.numero_dorsal}
+                                            </span>
                                         )}
                                         {jugador.posicion && (
                                             <span className="text-neutral-500 dark:text-neutral-400 text-sm">
-                        {jugador.posicion}
-                      </span>
+                                                {jugador.posicion}
+                                            </span>
                                         )}
                                     </div>
                                 </div>
@@ -246,10 +252,10 @@ function JugadoresList({ jugadores }: { jugadores: any[] }) {
                             {jugador.suspendido && (
                                 <div className="mt-3 p-2 bg-red-100 dark:bg-red-900/30 rounded text-red-700 dark:text-red-300 text-sm">
                                     <span className="font-medium">Suspendido</span>
-                                    {jugador.partidos_suspension_restantes > 0 && (
+                                    {jugador.partidos_suspension_restantes && jugador.partidos_suspension_restantes > 0 && (
                                         <span className="ml-1">
-                      ({jugador.partidos_suspension_restantes} partidos)
-                    </span>
+                                            ({jugador.partidos_suspension_restantes} partidos)
+                                        </span>
                                     )}
                                 </div>
                             )}
@@ -261,15 +267,26 @@ function JugadoresList({ jugadores }: { jugadores: any[] }) {
     );
 }
 
+// ✅ FUNCIÓN HELPER CON TIPOS CORRECTOS
+async function obtenerEquipo(id: string): Promise<EquipoDetalle> {
+    try {
+        const equipo = await serverApi.equipos.getById(id);
+        if (!equipo) {
+            throw new Error('Equipo no encontrado');
+        }
+        return equipo;
+    } catch (error) {
+        console.error('Error al obtener equipo:', error);
+        throw error;
+    }
+}
+
+// ✅ COMPONENTE PRINCIPAL CON TIPOS CORRECTOS
 export default async function EquipoDetailPage({ params }: EquipoDetailPageProps) {
     try {
         // Await params antes de usar sus propiedades
         const { id } = await params;
-        const equipo = await serverApi.equipos.getById(id);
-
-        if (!equipo) {
-            notFound();
-        }
+        const equipo = await obtenerEquipo(id);
 
         return (
             <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">

@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/footer';
-import { PhoneCall, MapPin, Mail, Clock, Send, ExternalLink } from 'lucide-react';
+import { PhoneCall, MapPin, Clock, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 // Registrar el plugin ScrollTrigger

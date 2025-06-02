@@ -15,7 +15,6 @@ if (typeof window !== 'undefined') {
 export default function CookiesPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const sectionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

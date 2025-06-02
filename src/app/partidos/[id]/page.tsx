@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Clock, MapPin, Users, Trophy, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Users, Trophy, AlertTriangle, AlertCircle } from 'lucide-react';
 
 interface PartidoDetailPageProps {
     params: Promise<{
