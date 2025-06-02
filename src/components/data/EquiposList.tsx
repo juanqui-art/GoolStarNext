@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
 import { getEquipos } from '@/services/equipoService';
 import type { components } from '@/types/api';
+import Image from 'next/image';
 
 // Utilizamos el tipo de equipo directamente de la API generada
 type Equipo = components['schemas']['Equipo'];
@@ -109,9 +110,11 @@ export default function EquiposList({ categoria, limit, showTitle = true }: Equi
             >
               <div className="flex flex-col items-center">
                 {equipo.logo ? (
-                  <img 
-                    src={equipo.logo} 
-                    alt={`Logo de ${equipo.nombre}`} 
+                  <Image
+                    src={equipo.logo}
+                    alt={`Logo de ${equipo.nombre}`}
+                    width={80}
+                    height={80}
                     className="h-20 w-20 object-contain mb-4"
                   />
                 ) : (
