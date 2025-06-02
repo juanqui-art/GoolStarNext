@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* Variables base para light mode */
 :root {
@@ -22,14 +21,48 @@
   --shadow-button: 0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 215, 0, 0.1);
   --shadow-neon-gold: 0 0 7px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
   --shadow-neon-blue: 0 0 7px rgba(0, 105, 146, 0.7), 0 0 25px rgba(0, 105, 146, 0.3);
+  /* Navbar Heights - Mobile First */
+  --navbar-height-mobile: 56px;
+  --navbar-height-tablet: 64px;
+  --navbar-height-desktop: 72px;
+
+  /* Navbar Z-Index System */
+  --navbar-z-index: 100;
+  --navbar-menu-z-index: 150;
+  --modal-z-index: 200;
+  --tooltip-z-index: 300;
+
+  /* Navbar Background Colors */
+  --navbar-bg-transparent: rgba(255, 255, 255, 0);
+  --navbar-bg-scrolled: rgba(255, 255, 255, 0.60);
+  --navbar-bg-scrolled-dark: rgba(23, 23, 23, 0.60);
+
+  /* Navbar Transitions */
+  --navbar-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Safe Areas for Mobile */
+  --safe-area-top: env(safe-area-inset-top, 0);
+  --navbar-total-height: calc(var(--navbar-height-mobile) + var(--safe-area-top));
+}
+/* Responsive Navbar Heights */
+@media (min-width: 768px) {
+  :root {
+    --navbar-total-height: var(--navbar-height-tablet);
+  }
 }
 
-/* Variables para dark mode */
-@media (prefers-color-scheme: dark) {
+@media (min-width: 1024px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --navbar-total-height: var(--navbar-height-desktop);
   }
+}
+/* Variables para dark mode */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --navbar-bg-scrolled: rgba(10, 10, 10, 0.98);
+  --navbar-bg-scrolled-dark: rgba(20, 17, 17, 0.8);
+  color-scheme: dark;
 }
 
 /* Tailwind Theme Inline - CORREGIDO */
@@ -90,4 +123,97 @@ body {
 
 .hover\:shadow-neon-blue:hover {
   box-shadow: var(--shadow-neon-blue);
+}
+
+/* Navbar states */
+.navbar-transparent {
+  background-color: var(--navbar-bg-transparent);
+  border-bottom: 1px solid transparent;
+}
+
+.navbar-scrolled {
+  background-color: var(--navbar-bg-scrolled);
+  border-bottom: 1px solid rgb(229, 231, 235);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dark .navbar-scrolled,
+.dark.navbar-scrolled {
+  background-color: var(--navbar-bg-scrolled-dark) !important;
+  border-bottom: 1px solid rgb(64, 64, 64) !important;
+}
+
+/* Mobile menu overlay */
+.navbar-mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--navbar-menu-z-index);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.85));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Touch-friendly mobile navigation */
+.navbar-mobile-link {
+  min-height: 48px; /* Touch target minimum */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  margin: 8px 16px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: var(--navbar-transition);
+}
+
+/* ============================================
+   LAYOUT COMPONENT UTILITIES
+============================================ */
+
+/* Remove the need for individual layout padding management */
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-main {
+  flex: 1;
+  padding-top: var(--navbar-total-height);
+}
+
+/* For layouts that need custom behavior */
+.layout-main--custom-padding {
+  padding-top: 0;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+============================================ */
+
+/* Hide/show elements based on navbar state */
+.show-on-scroll {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: var(--navbar-transition);
+}
+
+.navbar-scrolled .show-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hide-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
+  transition: var(--navbar-transition);
+}
+
+.navbar-scrolled .hide-on-scroll {
+  opacity: 0;
+  transform: translateY(-10px);
 }
