@@ -53,7 +53,7 @@ const Hero = () => {
             {/* Botón de WhatsApp con diseño minimalista y elegante */}
             <div className="relative inline-block ">
               <a
-                href="https://wa.me/593000000000"
+                href={`https://wa.me/${process.env.NEXT_PUBLIC_CONTACT_PHONE?.replace(/\D/g, '') || '593978692269'}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center justify-center bg-transparent text-white px-8 py-4 text-base font-light tracking-widest uppercase rounded-md border border-accent/50 hover:border-accent backdrop-blur-sm transition-all duration-300 hover:bg-accent/5 shadow-sm hover:shadow-neon-blue"
