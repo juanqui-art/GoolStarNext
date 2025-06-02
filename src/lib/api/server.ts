@@ -1,12 +1,12 @@
 // src/lib/api/server.ts - FUNCIÓN CORREGIDA PARA TABLA
 import type {components} from '@/types/api';
+import * as Sentry from '@sentry/nextjs';
 
 // Tipos para equipos
 type Equipo = components['schemas']['Equipo'];
 type EquipoDetalle = components['schemas']['EquipoDetalle'];
 type PaginatedEquipoList = components['schemas']['PaginatedEquipoList'];
-type TablaPosiciones = components['schemas']['TablaPosiciones'];
-type EstadisticaEquipo = components['schemas']['EstadisticaEquipo'];
+
 type PaginatedTorneoList = components['schemas']['PaginatedTorneoList'];
 type TorneoDetalle = components['schemas']['TorneoDetalle'];
 
@@ -20,6 +20,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backen
 
 // Opciones de revalidación para diferentes tipos de data
 const REVALIDATION = {
+    NEVER: false as const,
+    STATIC: 31536000 as const, // 1 año (efectivamente estático)
+    ONE_HOUR: 3600 as const,
+    ONE_DAY: 86400 as const,
+    DYNAMIC: 0 as const, // Se revalida en cada solicitud
+    FIVE_MINUTES: 300 as const,
     STATIC: 3600,      // 1 hora para datos que cambian poco
     DYNAMIC: 300,      // 5 minutos para datos que cambian moderadamente
     REALTIME: 60,      // 1 minuto para datos en tiempo real
@@ -28,68 +34,144 @@ const REVALIDATION = {
 } as const;
 
 /**
- * Función auxiliar para hacer peticiones al servidor - MEJORADA CON LOGS
+ * Función auxiliar para hacer peticiones al servidor - MEJORADA CON LOGS Y SENTRY
  */
 async function serverFetch<T>(
     endpoint: string,
     options: RequestInit & { revalidate?: number } = {}
 ): Promise<T> {
     const {revalidate = REVALIDATION.DYNAMIC, ...fetchOptions} = options;
-
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-
-    console.log('🌐 Haciendo petición a:', url);
-    console.log('⚙️ Opciones:', {revalidate, ...fetchOptions});
-
+    
+    // Crear contexto para Sentry con los detalles de la solicitud
+    const requestContext = { 
+        url, 
+        endpoint, 
+        options: fetchOptions, 
+        revalidate, 
+        timestamp: new Date().toISOString() 
+    };
+    
+    // Agregar breadcrumb para seguimiento en Sentry
     try {
-        const response = await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...fetchOptions.headers,
-            },
-            next: {revalidate},
-            ...fetchOptions,
+        Sentry.addBreadcrumb({
+            category: 'api',
+            message: `API Request: ${endpoint}`,
+            level: 'info',
+            data: requestContext
         });
 
-        console.log('📡 Respuesta recibida:', {
-            status: response.status,
-            statusText: response.statusText,
-            ok: response.ok,
-            url: response.url
+        console.log('🌐 Haciendo petición a:', url);
+        console.log('⚙️ Opciones:', {revalidate, ...fetchOptions});
+
+        const response = await fetch(url, { 
+            headers: { 'Content-Type': 'application/json', ...fetchOptions.headers }, 
+            next: {revalidate}, 
+            ...fetchOptions 
         });
 
         if (!response.ok) {
-            // Manejo mejorado de errores HTTP
             const errorText = await response.text();
-            console.error('❌ Error en respuesta:', errorText);
-
             let errorMessage = `Error ${response.status}: ${response.statusText}`;
-
+            
             try {
                 const errorData = JSON.parse(errorText);
                 errorMessage = errorData.detail || errorData.message || errorMessage;
-                console.error('📋 Datos de error parseados:', errorData);
+                
+                // Capturar error con contexto
+                Sentry.captureException(new Error(errorMessage), { 
+                    extra: { 
+                        responseStatus: response.status, 
+                        endpoint, 
+                        errorData, 
+                        url 
+                    }, 
+                    tags: { 
+                        apiEndpoint: endpoint, 
+                        statusCode: response.status.toString(), 
+                        errorType: 'api_error' 
+                    } 
+                });
             } catch {
-                // Si no es JSON, usar el texto directamente si es útil
                 if (errorText && errorText.length < 200) {
                     errorMessage = errorText;
                 }
+                
+                // Capturar error no-JSON con contexto
+                Sentry.captureException(new Error(errorMessage), { 
+                    extra: { 
+                        responseStatus: response.status, 
+                        endpoint, 
+                        errorText, 
+                        url 
+                    }, 
+                    tags: { 
+                        apiEndpoint: endpoint, 
+                        statusCode: response.status.toString(), 
+                        errorType: 'api_non_json_error' 
+                    } 
+                });
             }
+            
+            console.error('❌ Error en respuesta:', errorText);
 
             throw new Error(errorMessage);
         }
 
+        // Agregar breadcrumb de éxito
+        Sentry.addBreadcrumb({
+            category: 'api',
+            message: `API Success: ${endpoint}`,
+            level: 'info',
+            data: {
+                status: response.status,
+                endpoint,
+                url,
+                timestamp: new Date().toISOString()
+            }
+        });
+
         const data = await response.json();
         console.log('✅ Datos recibidos exitosamente, tipo:', typeof data, 'keys:', Object.keys(data || {}));
+        
         return data;
     } catch (error) {
+        // Capturar excepción general
+        Sentry.captureException(error, {
+            extra: requestContext,
+            tags: {
+                apiEndpoint: endpoint,
+                errorType: 'fetch_error'
+            }
+        });
+        
         console.error('💥 Error en serverFetch:', error);
+        
         if (error instanceof Error) {
             console.error('Error name:', error.name);
             console.error('Error message:', error.message);
+            
+            // Agregar más contexto al error y registrarlo en Sentry
+            Sentry.captureException(error, {
+                extra: {
+                    endpoint,
+                    url,
+                    timestamp: new Date().toISOString()
+                },
+                tags: {
+                    apiEndpoint: endpoint,
+                    errorType: 'fetch_error'
+                }
+            });
+            
             throw error;
         }
-        throw new Error('Error de conexión con el servidor');
+        
+        const genericError = new Error('Error de conexión con el servidor');
+        Sentry.captureException(genericError, {
+            extra: { endpoint, url }
+        });
+        throw genericError;
     }
 }
 
@@ -381,6 +463,52 @@ export async function getServerPartidosStats(): Promise<{
 ============================================ */
 
 /**
+ * Obtener todos los torneos
+ */
+export async function getServerTorneos(params?: {
+    page?: number;
+    ordering?: string;
+    search?: string;
+    page_size?: number;
+    all_pages?: boolean;
+}): Promise<PaginatedTorneoList> {
+    console.log('🏆 Obteniendo lista de torneos');
+    try {
+        const queryParams = new URLSearchParams();
+        
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.ordering) queryParams.append('ordering', params.ordering);
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+
+        // Corregir la construcción del endpoint - quitar la barra final
+        const endpoint = `/torneos${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        console.log(`🔍 Consultando endpoint: ${endpoint}`);
+        
+        const torneos = await serverFetch<PaginatedTorneoList>(
+            endpoint,
+            { revalidate: REVALIDATION.STANDARD }
+        );
+        
+        console.log(`✅ ${torneos.results.length} torneos obtenidos`);
+        return torneos;
+    } catch (error) {
+        console.error('❌ Error al obtener torneos:', error);
+        Sentry.captureException(error, {
+            tags: { area: 'API', function: 'getServerTorneos' },
+        });
+        
+        // Devolver una estructura vacía pero válida
+        return {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+        };
+    }
+}
+
+/**
  * Obtener torneos activos - CORREGIDA
  */
 export async function getServerTorneosActivos(params?: {
@@ -409,13 +537,25 @@ export async function getServerTorneosActivos(params?: {
  */
 // En src/lib/api/server.ts - Actualizar getTablaPosiciones
 
+// src/lib/api/server.ts - Función actualizada para tabla de posiciones
+
+/**
+ * Obtener tabla de posiciones con nueva estructura agrupada
+ */
 export async function getServerTablaPosiciones(
     torneoId: string | number,
     params?: {
         grupo?: string;
         actualizar?: boolean;
     }
-): Promise<any> { // Actualizar tipo según nueva estructura
+): Promise<{
+    grupos: Record<string, any[]>;
+    torneo_id: number;
+    tiene_fase_grupos: boolean;
+    total_equipos: number;
+}> {
+    console.log('🏆 Obteniendo tabla de posiciones para torneo:', torneoId, 'con params:', params);
+
     const queryParams = new URLSearchParams();
 
     if (params?.grupo) queryParams.append('grupo', params.grupo);
@@ -423,18 +563,50 @@ export async function getServerTablaPosiciones(
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
-    return serverFetch<any>(
-        `/torneos/${torneoId}/tabla_posiciones${query}`,
-        {revalidate: params?.actualizar ? 1 : REVALIDATION.DYNAMIC}
-    );
+    try {
+        const response = await serverFetch<{
+            grupos: Record<string, any[]>;
+            torneo_id: number;
+            tiene_fase_grupos: boolean;
+            total_equipos: number;
+        }>(
+            `/torneos/${torneoId}/tabla_posiciones${query}`,
+            {revalidate: params?.actualizar ? 1 : REVALIDATION.DYNAMIC}
+        );
+
+        console.log('✅ Tabla de posiciones recibida:', {
+            grupos: Object.keys(response.grupos || {}),
+            torneo_id: response.torneo_id,
+            tiene_fase_grupos: response.tiene_fase_grupos,
+            total_equipos: response.total_equipos
+        });
+
+        return response;
+    } catch (error) {
+        console.error('❌ Error obteniendo tabla de posiciones:', error);
+        throw error;
+    }
 }
 
 export async function getServerTorneoById(id: string | number): Promise<TorneoDetalle> {
     console.log('🏆 Obteniendo torneo por ID:', id);
-    return serverFetch<TorneoDetalle>(
-        `/torneos/${id}/`,
-        {revalidate: REVALIDATION.DYNAMIC}
-    );
+    try {
+        const torneo = await serverFetch<TorneoDetalle>(
+            `/torneos/${id}/`,
+            {revalidate: REVALIDATION.DYNAMIC}
+        );
+        
+        if (!torneo) {
+            console.error(`❌ Torneo con ID ${id} no encontrado`);
+            throw new Error(`Torneo con ID ${id} no encontrado`);
+        }
+        
+        console.log(`✅ Torneo encontrado:`, { id: torneo.id, nombre: torneo.nombre });
+        return torneo;
+    } catch (error) {
+        console.error(`❌ Error al obtener torneo con ID ${id}:`, error);
+        throw error; // Re-lanzar el error para que sea manejado por el llamador
+    }
 }
 
 /**
@@ -469,12 +641,154 @@ export async function getServerJugadoresDestacados(
     );
 }
 
+/**
+ * Obtener goleadores del torneo
+ */
+export async function getServerGoleadores(
+    torneoId?: string | number,
+    params?: {
+        limite?: number;
+        equipo_id?: number;
+        search?: string;
+    }
+): Promise<any> {
+    console.log('⚽ Obteniendo goleadores del torneo:', torneoId);
+
+    // Si no hay torneo especificado, intentar obtener uno disponible directamente
+    if (!torneoId) {
+        try {
+            console.log('🔍 Buscando torneo disponible para goleadores...');
+            
+            // Hacer fetch directamente a la API principal de torneos
+            const response = await fetch(`${API_BASE_URL}/torneos/`);
+            
+            if (!response.ok) {
+                throw new Error(`Error al obtener torneos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data?.results?.length > 0) {
+                torneoId = data.results[0].id;
+                console.log(`✅ Torneo encontrado para goleadores: &quot;${data.results[0].nombre}&quot; con ID: ${torneoId}`);
+            } else {
+                console.warn('⚠️ No se encontraron torneos disponibles');
+                throw new Error('No hay torneos disponibles');
+            }
+        } catch (error) {
+            console.error('❌ Error al obtener torneos para goleadores:', error);
+            // Fallback a ID 1 como último recurso
+            torneoId = 1;
+            console.log('⚠️ Usando ID de torneo por defecto (1) para goleadores');
+        }
+    }
+
+    if (!torneoId) {
+        torneoId = 1;
+        console.log('⚠️ No se pudo determinar un ID de torneo, usando ID por defecto (1)');
+    }
+
+    console.log(`🏆 Consultando goleadores para torneoId: ${torneoId}`);
+
+    const queryParams = new URLSearchParams();
+
+    if (params?.limite) queryParams.append('limite', params.limite.toString());
+    if (params?.equipo_id) queryParams.append('equipo_id', params.equipo_id.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    try {
+        const result = await serverFetch<any>(
+            `/torneos/${torneoId}/jugadores_destacados${query}`,
+            { revalidate: REVALIDATION.DYNAMIC }
+        );
+        
+        console.log(`✅ Datos de goleadores recibidos correctamente para torneo ${torneoId}`);
+        return result;
+    } catch (error) {
+        console.error(`❌ Error obteniendo goleadores para torneo ${torneoId}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Obtener estadísticas de goles por equipo
+ */
+export async function getServerGolesStats(torneoId?: string | number): Promise<{
+    total_goles: number;
+    promedio_por_partido: number;
+    equipo_mas_goleador: string;
+    jugador_max_goleador: string;
+}> {
+    try {
+        const goleadores = await getServerGoleadores(torneoId, { limite: 100 });
+
+        if (goleadores?.goleadores && Array.isArray(goleadores.goleadores)) {
+            const totalGoles = goleadores.goleadores.reduce((sum: number, g: any) =>
+                sum + (g.total_goles || g.goles || 0), 0
+            );
+
+            // Calcular estadísticas básicas
+            const equiposGoles: { [key: string]: number } = {};
+            let maxGoleadorNombre = '';
+            let maxGoles = 0;
+
+            goleadores.goleadores.forEach((goleador: any) => {
+                const equipo = goleador.equipo_nombre || goleador.equipo || 'Desconocido';
+                const goles = goleador.total_goles || goleador.goles || 0;
+
+                equiposGoles[equipo] = (equiposGoles[equipo] || 0) + goles;
+
+                if (goles > maxGoles) {
+                    maxGoles = goles;
+                    maxGoleadorNombre = goleador.jugador_nombre || goleador.nombre || 'Desconocido';
+                }
+            });
+
+            const equipoMasGoleador = Object.entries(equiposGoles)
+                .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Desconocido';
+
+            return {
+                total_goles: totalGoles,
+                promedio_por_partido: totalGoles / Math.max(goleadores.goleadores.length, 1),
+                equipo_mas_goleador: equipoMasGoleador,
+                jugador_max_goleador: maxGoleadorNombre
+            };
+        }
+
+        return {
+            total_goles: 0,
+            promedio_por_partido: 0,
+            equipo_mas_goleador: 'Sin datos',
+            jugador_max_goleador: 'Sin datos'
+        };
+    } catch (error) {
+        console.error('Error al obtener estadísticas de goles:', error);
+        return {
+            total_goles: 0,
+            promedio_por_partido: 0,
+            equipo_mas_goleador: 'Error',
+            jugador_max_goleador: 'Error'
+        };
+    }
+}
+
+export async function getServerEquiposByTorneo(torneoId: number): Promise<PaginatedEquipoList> {
+    return serverFetch<PaginatedEquipoList>(
+        `/equipos/?torneo=${torneoId}`,
+        { revalidate: REVALIDATION.DYNAMIC }
+    );
+}
+
+
 // Exportar todas las funciones en un objeto para facilitar el uso
 export const serverApi = {
     equipos: {
         getAll: getServerEquipos,
         getById: getServerEquipoById,
         getByCategoria: getServerEquiposByCategoria,
+        getByTorneo: getServerEquiposByTorneo,
         getStats: getServerEquiposStats
     },
     partidos: {
@@ -486,6 +800,7 @@ export const serverApi = {
         getStats: getServerPartidosStats
     },
     torneos: {
+        getAll: getServerTorneos,
         getActivos: getServerTorneosActivos,
         getById: getServerTorneoById,
         getTablaPosiciones: getServerTablaPosiciones,

@@ -1,187 +1,75 @@
-'use client';
+// src/app/torneos/page.tsx - Página principal de torneos
+import { Suspense } from 'react';
+import { serverApi } from '@/lib/api/server';
+import { Metadata } from 'next';
 
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Footer from '@/components/layout/footer';
-import Navbar from '@/components/layout/Navbar';
-import TorneoActual from '@/components/torneos/TorneoActual';
-import Link from 'next/link';
+// Metadata estática para la página principal de torneos
+export const metadata: Metadata = {
+  title: 'Torneos | GoolStar',
+  description: 'Explora todos los torneos de fútbol indoor disponibles en GoolStar',
+  keywords: ['torneos', 'fútbol indoor', 'competiciones', 'GoolStar'],
+  openGraph: {
+    title: 'Torneos | GoolStar',
+    description: 'Explora todos los torneos de fútbol indoor disponibles en GoolStar',
+    images: ['/images/torneos-og.jpg'],
+  },
+};
 
-// Registrar el plugin ScrollTrigger
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+export default async function TorneosPage() {
+  try {
+    // Obtener la lista de torneos
+    const torneos = await serverApi.torneos.getAll();
 
-export default function Torneos() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const heroTitleRef = useRef<HTMLHeadingElement>(null);
-  const heroTextRef = useRef<HTMLParagraphElement>(null);
-  const faqsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Animación de entrada para el hero
-    const heroTl = gsap.timeline();
-    
-    heroTl.fromTo(
-      heroTitleRef.current,
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
-    );
-    
-    heroTl.fromTo(
-      heroTextRef.current,
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
-      "-=0.4"
-    );
-    
-    // Animaciones para la sección FAQ
-    if (faqsRef.current) {
-      gsap.fromTo(
-        faqsRef.current,
-        { y: 40, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.8, 
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: faqsRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none"
-          }
-        }
-      );
-    }
-    
-    // Limpieza al desmontar
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
-
-  return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Contenido de la página */}
-      <div className="relative">
-        <Navbar />
-        
-        <main>
-          {/* Hero Section de Torneos */}
-          <section 
-            ref={heroRef}
-            className="relative pt-24 pb-20  overflow-hidden"
-          >
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute top-20 left-10 w-40 h-40 rounded-full bg-goal-blue/10 blur-3xl"></div>
-              <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-goal-gold/10 blur-3xl"></div>
-            </div>
-            
-            <div className="container mx-auto px-4 relative z-10 mt-32">
-              <div className="max-w-4xl mx-auto text-center">
-                <h1 
-                  ref={heroTitleRef}
-                  className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-neutral-800 dark:text-neutral-100"
-                >
-                  Nuestros <span className="text-goal-gold">Torneos</span>
-                </h1>
-                
-                <p 
-                  ref={heroTextRef}
-                  className="text-lg md:text-xl text-neutral-600 dark:text-neutral-300 mb-8"
-                >
-                  Descubre todos los torneos que Gool⭐️Star ofrece. Participa en competencias emocionantes,
-                  forja nuevas amistades y demuestra tu talento en el campo.
-                </p>
-                
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Link 
-                    href="#torneo-actual" 
-                    className="bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-3 px-6 rounded-full transition-all shadow-sm hover:shadow-md"
-                  >
-                    Ver Torneo Actual
-                  </Link>
-                  
-                  <Link 
-                    href="#faqs" 
-                    className="bg-white dark:bg-neutral-800 border border-goal-gold text-neutral-800 dark:text-neutral-200 font-medium py-3 px-6 rounded-full transition-all shadow-sm hover:shadow-md hover:bg-goal-gold/5"
-                  >
-                    Preguntas Frecuentes
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
+    return (
+      <main className="min-h-screen bg-neutral-950">
+        <div className="container mx-auto py-12 px-4">
+          <h1 className="text-4xl font-bold text-white mb-8">Torneos</h1>
           
-          {/* Torneo Actual */}
-          <section id="torneo-actual">
-            <TorneoActual />
-          </section>
+          {/* Lista de torneos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {torneos.results.map((torneo) => (
+              <div 
+                key={torneo.id} 
+                className="bg-neutral-900 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105"
+              >
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold text-white mb-2">{torneo.nombre}</h2>
+                  <p className="text-gray-400 mb-4">
+                    {torneo.categoria?.nombre || 'Sin categoría'}
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-emerald-500 font-semibold">
+                      {torneo.estado === 'activo' ? 'En curso' : torneo.estado}
+                    </span>
+                    <a 
+                      href={`/torneos/${torneo.id}`}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition"
+                    >
+                      Ver detalles
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
           
-          {/* FAQs sobre torneos */}
-          <section 
-            id="faqs"
-            ref={faqsRef}
-            className="py-20 bg-neutral-50 dark:bg-neutral-900"
-          >
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-                Preguntas <span className="text-goal-gold">Frecuentes</span>
-              </h2>
-              
-              <div className="max-w-3xl mx-auto space-y-6">
-                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                  <h3 className="text-xl font-bold mb-2 text-goal-blue dark:text-goal-gold">¿Cómo puedo inscribir a mi equipo?</h3>
-                  <p className="text-neutral-600 dark:text-neutral-300">
-                    Para inscribir a tu equipo, debes completar el formulario de inscripción disponible en nuestra sección de contacto
-                    y realizar el pago correspondiente. Nuestro equipo se pondrá en contacto contigo para confirmar tu participación.
-                  </p>
-                </div>
-                
-                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                  <h3 className="text-xl font-bold mb-2 text-goal-blue dark:text-goal-gold">¿Cuál es el formato de los torneos?</h3>
-                  <p className="text-neutral-600 dark:text-neutral-300">
-                    Nuestros torneos generalmente siguen un formato de fase de grupos seguido de eliminación directa.
-                    Cada torneo puede tener variaciones específicas que se detallan en su página correspondiente.
-                  </p>
-                </div>
-                
-                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                  <h3 className="text-xl font-bold mb-2 text-goal-blue dark:text-goal-gold">¿Qué premios se otorgan a los ganadores?</h3>
-                  <p className="text-neutral-600 dark:text-neutral-300">
-                    Los premios varían según el torneo, pero generalmente incluyen premios en efectivo, trofeos y reconocimientos
-                    individuales como mejor jugador, goleador y mejor portero. Los detalles específicos de los premios se anuncian
-                    antes del inicio de cada torneo.
-                  </p>
-                </div>
-                
-                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                  <h3 className="text-xl font-bold mb-2 text-goal-blue dark:text-goal-gold">¿Con qué frecuencia se organizan los torneos?</h3>
-                  <p className="text-neutral-600 dark:text-neutral-300">
-                    Organizamos torneos de forma trimestral, con competencias especiales en temporadas de verano e invierno.
-                    También planeamos torneos relámpago ocasionales durante fines de semana.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="text-center mt-12">
-                <p className="text-neutral-600 dark:text-neutral-300 mb-4">
-                  ¿Tienes más preguntas sobre nuestros torneos?
-                </p>
-                <Link 
-                  href="/contacto" 
-                  className="inline-flex items-center bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-2 px-6 rounded-full transition-all shadow-sm hover:shadow-md"
-                >
-                  Contáctanos
-                </Link>
-              </div>
+          {torneos.results.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-400">No hay torneos disponibles actualmente</p>
             </div>
-          </section>
-        </main>
-        
-        <Footer />
-      </div>
-    </div>
-  );
+          )}
+        </div>
+      </main>
+    );
+  } catch (error) {
+    console.error('Error al cargar los torneos:', error);
+    return (
+      <main className="min-h-screen bg-neutral-950">
+        <div className="container mx-auto py-12 px-4 text-center">
+          <h1 className="text-4xl font-bold text-white mb-8">Torneos</h1>
+          <p className="text-xl text-red-500">Error al cargar los torneos. Por favor, inténtelo de nuevo más tarde.</p>
+        </div>
+      </main>
+    );
+  }
 }

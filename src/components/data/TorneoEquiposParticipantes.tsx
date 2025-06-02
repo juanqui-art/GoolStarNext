@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
 import { getEquiposByTorneo } from '@/services/equipoService';
 import type { components } from '@/types/api';
+import Image from 'next/image';
 
 // Tipos
 type Equipo = components['schemas']['Equipo'];
@@ -131,14 +132,16 @@ export default function TorneoEquiposParticipantes({
           {equipos.map((equipo, index) => (
             <div
               key={equipo.id}
-              ref={el => (equipoRefs.current[index] = el)}
+              ref={el => { equipoRefs.current[index] = el; }}
               className="bg-neutral-900 rounded-lg overflow-hidden group hover:bg-neutral-800 transition-all duration-300 border border-neutral-800 hover:border-primary/50"
             >
               <div className="aspect-square w-full overflow-hidden relative">
                 {equipo.logo ? (
-                  <img
+                  <Image
                     src={equipo.logo}
                     alt={equipo.nombre}
+                    width={200}
+                    height={200}
                     className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
