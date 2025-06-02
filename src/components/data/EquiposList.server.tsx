@@ -2,6 +2,7 @@
 import { getServerEquipos } from '@/lib/api/server';
 import Link from 'next/link';
 import { Users, Trophy, Calendar } from 'lucide-react';
+import Image from 'next/image';
 
 interface EquiposListServerProps {
     categoria?: number;
@@ -67,10 +68,12 @@ function EquipoCard({ equipo }: { equipo: any }) {
                 {/* Logo del equipo */}
                 {equipo.logo ? (
                     <div className="w-12 h-12 relative">
-                        <img
+                        <Image
                             src={equipo.logo}
                             alt={`Logo ${equipo.nombre}`}
-                            className="w-full h-full object-contain rounded"
+                            className="object-contain rounded"
+                            fill
+                            sizes="48px"
                         />
                     </div>
                 ) : (
@@ -159,7 +162,7 @@ export default async function EquiposListServer({
                         </h3>
                         <p className="text-neutral-500 dark:text-neutral-400 mb-4">
                             {searchQuery
-                                ? `No se encontraron equipos que coincidan con "${searchQuery}"`
+                                ? <>No se encontraron equipos que coincidan con &quot;{searchQuery}&quot;</>
                                 : categoria
                                     ? 'No hay equipos en esta categoría actualmente.'
                                     : 'Aún no se han registrado equipos en el torneo.'
@@ -186,7 +189,7 @@ export default async function EquiposListServer({
                         </h2>
                         {searchQuery && (
                             <p className="text-neutral-600 dark:text-neutral-400">
-                                Resultados para: "{searchQuery}"
+                                Resultados para: &quot;{searchQuery}&quot;
                             </p>
                         )}
                         {categoria && (
