@@ -1,8 +1,16 @@
-// src/app/partidos/[id]/page.tsx
+// src/app/partidos/[id]/page.tsx - REFACTORIZADO
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, MapPin, Users, Trophy, AlertTriangle, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Calendar, MapPin, Users, Trophy, AlertCircle } from 'lucide-react';
+import { serverApi } from '@/lib/api/server';
+import type { components } from '@/types/api';
+
+// Tipos correctos de la API
+type PartidoDetalle = components['schemas']['PartidoDetalle'];
+type Gol = components['schemas']['Gol'];
+type Tarjeta = components['schemas']['Tarjeta'];
 
 interface PartidoDetailPageProps {
     params: Promise<{
@@ -10,68 +18,18 @@ interface PartidoDetailPageProps {
     }>;
 }
 
-// Datos de ejemplo para el partido
-const PARTIDO_EJEMPLO = {
-    id: 1,
-    equipo_1: { id: 1, nombre: "Liverpool" },
-    equipo_2: { id: 2, nombre: "Talleres M.A" },
-    fecha: "2025-01-15T18:30:00Z",
-    completado: true,
-    goles_equipo_1: 3,
-    goles_equipo_2: 2,
-    jornada: { id: 1, nombre: "Jornada 1", numero: 1 },
-    cancha: "Cancha Principal",
-    acta_firmada: true,
-    observaciones: "Partido muy reñido con buen nivel técnico",
-    goles: [
-        {
-            id: 1,
-            jugador_nombre: "Carlos Rodríguez",
-            minuto: 15,
-            autogol: false
-        },
-        {
-            id: 2,
-            jugador_nombre: "Miguel Santos",
-            minuto: 28,
-            autogol: false
-        },
-        {
-            id: 3,
-            jugador_nombre: "Diego Pérez",
-            minuto: 45,
-            autogol: false
-        }
-    ],
-    tarjetas: [
-        {
-            id: 1,
-            jugador_nombre: "Juan López",
-            tipo: "AMARILLA",
-            minuto: 35,
-            motivo: "Juego brusco"
-        },
-        {
-            id: 2,
-            jugador_nombre: "Pedro García",
-            tipo: "ROJA",
-            minuto: 67,
-            motivo: "Doble amarilla"
-        }
-    ]
-};
-
-// Metadata estática
+// Metadata dinámica usando datos reales
 export async function generateMetadata({ params }: PartidoDetailPageProps): Promise<Metadata> {
     try {
         const { id } = await params;
+        const partido = await serverApi.partidos.getById(id);
 
         return {
-            title: `Partido ${id} | GoolStar`,
-            description: `Detalles del partido de fútbol indoor - GoolStar`,
+            title: `${partido.equipo_1.nombre} vs ${partido.equipo_2.nombre} | GoolStar`,
+            description: `Detalles del partido entre ${partido.equipo_1.nombre} y ${partido.equipo_2.nombre} - ${partido.completado ? 'Finalizado' : 'Programado'}`,
             openGraph: {
-                title: `Partido | GoolStar`,
-                description: `Partido de fútbol indoor en GoolStar`,
+                title: `${partido.equipo_1.nombre} vs ${partido.equipo_2.nombre} | GoolStar`,
+                description: `Partido de fútbol indoor en GoolStar${partido.completado ? ` - Resultado: ${partido.goles_equipo_1}-${partido.goles_equipo_2}` : ''}`,
                 images: ['/images/partido-og.jpg'],
             },
         };
@@ -84,7 +42,7 @@ export async function generateMetadata({ params }: PartidoDetailPageProps): Prom
 }
 
 // Componente para mostrar goles
-function GolesPartido({ goles }: { goles: any[] }) {
+function GolesPartido({ goles }: { goles: Gol[] }) {
     if (!goles || goles.length === 0) {
         return (
             <div className="text-center py-6 text-neutral-500 dark:text-neutral-400">
@@ -109,9 +67,12 @@ function GolesPartido({ goles }: { goles: any[] }) {
                             {gol.minuto ? `Minuto ${gol.minuto}` : 'Sin minuto registrado'}
                             {gol.autogol && (
                                 <span className="ml-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded text-xs">
-                  Autogol
-                </span>
+                                    Autogol
+                                </span>
                             )}
+                        </div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                            {gol.equipo_nombre}
                         </div>
                     </div>
                 </div>
@@ -121,11 +82,11 @@ function GolesPartido({ goles }: { goles: any[] }) {
 }
 
 // Componente para mostrar tarjetas
-function TarjetasPartido({ tarjetas }: { tarjetas: any[] }) {
+function TarjetasPartido({ tarjetas }: { tarjetas: Tarjeta[] }) {
     if (!tarjetas || tarjetas.length === 0) {
         return (
             <div className="text-center py-6 text-neutral-500 dark:text-neutral-400">
-                <AlertTriangle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No hay tarjetas registradas</p>
             </div>
         );
@@ -153,6 +114,9 @@ function TarjetasPartido({ tarjetas }: { tarjetas: any[] }) {
                             {tarjeta.minuto && ` - Minuto ${tarjeta.minuto}`}
                             {tarjeta.motivo && ` - ${tarjeta.motivo}`}
                         </div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                            {new Date(tarjeta.fecha).toLocaleDateString('es-ES')}
+                        </div>
                     </div>
                 </div>
             ))}
@@ -161,7 +125,7 @@ function TarjetasPartido({ tarjetas }: { tarjetas: any[] }) {
 }
 
 // Componente principal de información del partido
-function PartidoInfo({ partido }: { partido: any }) {
+function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
     const fechaPartido = new Date(partido.fecha);
     const esHoy = fechaPartido.toDateString() === new Date().toDateString();
     const esPasado = fechaPartido < new Date();
@@ -179,24 +143,33 @@ function PartidoInfo({ partido }: { partido: any }) {
                 <div className="text-center">
                     {/* Estado del partido */}
                     <div className="mb-4">
-            <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
-                partido.completado
-                    ? 'bg-white/20'
-                    : esHoy
-                        ? 'bg-goal-gold text-goal-black'
-                        : 'bg-white/20'
-            }`}>
-              {partido.completado ? 'Finalizado' : esHoy ? 'HOY' : esPasado ? 'Pendiente' : 'Programado'}
-            </span>
+                        <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
+                            partido.completado
+                                ? 'bg-white/20'
+                                : esHoy
+                                    ? 'bg-goal-gold text-goal-black'
+                                    : 'bg-white/20'
+                        }`}>
+                            {partido.completado ? 'Finalizado' : esHoy ? 'HOY' : esPasado ? 'Pendiente' : 'Programado'}
+                        </span>
                     </div>
 
                     {/* Equipos y resultado */}
                     <div className="grid grid-cols-3 items-center gap-4 mb-4">
                         {/* Equipo 1 */}
                         <div className="text-center">
-                            <h2 className="text-xl font-bold mb-2">{partido.equipo_1.nombre}</h2>
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                {partido.equipo_1.logo && (
+                                    <Image
+                                        src={partido.equipo_1.logo}
+                                        alt={`Logo ${partido.equipo_1.nombre}`}
+                                        className="w-8 h-8 object-contain"
+                                    />
+                                )}
+                                <h2 className="text-xl font-bold">{partido.equipo_1.nombre}</h2>
+                            </div>
                             {partido.completado && (
-                                <div className="text-4xl font-bold">{partido.goles_equipo_1}</div>
+                                <div className="text-4xl font-bold">{partido.goles_equipo_1 || 0}</div>
                             )}
                         </div>
 
@@ -211,12 +184,37 @@ function PartidoInfo({ partido }: { partido: any }) {
 
                         {/* Equipo 2 */}
                         <div className="text-center">
-                            <h2 className="text-xl font-bold mb-2">{partido.equipo_2.nombre}</h2>
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                <h2 className="text-xl font-bold">{partido.equipo_2.nombre}</h2>
+                                {partido.equipo_2.logo && (
+                                    <Image
+                                        src={partido.equipo_2.logo}
+                                        alt={`Logo ${partido.equipo_2.nombre}`}
+                                        className="w-8 h-8 object-contain"
+                                    />
+                                )}
+                            </div>
                             {partido.completado && (
-                                <div className="text-4xl font-bold">{partido.goles_equipo_2}</div>
+                                <div className="text-4xl font-bold">{partido.goles_equipo_2 || 0}</div>
                             )}
                         </div>
                     </div>
+
+                    {/* Resultado por penales si existe */}
+                    {partido.penales_equipo_1 !== null && partido.penales_equipo_2 !== null && (
+                        <div className="mt-2 text-sm opacity-90">
+                            Penales: {partido.penales_equipo_1} - {partido.penales_equipo_2}
+                        </div>
+                    )}
+
+                    {/* Victoria por default */}
+                    {partido.victoria_por_default && (
+                        <div className="mt-2">
+                            <span className="bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
+                                Victoria por {partido.victoria_por_default}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -270,10 +268,21 @@ function PartidoInfo({ partido }: { partido: any }) {
                                     </div>
                                 </div>
                             )}
+
+                            {partido.es_eliminatorio && (
+                                <div className="flex items-center gap-3">
+                                    <Trophy className="w-5 h-5 text-red-500" />
+                                    <div>
+                                        <div className="font-medium text-red-600 dark:text-red-400">
+                                            Partido Eliminatorio
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Estadísticas */}
+                    {/* Estado del partido */}
                     <div>
                         <h3 className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
                             Estado del Partido
@@ -284,14 +293,57 @@ function PartidoInfo({ partido }: { partido: any }) {
                                 <span className={`font-medium ${
                                     partido.acta_firmada ? 'text-green-600' : 'text-red-600'
                                 }`}>
-                  {partido.acta_firmada ? 'Sí' : 'No'}
-                </span>
+                                    {partido.acta_firmada ? 'Sí' : 'No'}
+                                </span>
                             </div>
+
+                            {partido.acta_firmada_equipo_1 !== undefined && (
+                                <div className="flex justify-between">
+                                    <span className="text-neutral-600 dark:text-neutral-400">Acta {partido.equipo_1.nombre}:</span>
+                                    <span className={`font-medium ${
+                                        partido.acta_firmada_equipo_1 ? 'text-green-600' : 'text-red-600'
+                                    }`}>
+                                        {partido.acta_firmada_equipo_1 ? 'Firmada' : 'Pendiente'}
+                                    </span>
+                                </div>
+                            )}
+
+                            {partido.acta_firmada_equipo_2 !== undefined && (
+                                <div className="flex justify-between">
+                                    <span className="text-neutral-600 dark:text-neutral-400">Acta {partido.equipo_2.nombre}:</span>
+                                    <span className={`font-medium ${
+                                        partido.acta_firmada_equipo_2 ? 'text-green-600' : 'text-red-600'
+                                    }`}>
+                                        {partido.acta_firmada_equipo_2 ? 'Firmada' : 'Pendiente'}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Inasistencias */}
+                            {(partido.inasistencia_equipo_1 || partido.inasistencia_equipo_2) && (
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                                    <div className="text-yellow-800 dark:text-yellow-200 font-medium text-sm">
+                                        Inasistencias registradas
+                                    </div>
+                                    {partido.inasistencia_equipo_1 && (
+                                        <div className="text-yellow-700 dark:text-yellow-300 text-sm">
+                                            • {partido.equipo_1.nombre}
+                                        </div>
+                                    )}
+                                    {partido.inasistencia_equipo_2 && (
+                                        <div className="text-yellow-700 dark:text-yellow-300 text-sm">
+                                            • {partido.equipo_2.nombre}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {partido.observaciones && (
                                 <div>
                                     <span className="text-neutral-600 dark:text-neutral-400">Observaciones:</span>
-                                    <p className="text-sm mt-1">{partido.observaciones}</p>
+                                    <p className="text-sm mt-1 p-3 bg-neutral-50 dark:bg-neutral-700 rounded">
+                                        {partido.observaciones}
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -302,33 +354,10 @@ function PartidoInfo({ partido }: { partido: any }) {
     );
 }
 
-// Función para obtener datos del partido
-async function obtenerPartido(id: string) {
-    try {
-        // Intentar cargar desde la API
-        const { serverApi } = await import('@/lib/api/server');
-
-        if (serverApi?.partidos?.getById) {
-            const partido = await serverApi.partidos.getById(id);
-            if (partido) {
-                return { partido, esEjemplo: false };
-            }
-        }
-    } catch (error) {
-        console.warn('No se pudo cargar el partido desde la API, usando datos de ejemplo:', error);
-    }
-
-    // Fallback a datos de ejemplo
-    return {
-        partido: { ...PARTIDO_EJEMPLO, id: parseInt(id) || 1 },
-        esEjemplo: true
-    };
-}
-
 export default async function PartidoDetailPage({ params }: PartidoDetailPageProps) {
     try {
         const { id } = await params;
-        const { partido, esEjemplo } = await obtenerPartido(id);
+        const partido = await serverApi.partidos.getById(id);
 
         if (!partido) {
             notFound();
@@ -349,31 +378,14 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                             </Link>
                             <span className="text-neutral-400">/</span>
                             <span className="text-neutral-600 dark:text-neutral-400">
-                {partido.equipo_1.nombre} vs {partido.equipo_2.nombre}
-              </span>
+                                {partido.equipo_1.nombre} vs {partido.equipo_2.nombre}
+                            </span>
                         </nav>
                     </div>
                 </div>
 
                 <div className="container mx-auto px-4 py-8">
                     <div className="space-y-8">
-                        {/* Aviso de datos de ejemplo */}
-                        {esEjemplo && (
-                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                <div className="flex items-center gap-3">
-                                    <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                                    <div>
-                                        <h3 className="text-blue-800 dark:text-blue-200 font-medium text-sm">
-                                            Datos de ejemplo
-                                        </h3>
-                                        <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
-                                            Esta es información de ejemplo. La conexión con la API está en desarrollo.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Información principal del partido */}
                         <PartidoInfo partido={partido} />
 
@@ -396,7 +408,7 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                             <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg">
                                 <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-yellow-500/10 to-red-500/10">
                                     <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                                        <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                                        <AlertCircle className="w-5 h-5 text-yellow-600" />
                                         Tarjetas ({partido.tarjetas?.length || 0})
                                     </h2>
                                 </div>
