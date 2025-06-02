@@ -1,7 +1,7 @@
-
 "use client";
 
 import BrillarAnimation from '../animations/BrillarAnimation';
+import Image from 'next/image';
 
 const Hero = () => {
   return (
@@ -9,10 +9,12 @@ const Hero = () => {
       {/* Contenedor para la imagen de fondo que ocupa toda la pantalla */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 w-full h-screen">
-          <img
+          <Image
             src="/images/pelota.webp"
             alt="Fútbol Indoor"
+            fill
             className="w-full h-full object-cover object-center"
+            priority
           />
           {/* Overlay oscuro general */}
           <div className="absolute inset-0 bg-black/45"></div>
