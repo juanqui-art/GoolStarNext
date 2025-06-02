@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+// import Image from 'next/image';
 import type { components } from '@/types/api';
 
 type TorneoDetalle = components['schemas']['TorneoDetalle'];
@@ -69,11 +70,13 @@ export default function TorneoHero({ torneo }: TorneoHeroProps) {
     <div ref={heroRef} className="relative min-h-[60vh] flex items-center pt-24 pb-16">
       {/* Imagen de fondo */}
       <div className="absolute inset-0 w-full h-full z-0">
-        <img
-          src="/images/torneo-bg.webp" // Imagen predeterminada
-          alt={torneo.nombre}
-          className="w-full h-full object-cover object-center"
-        />
+        {/*<Image*/}
+        {/*  src={"/images/torneo-bg.webp"}*/}
+        {/*  alt={torneo.nombre}*/}
+        {/*  fill*/}
+        {/*  className={"w-full h-full object-cover object-center"}*/}
+        {/*  priority*/}
+        {/*/>*/}
         {/* Overlay para mejorar legibilidad */}
         <div ref={overlayRef} className="absolute inset-0 bg-black/70"></div>
         
@@ -115,7 +118,7 @@ export default function TorneoHero({ torneo }: TorneoHeroProps) {
                   </p>
                 )}
                 <p className="flex items-center gap-2">
-                  <span className="text-primary/80">Categoría:</span> 
+                  <span className={"text-primary/80"}>Categoría:</span> 
                   <span>{torneo.categoria?.nombre || 'General'}</span>
                 </p>
                 <p className="flex items-center gap-2">
