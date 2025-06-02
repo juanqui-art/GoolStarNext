@@ -120,16 +120,16 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                         {/* Logo */}
                         <div className="flex-shrink-0 h-full flex items-center">
                             <Link
-                                href="/"
-                                className="block h-8 md:h-10 lg:h-12 w-auto hover:scale-105 transition-transform duration-300"
-                                aria-label="GoolStar - Ir al inicio"
+                                href={"/"}
+                                className={"block h-8 md:h-10 lg:h-12 w-auto hover:scale-105 transition-transform duration-300"}
+                                aria-label={"GoolStar - Ir al inicio"}
                             >
                                 <Image
-                                    alt="GoolStar Logo"
-                                    src="/images/logos/logooficial.svg"
+                                    alt={"GoolStar Logo"}
+                                    src={"/images/logos/logooficial.svg"}
                                     width={120}
                                     height={40}
-                                    className="h-full w-auto object-contain"
+                                    className={"h-full w-auto object-contain"}
                                     priority
                                 />
                             </Link>
@@ -163,7 +163,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                                 onClick={toggleMenu}
                                 className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors duration-200"
                                 aria-expanded={isOpen}
-                                aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
+                                aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
                             >
                                 {/* ICONOS SIMPLES - SIN ANIMACIONES COMPLEJAS */}
                                 {isOpen ? (
@@ -181,7 +181,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
             {isOpen && (
                 <div
                     className="fixed inset-0 z-40 lg:hidden"
-                    aria-hidden="true"
+                    aria-hidden={"true"}
                     onClick={closeMenu}
                 >
                     <div className="fixed inset-0 bg-black opacity-50"></div>
@@ -200,7 +200,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                     <button
                         onClick={closeMenu}
                         className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                        aria-label="Cerrar menú"
+                        aria-label={"Cerrar menú"}
                     >
                         <X className="h-6 w-6" />
                     </button>
@@ -231,7 +231,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                 {/* Footer del menú */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-neutral-200 dark:border-neutral-700">
                     <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                        © 2025 GoolStar
+                        2025 GoolStar
                     </p>
                 </div>
             </div>
