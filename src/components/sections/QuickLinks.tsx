@@ -2,7 +2,7 @@
 
 import gsap from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
-import {CalendarDays, Image, Table, Trophy, Users} from 'lucide-react';
+import {CalendarDays, Image as ImageIcon, Table, Trophy, Users} from 'lucide-react';
 import {useEffect, useRef} from 'react';
 import QuickLinkCard from '../ui/QuickLinkCard';
 
@@ -81,7 +81,7 @@ export default function QuickLinks() {
         {
             title: 'Torneos',
             description: 'Información sobre los torneos activos y próximos',
-            icon: <Image size={24}/>,
+            icon: <ImageIcon size={24} />,
             href: '/torneos',
             accentColor: 'gold' as const
         }

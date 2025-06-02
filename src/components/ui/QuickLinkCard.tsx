@@ -82,6 +82,7 @@ export default function QuickLinkCard({
       // Limpieza de animaciones
       if (cardRef.current) {
         cardRef.current.removeEventListener('mouseenter', () => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         cardRef.current.removeEventListener('mouseleave', () => {});
       }
     };
