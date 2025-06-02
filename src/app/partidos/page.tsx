@@ -1,20 +1,34 @@
-// src/app/partidos/page.tsx
+// src/app/partidos/page.tsx - TIPOS CORREGIDOS
 import PartidosListServer from '@/components/data/PartidosList.server';
 import PartidosLoading from '@/components/data/PartidosLoading';
 import PartidosLayout from '@/components/partidos/PartidosLayout';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
+// Tipo para ordenamiento de partidos basado en la API real
+type PartidosOrdenamiento = 'fecha' | '-fecha' | 'jornada';
+
+// Tipo para estado de partidos más específico
+type EstadoPartido = 'completado' | 'pendiente' | 'programado';
+
 // Props de página con searchParams como Promise en Next.js 15
 interface PartidosPageProps {
     searchParams: Promise<{
         equipo?: string;
         jornada?: string;
-        estado?: 'completado' | 'pendiente' | 'programado';
+        estado?: EstadoPartido;
         search?: string;
         page?: string;
-        ordenar?: 'fecha' | '-fecha' | 'jornada';
+        ordenar?: PartidosOrdenamiento;
     }>;
+}
+
+// Función para validar el ordenamiento
+function isValidOrdenamiento(ordenamiento: string): ordenamiento is PartidosOrdenamiento {
+    const validOrderings: PartidosOrdenamiento[] = [
+        'fecha', '-fecha', 'jornada'
+    ];
+    return validOrderings.includes(ordenamiento as PartidosOrdenamiento);
 }
 
 // Metadata estática (sin llamadas a API) para evitar errores
@@ -31,6 +45,11 @@ export async function generateMetadata({ searchParams }: PartidosPageProps): Pro
             return {
                 title: `Partidos del Equipo | GoolStar`,
                 description: `Todos los partidos del equipo seleccionado en el torneo GoolStar`,
+                openGraph: {
+                    title: `Partidos del Equipo | GoolStar`,
+                    description: `Todos los partidos del equipo seleccionado en el torneo GoolStar`,
+                    images: ['/images/partidos-equipo-og.jpg'],
+                },
             };
         }
 
@@ -38,6 +57,11 @@ export async function generateMetadata({ searchParams }: PartidosPageProps): Pro
             return {
                 title: `Resultados de Partidos | GoolStar`,
                 description: `Resultados y marcadores de los partidos finalizados del torneo`,
+                openGraph: {
+                    title: `Resultados de Partidos | GoolStar`,
+                    description: `Resultados y marcadores de los partidos finalizados del torneo`,
+                    images: ['/images/partidos-resultados-og.jpg'],
+                },
             };
         }
 
@@ -45,6 +69,11 @@ export async function generateMetadata({ searchParams }: PartidosPageProps): Pro
             return {
                 title: `Próximos Partidos | GoolStar`,
                 description: `Calendario de partidos programados y próximos encuentros`,
+                openGraph: {
+                    title: `Próximos Partidos | GoolStar`,
+                    description: `Calendario de partidos programados y próximos encuentros`,
+                    images: ['/images/partidos-proximos-og.jpg'],
+                },
             };
         }
 
@@ -52,6 +81,23 @@ export async function generateMetadata({ searchParams }: PartidosPageProps): Pro
             return {
                 title: `Buscar: ${params.search} | Partidos GoolStar`,
                 description: `Resultados de búsqueda para "${params.search}" en partidos`,
+                openGraph: {
+                    title: `Buscar: ${params.search} | Partidos GoolStar`,
+                    description: `Resultados de búsqueda para "${params.search}" en partidos`,
+                    images: ['/images/partidos-search-og.jpg'],
+                },
+            };
+        }
+
+        if (params.jornada) {
+            return {
+                title: `Partidos de la Jornada | GoolStar`,
+                description: `Todos los partidos de la jornada seleccionada`,
+                openGraph: {
+                    title: `Partidos de la Jornada | GoolStar`,
+                    description: `Todos los partidos de la jornada seleccionada`,
+                    images: ['/images/partidos-jornada-og.jpg'],
+                },
             };
         }
 
@@ -93,34 +139,45 @@ export default async function PartidosPage({ searchParams }: PartidosPageProps) 
     // Await searchParams antes de usar sus propiedades
     const params = await searchParams;
 
-    // Convertir searchParams a props del componente
+    // Convertir searchParams a props del componente con validación
     const equipo_id = params.equipo ? parseInt(params.equipo) : undefined;
     const jornada_id = params.jornada ? parseInt(params.jornada) : undefined;
     const search = params.search;
     const page = params.page ? parseInt(params.page) : 1;
-    const ordenamiento = params.ordenar || '-fecha';
 
-    // Determinar estado del partido
+    // Validar y establecer ordenamiento con valor por defecto
+    let ordenamiento: PartidosOrdenamiento = '-fecha'; // Por defecto: más recientes primero
+    if (params.ordenar && isValidOrdenamiento(params.ordenar)) {
+        ordenamiento = params.ordenar;
+    }
+
+    // Determinar estado del partido de forma más precisa
     let completado: boolean | undefined;
     if (params.estado === 'completado') {
         completado = true;
     } else if (params.estado === 'pendiente' || params.estado === 'programado') {
         completado = false;
     }
+    // Si no se especifica estado, se mostrarán todos los partidos (completado = undefined)
+
+    // Validar que los IDs sean números válidos
+    const equipoIdValido = equipo_id && !isNaN(equipo_id) && equipo_id > 0 ? equipo_id : undefined;
+    const jornadaIdValida = jornada_id && !isNaN(jornada_id) && jornada_id > 0 ? jornada_id : undefined;
+    const pageValida = page && !isNaN(page) && page > 0 ? page : 1;
 
     return (
         <PartidosLayout>
             <Suspense
                 fallback={<PartidosLoading />}
-                key={`${equipo_id}-${jornada_id}-${completado}-${search}-${page}-${ordenamiento}`}
+                key={`${equipoIdValido}-${jornadaIdValida}-${completado}-${search}-${pageValida}-${ordenamiento}`}
             >
                 <PartidosListServer
                     showTitle={false}
-                    equipo_id={equipo_id}
-                    jornada_id={jornada_id}
+                    equipo_id={equipoIdValido}
+                    jornada_id={jornadaIdValida}
                     completado={completado}
                     searchQuery={search}
-                    ordenamiento={ordenamiento as any}
+                    ordenamiento={ordenamiento}
                 />
             </Suspense>
         </PartidosLayout>
