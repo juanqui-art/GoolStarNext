@@ -1,4 +1,4 @@
-// src/app/not-found.tsx - Página 404 personalizada para debugging
+// src/app/not-found.tsx - CORREGIDO sin event handlers
 import Link from 'next/link';
 import { Home, ArrowLeft, AlertTriangle } from 'lucide-react';
 
@@ -24,20 +24,19 @@ export default function NotFound() {
                     Lo sentimos, la página que buscas no existe o ha sido movida.
                 </p>
 
-                {/* Información de debugging para desarrollo */}
+                {/* Información de debugging - SIN JavaScript */}
                 <div className="mb-8 p-4 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-left max-w-md mx-auto">
                     <h3 className="font-semibold text-sm text-neutral-700 dark:text-neutral-300 mb-2">
                         Información de debugging:
                     </h3>
                     <ul className="text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
-                        <li>• URL actual: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</li>
                         <li>• Timestamp: {new Date().toISOString()}</li>
                         <li>• Entorno: {process.env.NODE_ENV}</li>
                         <li>• Vercel: {process.env.VERCEL ? 'Sí' : 'No'}</li>
                     </ul>
                 </div>
 
-                {/* Botones de navegación */}
+                {/* Botones de navegación - SOLO LINKS, sin onClick */}
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                     <Link
                         href="/"
@@ -47,13 +46,14 @@ export default function NotFound() {
                         Ir al inicio
                     </Link>
 
-                    <button
-                        onClick={() => window.history.back()}
+                    {/* Botón de volver atrás - ahora es un link simple */}
+                    <Link
+                        href="/"
                         className="inline-flex items-center bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 font-medium py-3 px-6 rounded-full transition-all duration-300 hover:bg-neutral-50 dark:hover:bg-neutral-700"
                     >
                         <ArrowLeft className="w-5 h-5 mr-2" />
-                        Volver atrás
-                    </button>
+                        Volver al inicio
+                    </Link>
                 </div>
 
                 {/* Enlaces útiles */}
