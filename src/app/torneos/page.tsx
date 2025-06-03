@@ -22,7 +22,7 @@ if (typeof window !== 'undefined') {
 // Datos del torneo actual (puedes moverlos a un hook o servicio)
 const TORNEO_ACTUAL = {
   nombre: "CATEGORÍA VARONES - PRIMER CAMPEONATO GOOL⭐️STAR",
-  fechaInicio: "2025-03-15",
+  fechaInicio: "2025-03-22",
   fechaFin: "2025-05-30",
   costoInscripcion: "$100",
   modalidad: "Sin mundialitos (jugadores que no hayan participado en campeonatos del amistad club o mundialito)",
@@ -297,11 +297,11 @@ export default function TorneosPage() {
                             <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded-full text-xs">Completado</span>
                           </div>
                           <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-2">
-                            Febrero 2025 - Se inscribieron {TORNEO_ACTUAL.equiposInscritos} equipos listos para competir.
+                            Marzo 22 - Se inscribieron {TORNEO_ACTUAL.equiposInscritos} equipos listos para competir.
                           </p>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-500">
-                            ✓ Pago de inscripción • ✓ Documentación completa • ✓ Sorteo de grupos
-                          </div>
+                          {/*<div className="text-xs text-neutral-500 dark:text-neutral-500">*/}
+                          {/*  ✓ Pago de inscripción • ✓ Documentación completa • ✓ Sorteo de grupos*/}
+                          {/*</div>*/}
                         </div>
                       </div>
 
@@ -316,7 +316,7 @@ export default function TorneosPage() {
                             <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full text-xs animate-pulse">En Curso</span>
                           </div>
                           <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-2">
-                            Marzo 2025 - {TORNEO_ACTUAL.faseActual}. Los equipos luchan por clasificar a octavos.
+                            Mayo 2025 - {TORNEO_ACTUAL.faseActual}. Los equipos luchan por clasificar a octavos.
                           </p>
                           <div className="text-xs text-neutral-500 dark:text-neutral-500">
                             ⚽ {TORNEO_ACTUAL.partidosJugados} partidos jugados • 🎯 Últimas jornadas
