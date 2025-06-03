@@ -2,7 +2,7 @@
 import { toast } from 'sonner';
 
 // Añadir un valor predeterminado para evitar que API_URL sea una cadena vacía
-const API_URL = process.env.NEXT_PUBLIC_API_URL  || 'http://localhost:8000/api';
+const API_URL = process.env.API_URL  || 'https://goolstar-backend.fly.dev/api';
 interface FetchOptions extends RequestInit {
     token?: string;
 }

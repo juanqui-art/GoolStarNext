@@ -5,7 +5,7 @@ type PartidoDetalle = components['schemas']['PartidoDetalle'];
 type PaginatedPartidoList = components['schemas']['PaginatedPartidoList'];
 
 // Configuración base
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api';
+const API_BASE_URL = process.env.API_URL || 'https://goolstar-backend.fly.dev/api';
 
 // Opciones de revalidación específicas para partidos
 const REVALIDATION = {
