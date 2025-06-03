@@ -4,6 +4,7 @@ import { Trophy, Target, Users, Medal, TrendingUp } from 'lucide-react';
 import { serverApi } from '@/lib/api/server';
 import type { components } from '@/types/api';
 import Image from 'next/image';
+import type { JugadorDestacado } from '@/types/server-api';
 
 // Usar los tipos generados automáticamente de la API
 // type Jugador = components['schemas']['Jugador'];
@@ -164,7 +165,9 @@ async function obtenerGoleadores(params: {
             if (data && typeof data === 'object') {
                 // Intentar diferentes estructuras posibles de la respuesta
                 if ('goleadores' in data && Array.isArray(data.goleadores)) {
-                    goleadoresData = data.goleadores as Record<string, unknown>[];
+                    // Usar tipo correcto para JugadorDestacado[]
+                    const jugadores = data.goleadores as JugadorDestacado[];
+                    goleadoresData = jugadores as unknown as Record<string, unknown>[];
                     console.log('✅ Encontrados goleadores en data.goleadores');
                 } else if (Array.isArray(data)) {
                     goleadoresData = data as Record<string, unknown>[];
