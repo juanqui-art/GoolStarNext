@@ -25,7 +25,7 @@ async function obtenerTorneoId(): Promise<number> {
         }
 
         // Si no hay torneos activos, buscar cualquier torneo
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/torneos/`);
+        const response = await fetch(`${process.env.API_URL}/torneos/`);
         if (response.ok) {
             const data = await response.json();
             if (Array.isArray(data?.results) && data.results.length > 0) {
