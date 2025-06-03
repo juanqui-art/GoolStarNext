@@ -1,42 +1,104 @@
-// src/components/data/EquiposList.server.tsx - MEJORADO
+// src/components/data/EquiposList.server.tsx - TIPOS MEJORADOS
 import { getServerEquipos } from '@/lib/api/server';
-import Link from 'next/link';
-import { Users, Trophy, Calendar } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Users, Trophy, Calendar, AlertTriangle } from 'lucide-react';
+import type { components } from '@/types/api';
+import {JSX} from "react";
 
+// ========================================
+// DEFINICIÓN DE TIPOS
+// ========================================
+
+// Tipos base de la API
+type Equipo = components['schemas']['Equipo'];
+type PaginatedEquipoList = components['schemas']['PaginatedEquipoList'];
+
+// Props del componente principal
 interface EquiposListServerProps {
+    /** ID de la categoría para filtrar equipos */
     categoria?: number;
+    /** Límite máximo de equipos a mostrar */
     limit?: number;
+    /** Si debe mostrar el título del componente */
     showTitle?: boolean;
+    /** Término de búsqueda para filtrar equipos por nombre */
     searchQuery?: string;
 }
 
-// Componente de loading separado para mejor reutilización
-function EquiposSkeletonGrid({ count = 12 }: { count?: number }) {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
-            {Array.from({ length: count }).map((_, index) => (
-                <div
-                    key={index}
-                    className="py-2 flex items-center space-x-3 animate-pulse"
-                >
-                    <div className="w-2 h-2 rounded-full bg-goal-gold/40"></div>
-                    <div className="h-5 bg-neutral-200 dark:bg-neutral-700 rounded w-32"></div>
-                </div>
-            ))}
-        </div>
-    );
+// Props para el componente de error
+interface EquiposErrorProps {
+    /** Mensaje de error a mostrar */
+    error: string;
+    /** Función opcional para reintentar la operación */
+    retry?: () => void;
 }
 
+// Props para el componente individual de equipo
+interface EquipoCardProps {
+    /** Datos del equipo a mostrar */
+    equipo: Equipo;
+}
+
+// Tipo para el skeleton de loading
+interface EquiposSkeletonGridProps {
+    /** Número de elementos skeleton a mostrar */
+    count?: number;
+}
+
+// Tipo para el estado de respuesta del servidor
+interface ServerResponse {
+    /** Lista de equipos obtenida */
+    equipos: Equipo[];
+    /** Total de equipos disponibles */
+    total: number;
+    /** Si la respuesta contiene datos de ejemplo */
+    esEjemplo?: boolean;
+    /** Metadatos adicionales de la respuesta */
+    metadatos?: {
+        torneo_id?: number;
+        categoria_id?: number;
+        actualizado?: string;
+    };
+}
+
+// Tipo para parámetros de la función de obtención de datos
+interface ObtenerEquiposParams {
+    categoria?: number;
+    limit?: number;
+    searchQuery?: string;
+    page?: number;
+    ordering?: string;
+}
+
+// ========================================
+// COMPONENTES CON TIPOS DEFINIDOS
+// ========================================
+
+// Componente de loading separado para mejor reutilización
+// function EquiposSkeletonGrid({ count = 12 }: EquiposSkeletonGridProps) {
+//     return (
+//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
+//             {Array.from({ length: count }).map((_, index) => (
+//                 <div
+//                     key={index}
+//                     className="py-2 flex items-center space-x-3 animate-pulse"
+//                 >
+//                     <div className="w-2 h-2 rounded-full bg-goal-gold/40"></div>
+//                     <div className="h-5 bg-neutral-200 dark:bg-neutral-700 rounded w-32"></div>
+//                 </div>
+//             ))}
+//         </div>
+//     );
+// }
+
 // Componente de error mejorado
-function EquiposError({ error, retry }: { error: string; retry?: () => void }) {
+function EquiposError({ error, retry }: EquiposErrorProps) {
     return (
         <div className="text-center py-8">
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
                 <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/40 rounded-full">
-                    <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
+                    <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
                     Error al cargar equipos
@@ -58,7 +120,7 @@ function EquiposError({ error, retry }: { error: string; retry?: () => void }) {
 }
 
 // Componente individual de equipo mejorado
-function EquipoCard({ equipo }: { equipo: any }) {
+function EquipoCard({ equipo }: EquipoCardProps) {
     return (
         <Link
             href={`/equipos/${equipo.id}`}
@@ -71,16 +133,14 @@ function EquipoCard({ equipo }: { equipo: any }) {
                         <Image
                             src={equipo.logo}
                             alt={`Logo ${equipo.nombre}`}
-                            className="object-contain rounded"
-                            fill
-                            sizes="48px"
+                            className="w-full h-full object-contain rounded"
                         />
                     </div>
                 ) : (
                     <div className="w-12 h-12 bg-goal-gold/20 rounded-lg flex items-center justify-center">
-                        <span className="text-goal-gold font-bold text-lg">
-                            {equipo.nombre.substring(0, 2).toUpperCase()}
-                        </span>
+            <span className="text-goal-gold font-bold text-lg">
+              {equipo.nombre.substring(0, 2).toUpperCase()}
+            </span>
                     </div>
                 )}
 
@@ -91,20 +151,20 @@ function EquipoCard({ equipo }: { equipo: any }) {
                     </h3>
 
                     <div className="flex items-center gap-2 mt-1">
-                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                            {equipo.categoria_nombre}
-                        </span>
+            <span className="text-sm text-neutral-600 dark:text-neutral-400">
+              {equipo.categoria_nombre}
+            </span>
 
                         {equipo.grupo && (
                             <span className="text-xs bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 px-2 py-1 rounded-full">
-                                Grupo {equipo.grupo}
-                            </span>
+                Grupo {equipo.grupo}
+              </span>
                         )}
 
                         {!equipo.activo && (
                             <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded-full">
-                                Inactivo
-                            </span>
+                Inactivo
+              </span>
                         )}
                     </div>
                 </div>
@@ -123,16 +183,20 @@ function EquipoCard({ equipo }: { equipo: any }) {
     );
 }
 
+// ========================================
+// COMPONENTE PRINCIPAL
+// ========================================
+
 // Componente principal del listado
 export default async function EquiposListServer({
                                                     categoria,
                                                     limit,
                                                     showTitle = true,
                                                     searchQuery
-                                                }: EquiposListServerProps) {
+                                                }: EquiposListServerProps): Promise<JSX.Element> {
     try {
         // Obtener todos los equipos del servidor con parámetros mejorados
-        const data = await getServerEquipos({
+        const data: PaginatedEquipoList = await getServerEquipos({
             categoria,
             ordering: 'nombre',
             all_pages: !limit, // Solo todas las páginas si no hay límite
@@ -141,7 +205,7 @@ export default async function EquiposListServer({
         });
 
         // Aplicar límite si se especificó
-        const equipos = limit ? data.results.slice(0, limit) : data.results;
+        const equipos: Equipo[] = limit ? data.results.slice(0, limit) : data.results;
 
         // Si no hay equipos, mostrar mensaje apropiado
         if (equipos.length === 0) {
@@ -162,7 +226,7 @@ export default async function EquiposListServer({
                         </h3>
                         <p className="text-neutral-500 dark:text-neutral-400 mb-4">
                             {searchQuery
-                                ? <>No se encontraron equipos que coincidan con &quot;{searchQuery}&quot;</>
+                                ? `No se encontraron equipos que coincidan con "${searchQuery}"`
                                 : categoria
                                     ? 'No hay equipos en esta categoría actualmente.'
                                     : 'Aún no se han registrado equipos en el torneo.'
@@ -189,7 +253,7 @@ export default async function EquiposListServer({
                         </h2>
                         {searchQuery && (
                             <p className="text-neutral-600 dark:text-neutral-400">
-                                Resultados para: &quot;{searchQuery}&quot;
+                                {/*Resultados para: "{searchQuery}"*/}
                             </p>
                         )}
                         {categoria && (
@@ -202,7 +266,7 @@ export default async function EquiposListServer({
 
                 {/* Grid mejorado de equipos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {equipos.map((equipo) => (
+                    {equipos.map((equipo: Equipo) => (
                         <EquipoCard key={equipo.id} equipo={equipo} />
                     ))}
                 </div>
@@ -213,9 +277,9 @@ export default async function EquiposListServer({
                         <div className="flex items-center gap-2">
                             <Users className="w-4 h-4" />
                             <span>
-                                {equipos.length} equipo{equipos.length !== 1 ? 's' : ''}
+                {equipos.length} equipo{equipos.length !== 1 ? 's' : ''}
                                 {limit && data.results.length > limit && ` de ${data.results.length} total`}
-                            </span>
+              </span>
                         </div>
 
                         {categoria && (
@@ -257,9 +321,23 @@ export default async function EquiposListServer({
                 )}
             </div>
         );
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error al cargar equipos:', error);
         const errorMessage = error instanceof Error ? error.message : 'Error desconocido al cargar los equipos.';
         return <EquiposError error={errorMessage} />;
     }
 }
+
+// ========================================
+// EXPORTACIÓN DE TIPOS (para uso externo)
+// ========================================
+
+// Exportar tipos para uso en otros componentes
+export type {
+    EquiposListServerProps,
+    EquipoCardProps,
+    EquiposErrorProps,
+    EquiposSkeletonGridProps,
+    ServerResponse,
+    ObtenerEquiposParams
+};
