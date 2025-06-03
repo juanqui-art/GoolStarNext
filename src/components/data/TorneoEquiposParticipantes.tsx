@@ -156,7 +156,7 @@ export default function TorneoEquiposParticipantes({
                 </h3>
                 {equipo.categoria && (
                   <p className="text-sm text-primary/80">
-                    {equipo.categoria.nombre}
+                    {/*{equipo.categoria.nombre}*/}
                   </p>
                 )}
               </div>

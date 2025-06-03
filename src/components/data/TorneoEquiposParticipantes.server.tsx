@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { serverApi } from '@/lib/api/server';
 import TorneoHero from '@/components/torneos/TorneoHero';
-import TorneoEquiposParticipantesServer from '@/components/data/TorneoEquiposParticipantes.server';
+// import TorneoEquiposParticipantesServer from '@/components/data/TorneoEquiposParticipantes.server';
 import TorneoEquiposLoading from '@/components/data/TorneoEquiposLoading';
 import { Metadata } from 'next';
 
@@ -65,11 +65,11 @@ export default async function TorneoPage({ params }: TorneoPageProps) {
 
                 {/* Sección de Equipos Participantes */}
                 <Suspense fallback={<TorneoEquiposLoading />}>
-                    <TorneoEquiposParticipantesServer
-                        torneoId={id}
-                        titulo={`Equipos Participantes - ${torneo.nombre}`}
-                        showStats={true}
-                    />
+                    {/*<TorneoEquiposParticipantesServer*/}
+                    {/*    torneoId={id}*/}
+                    {/*    titulo={`Equipos Participantes - ${torneo.nombre}`}*/}
+                    {/*    showStats={true}*/}
+                    {/*/>*/}
                 </Suspense>
 
                 {/* Aquí pueden ir otras secciones del torneo como:
