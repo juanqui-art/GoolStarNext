@@ -2687,6 +2687,17 @@ export interface operations {
     torneos_list: {
         parameters: {
             query?: {
+                activo?: boolean;
+                categoria?: number;
+                /** @description * `inscripcion` - Inscripción
+                 *     * `grupos` - Fase de Grupos
+                 *     * `octavos` - Octavos de Final
+                 *     * `cuartos` - Cuartos de Final
+                 *     * `semifinales` - Semifinales
+                 *     * `final` - Final
+                 *     * `finalizado` - Finalizado */
+                fase_actual?: "cuartos" | "final" | "finalizado" | "grupos" | "inscripcion" | "octavos" | "semifinales";
+                finalizado?: boolean;
                 /** @description Which field to use when ordering the results. */
                 ordering?: string;
                 /** @description A page number within the paginated result set. */
@@ -2738,6 +2749,17 @@ export interface operations {
     torneos_activos_list: {
         parameters: {
             query?: {
+                activo?: boolean;
+                categoria?: number;
+                /** @description * `inscripcion` - Inscripción
+                 *     * `grupos` - Fase de Grupos
+                 *     * `octavos` - Octavos de Final
+                 *     * `cuartos` - Cuartos de Final
+                 *     * `semifinales` - Semifinales
+                 *     * `final` - Final
+                 *     * `finalizado` - Finalizado */
+                fase_actual?: "cuartos" | "final" | "finalizado" | "grupos" | "inscripcion" | "octavos" | "semifinales";
+                finalizado?: boolean;
                 /** @description Which field to use when ordering the results. */
                 ordering?: string;
                 /** @description A page number within the paginated result set. */
