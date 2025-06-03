@@ -1,6 +1,6 @@
 // src/app/not-found.tsx - Página 404 personalizada para debugging
 import Link from 'next/link';
-import { Home, ArrowLeft, Search, AlertTriangle } from 'lucide-react';
+import { Home, ArrowLeft, AlertTriangle } from 'lucide-react';
 
 export default function NotFound() {
     return (
