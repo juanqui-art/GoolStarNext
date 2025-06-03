@@ -1,4 +1,4 @@
-// src/app/partidos/page.tsx - CORREGIDO PARA NEXT.JS 15
+// src/app/partidos/page.tsx - CORREGIDO para evitar Dynamic Server Usage
 import PartidosListServer from '@/components/data/PartidosList.server';
 import PartidosLoading from '@/components/data/PartidosLoading';
 import PartidosLayout from '@/components/partidos/PartidosLayout';
@@ -31,7 +31,7 @@ function isValidOrdenamiento(ordenamiento: string): ordenamiento is PartidosOrde
     return validOrderings.includes(ordenamiento as PartidosOrdenamiento);
 }
 
-// ✅ METADATA ESTÁTICA - Sin usar searchParams para evitar errores dinámicos
+// ✅ METADATA ESTÁTICA - Sin usar searchParams para evitar Dynamic Server Usage
 export const metadata: Metadata = {
     title: 'Partidos | GoolStar',
     description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
