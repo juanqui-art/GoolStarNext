@@ -1,7 +1,8 @@
 // src/lib/api/client.ts
 import { toast } from 'sonner';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+// Añadir un valor predeterminado para evitar que API_URL sea una cadena vacía
+const API_URL = process.env.NEXT_PUBLIC_API_URL  || 'http://localhost:8000/api';
 interface FetchOptions extends RequestInit {
     token?: string;
 }
@@ -126,5 +127,66 @@ export async function fetchTorneo(id: string) {
         throw new Error('Failed to fetch torneo');
     }
 
+    return res.json();
+}
+
+// Funciones para partidos en Server Components
+export async function fetchPartidos(params?: {
+    page?: number;
+    ordering?: string;
+    search?: string;
+    page_size?: number;
+}) {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.ordering) queryParams.append('ordering', params.ordering);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    const res = await fetch(`${API_URL}/partidos${query}`, {
+        next: { revalidate: 30 }, // Revalidar cada 30 segundos
+    });
+    
+    if (!res.ok) {
+        throw new Error('Failed to fetch partidos');
+    }
+    
+    return res.json();
+}
+
+export async function fetchPartidosProximos(params?: {
+    dias?: number;
+    torneo_id?: number;
+    equipo_id?: number;
+}) {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.dias) queryParams.append('dias', params.dias.toString());
+    if (params?.torneo_id) queryParams.append('torneo_id', params.torneo_id.toString());
+    if (params?.equipo_id) queryParams.append('equipo_id', params.equipo_id.toString());
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    const res = await fetch(`${API_URL}/partidos/proximos${query}`, {
+        next: { revalidate: 60 }, // Revalidar cada minuto
+    });
+    
+    if (!res.ok) {
+        throw new Error('Failed to fetch próximos partidos');
+    }
+    
+    return res.json();
+}
+
+export async function fetchPartidoById(id: string) {
+    const res = await fetch(`${API_URL}/partidos/${id}/`, {
+        next: { revalidate: 30 },
+    });
+    
+    if (!res.ok) {
+        throw new Error(`Failed to fetch partido with ID ${id}`);
+    }
+    
     return res.json();
 }

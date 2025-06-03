@@ -18,6 +18,7 @@ type PartidoRequest = components['schemas']['PartidoRequest'];
  */
 export async function getPartidos(params?: {
     page?: number;
+    page_size?: number;
     ordering?: string;
     search?: string;
     equipo_id?: number;
@@ -29,17 +30,24 @@ export async function getPartidos(params?: {
         throw new Error('getPartidos solo debe usarse en el cliente. Para el servidor, usa partidosServerApi');
     }
 
-    const queryParams = new URLSearchParams();
+    try {
+        // Construir los parámetros de consulta
+        const queryParams = new URLSearchParams();
+        
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+        if (params?.ordering) queryParams.append('ordering', params.ordering);
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.equipo_id) queryParams.append('equipo', params.equipo_id.toString());
+        if (params?.jornada_id) queryParams.append('jornada', params.jornada_id.toString());
+        if (params?.completado !== undefined) queryParams.append('completado', params.completado.toString());
 
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.ordering) queryParams.append('ordering', params.ordering);
-    if (params?.search) queryParams.append('search', params.search);
-    if (params?.equipo_id) queryParams.append('equipo_id', params.equipo_id.toString());
-    if (params?.jornada_id) queryParams.append('jornada_id', params.jornada_id.toString());
-    if (params?.completado !== undefined) queryParams.append('completado', params.completado.toString());
-
-    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiClient.get<PaginatedPartidoList>(`/partidos${query}`);
+        const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+        return await apiClient.get<PaginatedPartidoList>(`/partidos/${queryString}`);
+    } catch (error) {
+        console.error('[getPartidos] Error al obtener partidos:', error);
+        throw error;
+    }
 }
 
 /**
@@ -224,3 +232,78 @@ export function getPartidosEnVivo(partidos: Partido[]) {
         return !partido.completado && fechaPartido >= ahora && fechaPartido <= enDosHoras;
     });
 }
+
+// Crear un objeto de utilidades para ser importado en los componentes
+export const partidoUtils = {
+    getResultado: (partido: Partido) => {
+        if (!partido.completado) return 'Pendiente';
+        
+        if (partido.victoria_por_default) {
+            return 'Victoria por default';
+        }
+        
+        return `${partido.goles_equipo_1 ?? 0} - ${partido.goles_equipo_2 ?? 0}`;
+    },
+    
+    getEstado: (partido: Partido) => {
+        if (partido.completado) return { texto: 'Finalizado', color: 'gray' };
+        
+        // Verificar si el partido es hoy
+        const fechaPartido = new Date(partido.fecha);
+        const hoy = new Date();
+        
+        if (fechaPartido.toDateString() === hoy.toDateString()) {
+            // Verificar si está en curso (hora actual está dentro del rango del partido)
+            const horaPartido = fechaPartido.getHours();
+            const horaActual = hoy.getHours();
+            
+            // Asumiendo que un partido dura ~2 horas
+            if (horaActual >= horaPartido && horaActual < horaPartido + 2) {
+                return { texto: 'En curso', color: 'green' };
+            }
+            
+            if (horaActual < horaPartido) {
+                return { texto: 'Hoy', color: 'blue' };
+            }
+        }
+        
+        return fechaPartido > hoy 
+            ? { texto: 'Próximo', color: 'blue' } 
+            : { texto: 'Pendiente', color: 'yellow' };
+    },
+    
+    tieneVictoriaPorDefault: (partido: Partido) => {
+        return !!partido.victoria_por_default;
+    },
+    
+    formatearFechaCorta: (fechaStr: string) => {
+        const fecha = new Date(fechaStr);
+        return fecha.toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+};
+
+// Crear un objeto para exportar como default
+const partidoService = {
+    getPartidos,
+    getPartidoById,
+    getProximosPartidos,
+    getPartidosByEquipo,
+    getPartidosByJornada,
+    createPartido,
+    updatePartido,
+    patchPartido,
+    deletePartido,
+    getPartidoStatus,
+    formatPartidoResult,
+    groupPartidosByDate,
+    getPartidosEnVivo,
+    partidoUtils
+};
+
+// Exportar como default
+export default partidoService;
