@@ -1,4 +1,4 @@
-// src/app/goleadores/page.tsx
+// src/app/goleadores/page.tsx - CORREGIDO
 import GoleadoresListServer from '@/components/data/GoleadoresList.server';
 import GoleadoresLoading from '@/components/data/GoleadoresLoading';
 import GoleadoresLayout from '@/components/goleadores/GoleadoresLayout';
@@ -16,68 +16,31 @@ interface GoleadoresPageProps {
     }>;
 }
 
-// Metadata estática optimizada para SEO
-export async function generateMetadata({ searchParams }: GoleadoresPageProps): Promise<Metadata> {
-    try {
-        const params = await searchParams;
-
-        const baseTitle = 'Goleadores | GoolStar';
-        const baseDescription = 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles';
-
-        // Personalizar según filtros
-        if (params.torneo) {
-            return {
-                title: `Goleadores del Torneo | GoolStar`,
-                description: `Máximos goleadores del torneo seleccionado en GoolStar`,
-            };
-        }
-
-        if (params.equipo) {
-            return {
-                title: `Goleadores del Equipo | GoolStar`,
-                description: `Goleadores del equipo seleccionado en el torneo GoolStar`,
-            };
-        }
-
-        if (params.search) {
-            return {
-                title: `Buscar: ${params.search} | Goleadores GoolStar`,
-                description: `Resultados de búsqueda para "${params.search}" en goleadores`,
-            };
-        }
-
-        return {
-            title: baseTitle,
-            description: baseDescription,
-            keywords: ['goleadores', 'fútbol indoor', 'máximos anotadores', 'estadísticas', 'GoolStar'],
-            openGraph: {
-                title: baseTitle,
-                description: baseDescription,
-                type: 'website',
-                images: [
-                    {
-                        url: '/images/goleadores-og.jpg',
-                        width: 1200,
-                        height: 630,
-                        alt: 'Goleadores GoolStar',
-                    }
-                ],
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: baseTitle,
-                description: baseDescription,
-                images: ['/images/goleadores-twitter.jpg'],
-            },
-        };
-    } catch (error) {
-        console.error('Error generando metadata para goleadores:', error);
-        return {
-            title: 'Goleadores | GoolStar',
-            description: 'Tabla de goleadores del torneo',
-        };
-    }
-}
+// Metadata ESTÁTICA para evitar dynamic server usage
+export const metadata: Metadata = {
+    title: 'Goleadores | GoolStar',
+    description: 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles',
+    keywords: ['goleadores', 'fútbol indoor', 'máximos anotadores', 'estadísticas', 'GoolStar'],
+    openGraph: {
+        title: 'Goleadores | GoolStar',
+        description: 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles',
+        type: 'website',
+        images: [
+            {
+                url: '/images/goleadores-og.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Goleadores GoolStar',
+            }
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Goleadores | GoolStar',
+        description: 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles',
+        images: ['/images/goleadores-twitter.jpg'],
+    },
+};
 
 export default async function GoleadoresPage({ searchParams }: GoleadoresPageProps) {
     // Await searchParams antes de usar sus propiedades
