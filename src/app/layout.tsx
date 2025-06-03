@@ -21,7 +21,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || 'https://goolstar.vercel.app'),
+    metadataBase: new URL('https://goolstar.vercel.app'),
     title: "GoolStar - Gestión de Torneos de Fútbol Indoor",
     description: "Plataforma profesional para la organización y seguimiento de torneos de fútbol indoor en Ecuador",
     keywords: ["fútbol indoor", "torneos", "deportes", "Ecuador", "GoolStar"],

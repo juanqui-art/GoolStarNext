@@ -1,8 +1,9 @@
 // src/lib/api/client.ts
-import { toast } from 'sonner';
+import {toast} from 'sonner';
 
 // Añadir un valor predeterminado para evitar que API_URL sea una cadena vacía
-const API_URL = process.env.NEXT_PUBLIC_API_URL  || 'https://goolstar-backend.fly.dev/api';
+const API_URL = 'https://goolstar-backend.fly.dev/api';
+
 interface FetchOptions extends RequestInit {
     token?: string;
 }
@@ -22,7 +23,7 @@ class ApiClient {
     }
 
     async request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-        const { token, headers = {}, ...fetchOptions } = options;
+        const {token, headers = {}, ...fetchOptions} = options;
 
         const authToken = token || await this.getAuthToken();
 
@@ -30,7 +31,7 @@ class ApiClient {
             ...fetchOptions,
             headers: {
                 'Content-Type': 'application/json',
-                ...(authToken && { Authorization: `Bearer ${authToken}` }),
+                ...(authToken && {Authorization: `Bearer ${authToken}`}),
                 ...headers,
             },
         };
@@ -45,15 +46,15 @@ class ApiClient {
                     if (refreshToken) {
                         const refreshResponse = await fetch(`${this.baseURL}/auth/token/refresh/`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ refresh: refreshToken }),
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({refresh: refreshToken}),
                         });
 
                         if (refreshResponse.ok) {
                             const data = await refreshResponse.json();
                             localStorage.setItem('accessToken', data.access);
                             // Reintentar la petición original
-                            return this.request(endpoint, { ...options, token: data.access });
+                            return this.request(endpoint, {...options, token: data.access});
                         }
                     }
 
@@ -79,7 +80,7 @@ class ApiClient {
 
     // Métodos convenientes
     get<T>(endpoint: string, options?: FetchOptions): Promise<T> {
-        return this.request<T>(endpoint, { ...options, method: 'GET' });
+        return this.request<T>(endpoint, {...options, method: 'GET'});
     }
 
     post<T>(endpoint: string, data?: Record<string, unknown>, options?: FetchOptions): Promise<T> {
@@ -99,7 +100,7 @@ class ApiClient {
     }
 
     delete<T>(endpoint: string, options?: FetchOptions): Promise<T> {
-        return this.request<T>(endpoint, { ...options, method: 'DELETE' });
+        return this.request<T>(endpoint, {...options, method: 'DELETE'});
     }
 }
 
@@ -108,7 +109,7 @@ export const apiClient = new ApiClient(API_URL);
 // Funciones específicas para Server Components
 export async function fetchTorneos() {
     const res = await fetch(`${API_URL}/torneos/`, {
-        next: { revalidate: 60 }, // Revalidar cada minuto
+        next: {revalidate: 60}, // Revalidar cada minuto
     });
 
     if (!res.ok) {
@@ -120,7 +121,7 @@ export async function fetchTorneos() {
 
 export async function fetchTorneo(id: string) {
     const res = await fetch(`${API_URL}/torneos/${id}/`, {
-        next: { revalidate: 60 },
+        next: {revalidate: 60},
     });
 
     if (!res.ok) {
@@ -138,21 +139,21 @@ export async function fetchPartidos(params?: {
     page_size?: number;
 }) {
     const queryParams = new URLSearchParams();
-    
+
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.ordering) queryParams.append('ordering', params.ordering);
     if (params?.search) queryParams.append('search', params.search);
     if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
-    
+
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     const res = await fetch(`${API_URL}/partidos${query}`, {
-        next: { revalidate: 30 }, // Revalidar cada 30 segundos
+        next: {revalidate: 30}, // Revalidar cada 30 segundos
     });
-    
+
     if (!res.ok) {
         throw new Error('Failed to fetch partidos');
     }
-    
+
     return res.json();
 }
 
@@ -162,31 +163,31 @@ export async function fetchPartidosProximos(params?: {
     equipo_id?: number;
 }) {
     const queryParams = new URLSearchParams();
-    
+
     if (params?.dias) queryParams.append('dias', params.dias.toString());
     if (params?.torneo_id) queryParams.append('torneo_id', params.torneo_id.toString());
     if (params?.equipo_id) queryParams.append('equipo_id', params.equipo_id.toString());
-    
+
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     const res = await fetch(`${API_URL}/partidos/proximos${query}`, {
-        next: { revalidate: 60 }, // Revalidar cada minuto
+        next: {revalidate: 60}, // Revalidar cada minuto
     });
-    
+
     if (!res.ok) {
         throw new Error('Failed to fetch próximos partidos');
     }
-    
+
     return res.json();
 }
 
 export async function fetchPartidoById(id: string) {
     const res = await fetch(`${API_URL}/partidos/${id}/`, {
-        next: { revalidate: 30 },
+        next: {revalidate: 30},
     });
-    
+
     if (!res.ok) {
         throw new Error(`Failed to fetch partido with ID ${id}`);
     }
-    
+
     return res.json();
 }

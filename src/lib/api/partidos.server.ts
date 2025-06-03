@@ -1,11 +1,9 @@
+import {API_BASE_URL} from "@/lib/api/API_BASE_URL";
 import type {components} from '@/types/api';
 
 type Partido = components['schemas']['Partido'];
 type PartidoDetalle = components['schemas']['PartidoDetalle'];
 type PaginatedPartidoList = components['schemas']['PaginatedPartidoList'];
-
-// Configuración base
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api';
 
 // Opciones de revalidación específicas para partidos
 const REVALIDATION = {

@@ -33,7 +33,7 @@ import type {
 } from '@/types/server-api';
 
 // Configuración base
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api';
+const API_BASE_URL = 'https://goolstar-backend.fly.dev/api';
 
 // Opciones de revalidación corregidas
 const REVALIDATION = {
