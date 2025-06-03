@@ -1,6 +1,7 @@
 // src/components/data/TablaList.server.tsx - MEJORADO CON TIPOS CORRECTOS
+'use server';
 import Link from 'next/link';
-import { Trophy, TrendingUp, TrendingDown, Minus, AlertCircle, Target, Medal } from 'lucide-react';
+import { Trophy, TrendingUp, TrendingDown, Minus, AlertCircle,  } from 'lucide-react';
 import { serverApi } from '@/lib/api/server';
 import type { components } from '@/types/api';
 
@@ -128,20 +129,20 @@ function TendenciaIcon({ posicion }: { posicion: number }) {
 function PosicionIndicator({ posicion }: { posicion: number }) {
     let bgColor = 'bg-neutral-100 dark:bg-neutral-700';
     let textColor = 'text-neutral-600 dark:text-neutral-400';
-    let icon = null;
+    // let icon = null;
 
     if (posicion === 1) {
         bgColor = 'bg-goal-gold/20';
         textColor = 'text-goal-gold';
-        icon = <Trophy className="w-3 h-3 text-goal-gold" />;
+        // icon = <Trophy className="w-3 h-3 text-goal-gold" />;
     } else if (posicion === 2) {
         bgColor = 'bg-neutral-300/20';
-        textColor = 'text-neutral-600';
-        icon = <Medal className="w-3 h-3 text-neutral-500" />;
+        textColor = 'text-neutral-400';
+        // icon = <Medal className="w-3 h-3 text-neutral-500" />;
     } else if (posicion === 3) {
         bgColor = 'bg-orange-300/20';
         textColor = 'text-orange-600';
-        icon = <Target className="w-3 h-3 text-orange-500" />;
+        // icon = <Target className="w-3 h-3 text-orange-500" />;
     } else if (posicion <= 5) {
         bgColor = 'bg-green-100 dark:bg-green-900/30';
         textColor = 'text-green-600 dark:text-green-400';
@@ -151,11 +152,11 @@ function PosicionIndicator({ posicion }: { posicion: number }) {
         <div className={`flex items-center justify-center w-8 h-8 rounded-full ${bgColor}`}>
             <div className="relative">
                 <span className={`text-sm font-semibold ${textColor}`}>{posicion}</span>
-                {icon && (
-                    <span className="absolute -top-1.5 -right-1.5">
-                        {icon}
-                    </span>
-                )}
+                {/*{icon && (*/}
+                {/*    <span className="absolute -top-1.5 -right-1.5">*/}
+                {/*        {icon}*/}
+                {/*    </span>*/}
+                {/*)}*/}
             </div>
         </div>
     );
@@ -426,12 +427,7 @@ export default async function TablaListServer({
                         <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
                             Tabla de Posiciones - Grupo {grupoFiltrado}
                         </h2>
-                        <Link
-                            href="/tabla"
-                            className="text-goal-blue dark:text-goal-gold hover:underline text-sm"
-                        >
-                            Ver todos los grupos →
-                        </Link>
+
                     </div>
                 )}
 

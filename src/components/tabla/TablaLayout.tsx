@@ -142,13 +142,13 @@ export default function TablaLayout({ children }: { children: React.ReactNode })
                                 Grupo B
                             </Link>
 
-                            <Link
-                                href="/tabla?grupo=c"
-                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue dark:hover:border-goal-blue text-neutral-700 dark:text-neutral-300 hover:text-goal-blue px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium flex items-center gap-2"
-                            >
-                                <Target className="w-4 h-4" />
-                                Grupo C
-                            </Link>
+                            {/*<Link*/}
+                            {/*    href="/tabla?grupo=c"*/}
+                            {/*    className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue dark:hover:border-goal-blue text-neutral-700 dark:text-neutral-300 hover:text-goal-blue px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium flex items-center gap-2"*/}
+                            {/*>*/}
+                            {/*    <Target className="w-4 h-4" />*/}
+                            {/*    Grupo C*/}
+                            {/*</Link>*/}
 
                             <Link
                                 href="/tabla?actualizar=true"
