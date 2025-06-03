@@ -1,4 +1,4 @@
-// src/app/partidos/page.tsx - TIPOS CORREGIDOS
+// src/app/partidos/page.tsx - CORREGIDO PARA NEXT.JS 15
 import PartidosListServer from '@/components/data/PartidosList.server';
 import PartidosLoading from '@/components/data/PartidosLoading';
 import PartidosLayout from '@/components/partidos/PartidosLayout';
@@ -31,109 +31,31 @@ function isValidOrdenamiento(ordenamiento: string): ordenamiento is PartidosOrde
     return validOrderings.includes(ordenamiento as PartidosOrdenamiento);
 }
 
-// Metadata estática (sin llamadas a API) para evitar errores
-export async function generateMetadata({ searchParams }: PartidosPageProps): Promise<Metadata> {
-    try {
-        const params = await searchParams;
-
-        // Metadata base sin llamadas a API
-        const baseTitle = 'Partidos | GoolStar';
-        const baseDescription = 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo';
-
-        // Personalizar según filtros sin depender de la API
-        if (params.equipo) {
-            return {
-                title: `Partidos del Equipo | GoolStar`,
-                description: `Todos los partidos del equipo seleccionado en el torneo GoolStar`,
-                openGraph: {
-                    title: `Partidos del Equipo | GoolStar`,
-                    description: `Todos los partidos del equipo seleccionado en el torneo GoolStar`,
-                    images: ['/images/partidos-equipo-og.jpg'],
-                },
-            };
-        }
-
-        if (params.estado === 'completado') {
-            return {
-                title: `Resultados de Partidos | GoolStar`,
-                description: `Resultados y marcadores de los partidos finalizados del torneo`,
-                openGraph: {
-                    title: `Resultados de Partidos | GoolStar`,
-                    description: `Resultados y marcadores de los partidos finalizados del torneo`,
-                    images: ['/images/partidos-resultados-og.jpg'],
-                },
-            };
-        }
-
-        if (params.estado === 'pendiente' || params.estado === 'programado') {
-            return {
-                title: `Próximos Partidos | GoolStar`,
-                description: `Calendario de partidos programados y próximos encuentros`,
-                openGraph: {
-                    title: `Próximos Partidos | GoolStar`,
-                    description: `Calendario de partidos programados y próximos encuentros`,
-                    images: ['/images/partidos-proximos-og.jpg'],
-                },
-            };
-        }
-
-        if (params.search) {
-            return {
-                title: `Buscar: ${params.search} | Partidos GoolStar`,
-                description: `Resultados de búsqueda para "${params.search}" en partidos`,
-                openGraph: {
-                    title: `Buscar: ${params.search} | Partidos GoolStar`,
-                    description: `Resultados de búsqueda para "${params.search}" en partidos`,
-                    images: ['/images/partidos-search-og.jpg'],
-                },
-            };
-        }
-
-        if (params.jornada) {
-            return {
-                title: `Partidos de la Jornada | GoolStar`,
-                description: `Todos los partidos de la jornada seleccionada`,
-                openGraph: {
-                    title: `Partidos de la Jornada | GoolStar`,
-                    description: `Todos los partidos de la jornada seleccionada`,
-                    images: ['/images/partidos-jornada-og.jpg'],
-                },
-            };
-        }
-
-        return {
-            title: baseTitle,
-            description: baseDescription,
-            keywords: ['partidos', 'fútbol indoor', 'resultados', 'calendario', 'GoolStar'],
-            openGraph: {
-                title: baseTitle,
-                description: baseDescription,
-                type: 'website',
-                images: [
-                    {
-                        url: '/images/partidos-og.jpg',
-                        width: 1200,
-                        height: 630,
-                        alt: 'Partidos GoolStar',
-                    }
-                ],
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: baseTitle,
-                description: baseDescription,
-                images: ['/images/partidos-twitter.jpg'],
-            },
-        };
-    } catch (error) {
-        console.error('Error generando metadata para partidos:', error);
-        // Metadata de emergencia
-        return {
-            title: 'Partidos | GoolStar',
-            description: 'Partidos de fútbol indoor',
-        };
-    }
-}
+// ✅ METADATA ESTÁTICA - Sin usar searchParams para evitar errores dinámicos
+export const metadata: Metadata = {
+    title: 'Partidos | GoolStar',
+    description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
+    keywords: ['partidos', 'fútbol indoor', 'resultados', 'calendario', 'GoolStar'],
+    openGraph: {
+        title: 'Partidos | GoolStar',
+        description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
+        type: 'website',
+        images: [
+            {
+                url: '/images/partidos-og.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Partidos GoolStar',
+            }
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Partidos | GoolStar',
+        description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
+        images: ['/images/partidos-twitter.jpg'],
+    },
+};
 
 export default async function PartidosPage({ searchParams }: PartidosPageProps) {
     // Await searchParams antes de usar sus propiedades
