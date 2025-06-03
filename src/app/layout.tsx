@@ -2,6 +2,7 @@ import {ThemeProvider} from "@/components/theme/ThemeProvider";
 import type {Metadata} from "next";
 import {Geist, Geist_Mono, Playfair_Display} from "next/font/google";
 import "./globals.css";
+// import { ApiDebugger } from "@/hooks/useDebugApi";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -20,6 +21,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'https://goolstar.vercel.app'),
     title: "GoolStar - Gestión de Torneos de Fútbol Indoor",
     description: "Plataforma profesional para la organización y seguimiento de torneos de fútbol indoor en Ecuador",
     keywords: ["fútbol indoor", "torneos", "deportes", "Ecuador", "GoolStar"],
@@ -50,7 +52,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="es" suppressHydrationWarning>
         <body
             className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
         >
