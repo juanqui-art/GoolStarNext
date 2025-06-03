@@ -26,14 +26,14 @@ import type {
     TorneoDetalle,
     Partido,
     PartidoDetalle,
-    PaginatedPartidoList,
+    PaginatedPartidoList, TablaPosicionesAgrupada,
     // Jugador,
     // PaginatedJugadorList,
     // Gol
 } from '@/types/server-api';
 
 // Configuración base
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://goolstar-backend.fly.dev/api';
+const API_BASE_URL = process.env.API_URL || 'https://goolstar-backend.fly.dev/api';
 
 // Opciones de revalidación corregidas
 const REVALIDATION = {
@@ -413,17 +413,23 @@ export async function getServerTorneosActivos(params?: TorneosQueryParams): Prom
 
     const queryParams = new URLSearchParams();
 
+    // ✅ AGREGAR: Filtro para solo torneos activos
+    queryParams.append('activo', 'true');
+
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.ordering) queryParams.append('ordering', params.ordering);
     if (params?.search) queryParams.append('search', params.search);
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
+    // ✅ CAMBIAR: De /torneos/activos/ a /torneos
     return serverFetch<PaginatedTorneoList>(
-        `/torneos/activos/${query}`,
+        `/torneos${query}`,  // ← Solo cambiar esta línea
         { revalidate: REVALIDATION.REALTIME }
     );
 }
+
 
 /**
  * Obtener un torneo por ID
@@ -451,12 +457,12 @@ export async function getServerTorneoById(id: string | number): Promise<TorneoDe
 }
 
 /**
- * Obtener tabla de posiciones - CORREGIDA con tipo exacto de la API
+ * Obtener tabla de posiciones - Maneja tanto formato simple como agrupado
  */
 export async function getServerTablaPosiciones(
     torneoId: string | number,
     params?: TablaPosicionesParams
-): Promise<TablaPosiciones> {
+): Promise<TablaPosiciones | TablaPosicionesAgrupada> {
     console.log('🏆 Obteniendo tabla de posiciones para torneo:', torneoId, 'con params:', params);
 
     const queryParams = new URLSearchParams();
@@ -467,17 +473,40 @@ export async function getServerTablaPosiciones(
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
     try {
-        const response = await serverFetch<TablaPosiciones>(
+        // La respuesta puede ser TablaPosiciones o TablaPosicionesAgrupada
+        const response = await serverFetch<TablaPosiciones | TablaPosicionesAgrupada>(
             `/torneos/${torneoId}/tabla_posiciones${query}`,
             { revalidate: params?.actualizar ? 1 : REVALIDATION.DYNAMIC }
         );
 
-        console.log('✅ Tabla de posiciones recibida:', {
-            grupo: response.grupo,
-            equipos_count: response.equipos.length
-        });
+        // Verificar el tipo de respuesta
+        if ('grupos' in response && response.grupos !== undefined) {
+            // Es una TablaPosicionesAgrupada
+            console.log('✅ Tabla de posiciones agrupada recibida', {
+                grupos: Object.keys(response.grupos).length,
+                total_equipos: 'total_equipos' in response ? response.total_equipos : 'desconocido',
+                torneo_id: 'torneo_id' in response ? response.torneo_id : 'desconocido'
+            });
+            
+            // Asegurarse de que el tipo sea correcto para TypeScript
+            return response as TablaPosicionesAgrupada;
+        } else if ('equipos' in response) {
+            // Es una TablaPosiciones simple
+            console.log('✅ Tabla de posiciones simple recibida', {
+                equipos: response.equipos.length,
+                grupo: response.grupo || 'sin grupo'
+            });
+            
+            // Asegurarse de que el tipo sea correcto para TypeScript
+            return response as TablaPosiciones;
+        }
 
-        return response;
+        // Si llegamos aquí, la respuesta no coincide con ningún tipo esperado
+        console.warn('⚠️ Formato de respuesta inesperado, devolviendo estructura vacía');
+        return {
+            equipos: [],
+            grupo: params?.grupo
+        };
     } catch (error) {
         console.error('❌ Error obteniendo tabla de posiciones:', error);
         throw error;

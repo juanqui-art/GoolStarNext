@@ -194,7 +194,7 @@ export interface ServerApiInterface {
         getAll: (params?: TorneosQueryParams) => Promise<PaginatedTorneoList>;
         getActivos: (params?: TorneosQueryParams) => Promise<PaginatedTorneoList>;
         getById: (id: string | number) => Promise<TorneoDetalle>;
-        getTablaPosiciones: (torneoId: string | number, params?: TablaPosicionesParams) => Promise<TablaPosiciones>;
+        getTablaPosiciones: (torneoId: string | number, params?: TablaPosicionesParams) => Promise<TablaPosiciones | TablaPosicionesAgrupada>;
         getEstadisticas: (torneoId: string | number) => Promise<TorneoEstadisticas>;
         getJugadoresDestacados: (torneoId: string | number, params?: JugadoresDestacadosParams) => Promise<JugadoresDestacados>;
     };
