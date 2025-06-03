@@ -1,6 +1,9 @@
 // src/components/data/PartidosList.server.tsx
 import Link from 'next/link';
-import { CalendarDays, Clock, MapPin, Trophy, Users, AlertCircle } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Trophy, AlertCircle } from 'lucide-react';
+import { components } from '@/types/api';
+
+type Partido = components['schemas']['Partido'];
 
 interface PartidosListServerProps {
     equipo_id?: number;
@@ -12,56 +15,8 @@ interface PartidosListServerProps {
     ordenamiento?: 'fecha' | '-fecha' | 'jornada';
 }
 
-// Datos de ejemplo para fallback
-const PARTIDOS_EJEMPLO = [
-    {
-        id: 1,
-        equipo_1_nombre: "Liverpool",
-        equipo_2_nombre: "Talleres M.A",
-        fecha: "2025-01-15T18:30:00Z",
-        completado: true,
-        goles_equipo_1: 3,
-        goles_equipo_2: 2,
-        jornada_nombre: "Jornada 1",
-        cancha: "Cancha Principal"
-    },
-    {
-        id: 2,
-        equipo_1_nombre: "Real Madrid",
-        equipo_2_nombre: "Barcelona",
-        fecha: "2025-01-20T19:00:00Z",
-        completado: false,
-        goles_equipo_1: 0,
-        goles_equipo_2: 0,
-        jornada_nombre: "Jornada 2",
-        cancha: "Cancha A"
-    },
-    {
-        id: 3,
-        equipo_1_nombre: "Manchester",
-        equipo_2_nombre: "Chelsea",
-        fecha: "2025-01-18T20:00:00Z",
-        completado: true,
-        goles_equipo_1: 1,
-        goles_equipo_2: 4,
-        jornada_nombre: "Jornada 1",
-        cancha: "Cancha B"
-    },
-    {
-        id: 4,
-        equipo_1_nombre: "Arsenal",
-        equipo_2_nombre: "Juventus",
-        fecha: "2025-01-25T18:00:00Z",
-        completado: false,
-        goles_equipo_1: 0,
-        goles_equipo_2: 0,
-        jornada_nombre: "Jornada 3",
-        cancha: "Cancha Principal"
-    }
-];
-
 // Componente para mostrar el resultado del partido
-function ResultadoPartido({ partido }: { partido: any }) {
+function ResultadoPartido({ partido }: { partido: Partido }) {
     if (!partido.completado) {
         return (
             <div className="flex items-center gap-2 text-sm">
@@ -95,7 +50,7 @@ function ResultadoPartido({ partido }: { partido: any }) {
 }
 
 // Componente individual de partido
-function PartidoCard({ partido }: { partido: any }) {
+function PartidoCard({ partido }: { partido: Partido }) {
     const fechaPartido = new Date(partido.fecha);
     const esHoy = fechaPartido.toDateString() === new Date().toDateString();
     const esPasado = fechaPartido < new Date();
@@ -209,8 +164,25 @@ function AvisoEjemplo() {
     );
 }
 
-// Función para obtener datos (con fallback a datos de ejemplo)
-async function obtenerPartidos(params: any) {
+// Define interfaces for the function parameters and return type
+interface ObtenerPartidosParams {
+    equipo_id?: number;
+    jornada_id?: number;
+    completado?: boolean;
+    ordenamiento?: 'fecha' | '-fecha' | 'jornada';
+    searchQuery?: string;
+    limit?: number;
+}
+
+interface ObtenerPartidosResult {
+    partidos: Partido[];
+    esEjemplo: boolean;
+    total: number;
+    error?: string;
+}
+
+// Función para obtener datos (con fallback a mensaje de error)
+async function obtenerPartidos(params: ObtenerPartidosParams): Promise<ObtenerPartidosResult> {
     try {
         // Intentar importar el API dinámicamente
         const { serverApi } = await import('@/lib/api/server');
@@ -235,36 +207,15 @@ async function obtenerPartidos(params: any) {
             }
         }
     } catch (error) {
-        console.warn('No se pudo conectar con la API de partidos, usando datos de ejemplo:', error);
+        console.warn('No se pudo conectar con la API de partidos:', error);
     }
 
-    // Fallback a datos de ejemplo
-    let partidosEjemplo = [...PARTIDOS_EJEMPLO];
-
-    // Aplicar filtros a los datos de ejemplo
-    if (params.completado === true) {
-        partidosEjemplo = partidosEjemplo.filter(p => p.completado);
-    } else if (params.completado === false) {
-        partidosEjemplo = partidosEjemplo.filter(p => !p.completado);
-    }
-
-    if (params.searchQuery) {
-        const query = params.searchQuery.toLowerCase();
-        partidosEjemplo = partidosEjemplo.filter(p =>
-            p.equipo_1_nombre.toLowerCase().includes(query) ||
-            p.equipo_2_nombre.toLowerCase().includes(query) ||
-            p.jornada_nombre.toLowerCase().includes(query)
-        );
-    }
-
-    if (params.limit) {
-        partidosEjemplo = partidosEjemplo.slice(0, params.limit);
-    }
-
+    // Fallback a un array vacío en caso de error
     return {
-        partidos: partidosEjemplo,
-        esEjemplo: true,
-        total: partidosEjemplo.length
+        partidos: [],
+        esEjemplo: false,
+        total: 0,
+        error: 'No se pudieron cargar los partidos. Por favor, intenta de nuevo más tarde.'
     };
 }
 
@@ -279,7 +230,7 @@ export default async function PartidosListServer({
                                                      ordenamiento = '-fecha'
                                                  }: PartidosListServerProps) {
 
-    const { partidos, esEjemplo, total } = await obtenerPartidos({
+    const { partidos, esEjemplo, total, error } = await obtenerPartidos({
         equipo_id,
         jornada_id,
         completado,
@@ -314,6 +265,11 @@ export default async function PartidosListServer({
                                     ? 'No hay partidos programados.'
                                     : 'No hay partidos registrados actualmente.'
                         }
+                        {error && (
+                            <p className="text-red-500 dark:text-red-400 mt-2">
+                                {error}
+                            </p>
+                        )}
                     </p>
                 </div>
             </div>
