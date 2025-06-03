@@ -2,7 +2,7 @@
 import PartidosListServer from '@/components/data/PartidosList.server';
 import PartidosLoading from '@/components/data/PartidosLoading';
 import PartidosLayout from '@/components/partidos/PartidosLayout';
-import { Metadata } from 'next';
+// import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 // Tipo para ordenamiento de partidos basado en la API real
@@ -32,30 +32,30 @@ function isValidOrdenamiento(ordenamiento: string): ordenamiento is PartidosOrde
 }
 
 // ✅ METADATA ESTÁTICA - Sin usar searchParams para evitar Dynamic Server Usage
-export const metadata: Metadata = {
-    title: 'Partidos | GoolStar',
-    description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
-    keywords: ['partidos', 'fútbol indoor', 'resultados', 'calendario', 'GoolStar'],
-    openGraph: {
-        title: 'Partidos | GoolStar',
-        description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
-        type: 'website',
-        images: [
-            {
-                url: '/images/partidos-og.jpg',
-                width: 1200,
-                height: 630,
-                alt: 'Partidos GoolStar',
-            }
-        ],
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Partidos | GoolStar',
-        description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
-        images: ['/images/partidos-twitter.jpg'],
-    },
-};
+// export const metadata: Metadata = {
+//     title: 'Partidos | GoolStar',
+//     description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
+//     keywords: ['partidos', 'fútbol indoor', 'resultados', 'calendario', 'GoolStar'],
+//     openGraph: {
+//         title: 'Partidos | GoolStar',
+//         description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
+//         type: 'website',
+//         images: [
+//             {
+//                 url: '/images/partidos-og.jpg',
+//                 width: 1200,
+//                 height: 630,
+//                 alt: 'Partidos GoolStar',
+//             }
+//         ],
+//     },
+//     twitter: {
+//         card: 'summary_large_image',
+//         title: 'Partidos | GoolStar',
+//         description: 'Consulta todos los partidos del torneo de fútbol indoor - resultados, horarios y calendario completo',
+//         images: ['/images/partidos-twitter.jpg'],
+//     },
+// };
 
 export default async function PartidosPage({ searchParams }: PartidosPageProps) {
     // Await searchParams antes de usar sus propiedades
