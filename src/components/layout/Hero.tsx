@@ -28,7 +28,7 @@ const Hero = () => {
       </div>
       
       {/* Contenido del hero con padding para el navbar */}
-      <div className="h-screen min-h-[600px] w-full flex items-center pt-24 md:pt-28">
+      <div className="h-screen min-h-[600px] w-full flex items-center  ">
 
 
         {/* Contenido centrado - ajustado para dar espacio a la navbar */}
