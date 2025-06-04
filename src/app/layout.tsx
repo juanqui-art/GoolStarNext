@@ -1,6 +1,6 @@
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import {ThemeProvider} from "@/components/theme/ThemeProvider";
+import type {Metadata} from "next";
+import {Geist, Geist_Mono, Playfair_Display} from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,51 +23,74 @@ const playfairDisplay = Playfair_Display({
 // CONFIGURACIÓN OPENGRAPH COMPLETA
 // ========================================
 
+// src/app/layout.tsx - CON DESCRIPCIONES MEJORADAS
 export const metadata: Metadata = {
     metadataBase: new URL('https://goolstar.vercel.app'),
 
-    // SEO básico
     title: {
-        default: "GoolStar - Tu Momento de Brillar",
+        default: "GoolStar - Campeonatos de Fútbol Indoor en Cuenca",
         template: "%s | GoolStar"
     },
-    description: "Plataforma profesional para la organización y seguimiento de torneos de fútbol indoor en Ecuador. Únete al torneo más emocionante de la región.",
+
+    // 🎯 DESCRIPCIÓN PRINCIPAL MEJORADA
+    description: "GoolStar organiza campeonatos de fútbol indoor en Cuenca, Ecuador. Plataforma oficial para seguimiento de partidos en vivo, tabla de posiciones y estadísticas del torneo.",
+
+    // 🏷️ KEYWORDS ESPECÍFICAS DE CUENCA
     keywords: [
-        "indoor",
-        "fútbol indoor",
-        "torneos",
-        "deportes",
-        "Ecuador",
+        "fútbol indoor Cuenca",
+        "campeonatos Cuenca Ecuador",
+        "torneos deportivos Cuenca",
         "GoolStar",
-        "campeonatos",
-        "fútbol sala",
-        "Cuenca",
-        "Pumayunga"
+        "fútbol sala Cuenca",
+        "competencias deportivas Azuay",
+        "tabla posiciones",
+        "goleadores torneo",
+        "partidos en vivo",
+        "Goal Star cancha",
+        "Pumayunga fútbol"
     ],
-    authors: [{ name: "GoolStar Team", url: "https://goolstar.vercel.app" }],
-    creator: "GoolStar",
-    publisher: "GoolStar",
 
-    // OpenGraph completo
+    authors: [{name: "GoolStar Team"}],
+    creator: "GoolStar - Organizadores de Torneos",
+    publisher: "GoolStar Ecuador",
+
+    // 🌍 GEOLOCALIZACIÓN ESPECÍFICA
+    alternates: {
+        canonical: 'https://goolstar.vercel.app',
+        languages: {
+            'es-EC': 'https://goolstar.vercel.app',
+            'es': 'https://goolstar.vercel.app',
+        },
+    },
+
+    // 📱 OPENGRAPH MEJORADO
     openGraph: {
-        type: "website",
-        locale: "es_EC",
-        siteName: "GoolStar",
-        title: "GoolStar - Tu Momento de Brillar",
-        description: "Únete al torneo más emocionante de fútbol indoor en Ecuador. Equipos, partidos, goleadores y más en la mejor plataforma deportiva.",
-        url: "https://goolstar.vercel.app",
+        title: {
+            default: "GoolStar - Tu Momento de Brillar en Cuenca",
+            template: "%s | GoolStar Cuenca"
+        },
+        description: "Organizamos los mejores campeonatos de fútbol indoor en Cuenca, Ecuador. Únete a la competencia más emocionante de la ciudad.",
+        url: 'https://goolstar.vercel.app',
+        siteName: 'GoolStar Cuenca',
+        locale: 'es_EC',
+        type: 'website',
+
+        // 📍 INFORMACIÓN GEOGRÁFICA
+        countryName: 'Ecuador',
+
+        // region: 'Azuay',
+        // placeName: 'Cuenca',
     },
 
-    // Twitter Cards
+    // 🐦 TWITTER MEJORADO
     twitter: {
-        card: "summary_large_image",
-        site: "@GoolStarEc",
-        creator: "@GoolStarEc",
-        title: "GoolStar - Tu Momento de Brillar",
-        description: "🏆 Torneos de indoor fútbol  en Ecuador. ¡Únete a la competencia más emocionante!",
+        card: 'summary_large_image',
+        title: "GoolStar - Campeonatos de Fútbol Indoor Cuenca",
+        description: "🏆⚽ Organizamos campeonatos de fútbol indoor en Cuenca, Ecuador. ¡Tu momento de brillar ha llegado!",
+        site: '@GoolStarEc',
+        creator: '@GoolStarEc',
     },
 
-    // Configuraciones adicionales
     robots: {
         index: true,
         follow: true,
@@ -80,40 +103,28 @@ export const metadata: Metadata = {
         },
     },
 
-    // Verificaciones
-    verification: {
-        google: process.env.GOOGLE_VERIFICATION_CODE,
-    },
-
-    // Enlaces alternativos
-    alternates: {
-        canonical: "https://goolstar.vercel.app",
-        languages: {
-            'es-EC': 'https://goolstar.vercel.app',
-            'es': 'https://goolstar.vercel.app',
-        },
-    },
-
-    // Iconos
-    icons: {
-        icon: "/favicon.ico",
-        apple: "/apple-icon.png",
-        shortcut: "/favicon.ico",
-    },
-
-    // Manifest
-    manifest: "/manifest.json",
-
-    // Información adicional personalizada
+    // 📍 INFORMACIÓN LOCAL/GEOGRÁFICA
     other: {
-        "sport:league": "Indoor Soccer Ecuador",
-        "sport:location": "Pumayunga, Cuenca, Ecuador",
-        "business:contact_data:locality": "Cuenca",
-        "business:contact_data:region": "Azuay",
-        "business:contact_data:country_name": "Ecuador",
-    }
-};
+        'geo.region': 'EC-A', // Código ISO de Azuay
+        'geo.placename': 'Cuenca',
+        'geo.position': '-2.9001285;-79.0058965', // Coordenadas de Cuenca
+        'ICBM': '-2.9001285, -79.0058965',
+        'DC.title': 'GoolStar - Campeonatos Fútbol Indoor Cuenca',
+        'organization': 'GoolStar Ecuador',
+        'locality': 'Cuenca',
+        'region': 'Azuay',
+        'country-name': 'Ecuador',
+    },
 
+    // 🎨 TEMA ESPECÍFICO
+    themeColor: [
+        {media: '(prefers-color-scheme: light)', color: '#FFD700'},
+        {media: '(prefers-color-scheme: dark)', color: '#006992'},
+    ],
+
+    category: 'Sports',
+    classification: 'Indoor Football Tournaments',
+};
 export default function RootLayout({
                                        children,
                                    }: Readonly<{
