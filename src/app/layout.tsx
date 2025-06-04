@@ -116,11 +116,7 @@ export const metadata: Metadata = {
         'country-name': 'Ecuador',
     },
 
-    // 🎨 TEMA ESPECÍFICO
-    themeColor: [
-        {media: '(prefers-color-scheme: light)', color: '#FFD700'},
-        {media: '(prefers-color-scheme: dark)', color: '#006992'},
-    ],
+
 
     category: 'Sports',
     classification: 'Indoor Football Tournaments',
