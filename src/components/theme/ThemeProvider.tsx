@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeProvider as NextThemeProvider, useTheme } from "next-themes";
+import { ThemeProvider as NextThemeProvider } from "next-themes";
 import { ReactNode, useEffect } from "react";
 
 type ThemeProviderProps = {
@@ -12,6 +12,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     <NextThemeProvider
       attribute="class"
       defaultTheme="dark"
+      forcedTheme="dark"
       enableSystem={false}
       disableTransitionOnChange
       enableColorScheme={false}
@@ -22,18 +23,15 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 }
 
 function ThemeInitializer({ children }: { children: ReactNode }) {
-  const { theme } = useTheme();
-
   useEffect(() => {
-    // Asegurarse de que el tema se aplique al elemento html
+    // Forzar el tema oscuro en el elemento html
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    if (theme) {
-      root.classList.add(theme);
-    } else {
-      root.classList.add('dark');
-    }
-  }, [theme]);
+    root.classList.remove('light');
+    root.classList.add('dark');
+    
+    // Aplicamos también mediante propiedad CSS
+    document.documentElement.style.setProperty('color-scheme', 'dark');
+  }, []);
 
   return <>{children}</>;
 }
