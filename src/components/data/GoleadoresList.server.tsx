@@ -284,14 +284,14 @@ function GoleadorCard({ goleador, showRanking = true }: {
     showRanking?: boolean;
 }) {
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md hover:border-goal-gold/50 transition-all duration-300">
-            <div className="flex items-center gap-4">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg p-3 sm:p-4 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md hover:border-goal-gold/50 transition-all duration-300">
+            <div className="flex items-center gap-3">
                 {/* Posición y foto */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {showRanking && <PosicionBadge posicion={goleador.posicion} />}
 
                     {goleador.foto ? (
-                        <div className="w-12 h-12 relative">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
                             <Image
                                 src={goleador.foto}
                                 alt={goleador.jugador_nombre}
@@ -301,8 +301,8 @@ function GoleadorCard({ goleador, showRanking = true }: {
                             />
                         </div>
                     ) : (
-                        <div className="w-12 h-12 bg-goal-blue/20 rounded-full flex items-center justify-center">
-                            <span className="text-goal-blue font-bold text-lg">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-goal-blue/20 rounded-full flex items-center justify-center">
+                            <span className="text-goal-blue font-bold text-base sm:text-lg">
                                 {goleador.jugador_nombre.charAt(0)}
                             </span>
                         </div>
@@ -311,25 +311,23 @@ function GoleadorCard({ goleador, showRanking = true }: {
 
                 {/* Información del jugador */}
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 text-lg">
+                    <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 text-base sm:text-lg truncate">
                         {goleador.jugador_nombre}
                     </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+                    <p className="text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm truncate">
                         {goleador.equipo_nombre}
                     </p>
                 </div>
 
                 {/* Estadísticas */}
-                <div className="text-right">
-                    <div className="flex items-center gap-2 mb-1">
-                        <Trophy className="w-4 h-4 text-goal-gold" />
-                        <span className="font-bold text-2xl text-goal-gold">
-                            {goleador.total_goles}
-                        </span>
-                    </div>
-                    <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                        {goleador.promedio_goles.toFixed(2)} promedio
-                    </div>
+                <div className="text-right flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-goal-gold" />
+                    <span className="font-bold text-xl sm:text-2xl text-goal-gold">
+                        {goleador.total_goles}
+                    </span>
+                    <span className="hidden sm:inline text-xs text-neutral-500 dark:text-neutral-400 ml-1">
+                        ({goleador.promedio_goles.toFixed(1)})
+                    </span>
                 </div>
             </div>
         </div>
@@ -494,14 +492,14 @@ export default async function GoleadoresListServer({
         return (
             <div className="w-full max-w-6xl mx-auto">
                 {showTitle && (
-                    <h2 className="text-3xl font-heading text-center mb-6">
+                    <h2 className="text-2xl sm:text-3xl font-heading text-center mb-4 sm:mb-6">
                         Máximos Goleadores
                     </h2>
                 )}
 
-                <div className="text-center py-12">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center">
-                        <Trophy className="w-8 h-8 text-neutral-400" />
+                <div className="text-center py-8 sm:py-12">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center">
+                        <Trophy className="w-7 h-7 sm:w-8 sm:h-8 text-neutral-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                         No hay goleadores registrados
@@ -516,7 +514,7 @@ export default async function GoleadoresListServer({
                     </p>
                     <Link
                         href="/partidos"
-                        className="inline-flex items-center bg-goal-blue hover:bg-goal-blue/90 text-white px-6 py-2 rounded-lg transition-colors"
+                        className="inline-flex items-center bg-goal-blue hover:bg-goal-blue/90 text-white px-5 sm:px-6 py-2 rounded-lg transition-colors"
                     >
                         <Target className="w-4 h-4 mr-2" />
                         Ver partidos
@@ -529,34 +527,36 @@ export default async function GoleadoresListServer({
     return (
         <div className="w-full max-w-6xl mx-auto">
             {showTitle && (
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl font-heading mb-2">
+                <div className="text-center mb-5 sm:mb-8">
+                    <h2 className="text-2xl sm:text-3xl font-heading mb-1.5 sm:mb-2">
                         Máximos Goleadores
                         {searchQuery && (
                             <span className="text-goal-gold"> - &#34;{searchQuery}&#34;</span>
                         )}
                     </h2>
-                    <p className="text-neutral-600 dark:text-neutral-400">
+                    <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400">
                         Ranking de los máximos anotadores del torneo
                     </p>
                 </div>
             )}
 
             {/* Tabla para desktop (sin columna Partidos) */}
-            <GoleadoresTable goleadores={goleadores} />
+            <div className="hidden lg:block">
+                <GoleadoresTable goleadores={goleadores} />
+            </div>
 
             {/* Vista móvil con cards */}
-            <div className="lg:hidden space-y-4">
+            <div className="lg:hidden space-y-2.5 sm:space-y-3">
                 {goleadores.map((goleador) => (
                     <GoleadorCard key={goleador.id} goleador={goleador} />
                 ))}
             </div>
 
             {/* Información adicional */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-8 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-                    <div className="flex items-center gap-2">
-                        <Trophy className="w-4 h-4" />
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-5 sm:mt-8 p-3 sm:p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg text-xs sm:text-sm">
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2.5 sm:gap-4 text-neutral-600 dark:text-neutral-400">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                        <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>
                             {goleadores.length} goleador{goleadores.length !== 1 ? 'es' : ''}
                             {limit && total > goleadores.length && ` de ${total} total`}
@@ -564,8 +564,8 @@ export default async function GoleadoresListServer({
                     </div>
 
                     {metadatos?.torneo_id && (
-                        <div className="flex items-center gap-2">
-                            <Target className="w-4 h-4" />
+                        <div className="flex items-center gap-1 sm:gap-2">
+                            <Target className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>Torneo actual</span>
                         </div>
                     )}
@@ -574,7 +574,7 @@ export default async function GoleadoresListServer({
                 {limit && total > goleadores.length && (
                     <Link
                         href="/goleadores"
-                        className="text-goal-blue dark:text-goal-gold hover:underline mt-2 sm:mt-0"
+                        className="text-goal-blue dark:text-goal-gold hover:underline text-xs sm:text-sm mt-2 sm:mt-0"
                     >
                         Ver todos los goleadores →
                     </Link>
@@ -585,26 +585,26 @@ export default async function GoleadoresListServer({
             {!limit && <PodioGoleadores goleadores={goleadores} />}
 
             {/* Enlaces relacionados */}
-            <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
+            <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2.5 sm:gap-4 text-xs sm:text-sm">
                 <Link
                     href="/tabla"
-                    className="flex items-center gap-2 text-goal-blue dark:text-goal-gold hover:underline"
+                    className="flex items-center gap-1 sm:gap-2 text-goal-blue dark:text-goal-gold hover:underline"
                 >
-                    <Trophy className="w-4 h-4" />
+                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
                     Tabla de posiciones
                 </Link>
                 <Link
                     href="/partidos"
-                    className="flex items-center gap-2 text-goal-orange hover:underline"
+                    className="flex items-center gap-1 sm:gap-2 text-goal-orange hover:underline"
                 >
-                    <Target className="w-4 h-4" />
+                    <Target className="w-3 h-3 sm:w-4 sm:h-4" />
                     Ver partidos
                 </Link>
                 <Link
                     href="/equipos"
-                    className="flex items-center gap-2 text-goal-blue dark:text-goal-gold hover:underline"
+                    className="flex items-center gap-1 sm:gap-2 text-goal-blue dark:text-goal-gold hover:underline"
                 >
-                    <Users className="w-4 h-4" />
+                    <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                     Ver equipos
                 </Link>
             </div>

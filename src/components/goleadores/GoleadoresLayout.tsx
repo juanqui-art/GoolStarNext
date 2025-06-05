@@ -87,7 +87,7 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                 {/* Hero Section */}
                 <section
                     ref={heroRef}
-                    className="relative pt-28 pb-16 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800"
+                    className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800"
                 >
                     <div className="absolute inset-0 overflow-hidden">
                         <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-gold/10 blur-3xl"></div>
@@ -99,14 +99,14 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                         <div className="max-w-4xl mx-auto text-center">
                             <h1
                                 ref={titleRef}
-                                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-neutral-800 dark:text-neutral-100"
+                                className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 sm:mb-6 text-neutral-800 dark:text-neutral-100"
                             >
                                 Máximos <span className="text-goal-gold">Goleadores</span>
                             </h1>
 
                             <p
                                 ref={descriptionRef}
-                                className="text-lg md:text-xl text-neutral-600 dark:text-neutral-300 mb-8 max-w-3xl mx-auto"
+                                className="text-base md:text-lg lg:text-xl text-neutral-600 dark:text-neutral-300 mb-6 sm:mb-8 max-w-3xl mx-auto px-2 sm:px-0"
                             >
                                 Descubre quiénes son los artilleros del torneo. Consulta estadísticas de goles,
                                 promedios por partido y el ranking de los máximos anotadores de Gool⭐️Star.
@@ -116,38 +116,38 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                 </section>
 
                 {/* Filtros Rápidos */}
-                <section className="py-8 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700">
-                    <div className="container mx-auto px-4">
-                        <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+                <section className="py-5 sm:py-8 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700">
+                    <div className="container mx-auto px-3 sm:px-4">
+                        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 max-w-4xl mx-auto">
                             <Link
                                 href="/goleadores"
-                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-gold dark:hover:border-goal-gold text-neutral-700 dark:text-neutral-300 hover:text-goal-gold px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-gold dark:hover:border-goal-gold text-neutral-700 dark:text-neutral-300 hover:text-goal-gold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2"
                             >
-                                <Trophy className="w-4 h-4" />
+                                <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
                                 Todos los goleadores
                             </Link>
 
                             <Link
                                 href="/goleadores?limite=10"
-                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-orange dark:hover:border-goal-orange text-neutral-700 dark:text-neutral-300 hover:text-goal-orange px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-orange dark:hover:border-goal-orange text-neutral-700 dark:text-neutral-300 hover:text-goal-orange px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2"
                             >
-                                <Target className="w-4 h-4" />
+                                <Target className="w-3 h-3 sm:w-4 sm:h-4" />
                                 Top 10
                             </Link>
 
                             <Link
                                 href="/goleadores?limite=5"
-                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue dark:hover:border-goal-blue text-neutral-700 dark:text-neutral-300 hover:text-goal-blue px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue dark:hover:border-goal-blue text-neutral-700 dark:text-neutral-300 hover:text-goal-blue px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2"
                             >
-                                <Target className="w-4 h-4" />
+                                <Target className="w-3 h-3 sm:w-4 sm:h-4" />
                                 Top 5
                             </Link>
 
                             <Link
                                 href="/equipos"
-                                className="bg-goal-blue hover:bg-goal-blue/90 text-white px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                className="bg-goal-blue hover:bg-goal-blue/90 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2"
                             >
-                                <Users className="w-4 h-4" />
+                                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                                 Ver equipos
                             </Link>
                         </div>
@@ -157,12 +157,12 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                 {/* Lista de Goleadores */}
                 <section
                     ref={goleadoresListRef}
-                    className="py-16 bg-white dark:bg-neutral-800"
+                    className="py-12 sm:py-16 bg-white dark:bg-neutral-800"
                 >
-                    <div className="container mx-auto px-4">
+                    <div className="container mx-auto px-3 sm:px-4">
                         <div className="relative">
                             {/* Contenedor para el componente de server */}
-                            <div className="backdrop-blur-sm bg-white/50 dark:bg-neutral-800/50 rounded-2xl p-6 md:p-8 shadow-xl border border-neutral-200/50 dark:border-neutral-700/50">
+                            <div className="backdrop-blur-sm bg-white/50 dark:bg-neutral-800/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl border border-neutral-200/50 dark:border-neutral-700/50">
                                 {children}
                             </div>
                         </div>
@@ -170,25 +170,25 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                 </section>
 
                 {/* Información sobre goleadores */}
-                <section className="py-16 bg-neutral-50 dark:bg-neutral-900">
-                    <div className="container mx-auto px-4">
+                <section className="py-12 sm:py-16 bg-neutral-50 dark:bg-neutral-900">
+                    <div className="container mx-auto px-3 sm:px-4">
                         <div className="max-w-4xl mx-auto">
-                            <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-neutral-800 dark:text-neutral-100">
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-8 sm:mb-12 text-neutral-800 dark:text-neutral-100">
                                 Sobre los <span className="text-goal-gold">Goleadores</span>
                             </h2>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
                                 {/* Criterios de ranking */}
-                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 bg-goal-gold/20 rounded-lg flex items-center justify-center">
-                                            <Trophy className="w-5 h-5 text-goal-gold" />
+                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 sm:p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
+                                    <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-goal-gold/20 rounded-lg flex items-center justify-center">
+                                            <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-goal-gold" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                                        <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200">
                                             Ranking
                                         </h3>
                                     </div>
-                                    <ul className="space-y-2 text-neutral-600 dark:text-neutral-400 text-sm">
+                                    <ul className="space-y-1.5 sm:space-y-2 text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm">
                                         <li>• Total de goles marcados</li>
                                         <li>• Promedio por partido</li>
                                         <li>• Goles en partidos decisivos</li>
@@ -197,42 +197,42 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                                 </div>
 
                                 {/* Tipos de goles */}
-                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 bg-goal-orange/20 rounded-lg flex items-center justify-center">
-                                            <Target className="w-5 h-5 text-goal-orange" />
+                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 sm:p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
+                                    <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-goal-orange/20 rounded-lg flex items-center justify-center">
+                                            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-goal-orange" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                                        <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200">
                                             Tipos de Gol
                                         </h3>
                                     </div>
-                                    <div className="space-y-2 text-sm">
+                                    <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
                                             <span className="text-neutral-600 dark:text-neutral-400">Gol normal</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
                                             <span className="text-neutral-600 dark:text-neutral-400">Autogol</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-yellow-500 rounded-full"></div>
                                             <span className="text-neutral-600 dark:text-neutral-400">Penal</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Estadísticas */}
-                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 bg-goal-blue/20 rounded-lg flex items-center justify-center">
-                                            <BarChart3 className="w-5 h-5 text-goal-blue" />
+                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 sm:p-6 shadow-sm border border-neutral-200 dark:border-neutral-700">
+                                    <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-goal-blue/20 rounded-lg flex items-center justify-center">
+                                            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-goal-blue" />
                                         </div>
-                                        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                                        <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200">
                                             Estadísticas
                                         </h3>
                                     </div>
-                                    <div className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                    <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                                         <div>• Goles por partido</div>
                                         <div>• Minutos jugados</div>
                                         <div>• Efectividad por disparo</div>
@@ -245,29 +245,29 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                 </section>
 
                 {/* Call to Action */}
-                <section className="py-20 bg-white dark:bg-neutral-800">
-                    <div className="container mx-auto px-4">
-                        <div className="max-w-3xl mx-auto bg-gradient-to-r from-goal-gold/5 to-goal-orange/5 dark:from-goal-gold/10 dark:to-goal-orange/10 rounded-2xl overflow-hidden shadow-lg border border-neutral-200/80 dark:border-neutral-700/80">
-                            <div className="p-8 md:p-10 relative">
+                <section className="py-12 sm:py-20 bg-white dark:bg-neutral-800">
+                    <div className="container mx-auto px-3 sm:px-4">
+                        <div className="max-w-3xl mx-auto bg-gradient-to-r from-goal-gold/5 to-goal-orange/5 dark:from-goal-gold/10 dark:to-goal-orange/10 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-neutral-200/80 dark:border-neutral-700/80">
+                            <div className="p-6 sm:p-8 md:p-10 relative">
                                 {/* Elementos decorativos de fondo */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-goal-gold/10 rounded-full blur-2xl -translate-y-8 translate-x-8"></div>
                                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-goal-orange/10 rounded-full blur-xl translate-y-6 -translate-x-6"></div>
 
                                 <div className="text-center relative z-10">
-                                    <h3 className="text-2xl md:text-3xl font-bold mb-4 text-neutral-800 dark:text-neutral-100">
+                                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-neutral-800 dark:text-neutral-100">
                                         ¿Quieres ser goleador?
                                     </h3>
 
-                                    <p className="text-neutral-600 dark:text-neutral-300 mb-8 max-w-xl mx-auto">
+                                    <p className="text-neutral-600 dark:text-neutral-300 mb-6 sm:mb-8 max-w-xl mx-auto text-sm sm:text-base">
                                         Únete al próximo torneo y demuestra tus habilidades goleadoras.
                                         ¡Tal vez seas el próximo en aparecer en esta tabla!
                                     </p>
 
-                                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                                    <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
                                         {/* Botón primario - Dorado */}
                                         <Link
                                             href="/contacto"
-                                            className="group relative bg-goal-gold/60 hover:bg-goal-gold/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-gold/30"
+                                            className="group relative bg-goal-gold/60 hover:bg-goal-gold/90 text-white font-medium py-2.5 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-gold/30 text-sm sm:text-base w-full sm:w-auto"
                                         >
                                             <span className="relative z-10">Inscribir mi equipo</span>
                                             {/* Efecto de brillo */}
@@ -277,7 +277,7 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                                         {/* Botón secundario - Azul */}
                                         <Link
                                             href="/partidos"
-                                            className="group relative bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-blue/30"
+                                            className="group relative bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-2.5 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-blue/30 text-sm sm:text-base w-full sm:w-auto"
                                         >
                                             <span className="relative z-10">Ver partidos</span>
                                             {/* Efecto de brillo */}
@@ -287,7 +287,7 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                                         {/* Botón terciario - Contorno */}
                                         <Link
                                             href="/tabla"
-                                            className="group relative bg-white dark:bg-neutral-700 border-2 border-goal-orange hover:border-goal-orange/80 hover:bg-goal-orange/5 dark:hover:bg-goal-orange/10 text-neutral-800 dark:text-neutral-200 hover:text-goal-orange dark:hover:text-goal-orange font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-orange/30"
+                                            className="group relative bg-white dark:bg-neutral-700 border-2 border-goal-orange hover:border-goal-orange/80 hover:bg-goal-orange/5 dark:hover:bg-goal-orange/10 text-neutral-800 dark:text-neutral-200 hover:text-goal-orange dark:hover:text-goal-orange font-medium py-2.5 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-orange/30 text-sm sm:text-base w-full sm:w-auto"
                                         >
                                             <span className="relative z-10">Tabla posiciones</span>
                                             {/* Efecto de brillo sutil */}
@@ -296,7 +296,7 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
                                     </div>
 
                                     {/* Texto adicional pequeño */}
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-6">
+                                    <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-4 sm:mt-6">
                                         ¿Tienes preguntas?
                                         <Link href="/contacto" className="ml-1 text-goal-blue hover:text-goal-blue/80 underline transition-colors">
                                             Contáctanos aquí
