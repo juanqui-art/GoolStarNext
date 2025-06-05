@@ -56,3 +56,4 @@ next-env.d.ts
 # Misc
 *.pem
 /qodana.yaml
+/CLAUDE.md
