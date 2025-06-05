@@ -284,25 +284,25 @@ function GoleadorCard({ goleador, showRanking = true }: {
     showRanking?: boolean;
 }) {
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-lg p-3 sm:p-4 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md hover:border-goal-gold/50 transition-all duration-300">
-            <div className="flex items-center gap-3">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 sm:p-5 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md hover:border-goal-gold/50 transition-all duration-300">
+            <div className="flex items-center gap-3 sm:gap-4">
                 {/* Posición y foto */}
                 <div className="flex items-center gap-2">
                     {showRanking && <PosicionBadge posicion={goleador.posicion} />}
 
                     {goleador.foto ? (
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 relative flex-shrink-0">
                             <Image
                                 src={goleador.foto}
                                 alt={goleador.jugador_nombre}
-                                width={48}
-                                height={48}
+                                width={56}
+                                height={56}
                                 className="w-full h-full object-cover rounded-full"
                             />
                         </div>
                     ) : (
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-goal-blue/20 rounded-full flex items-center justify-center">
-                            <span className="text-goal-blue font-bold text-base sm:text-lg">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-goal-blue/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-goal-blue font-bold text-lg sm:text-xl">
                                 {goleador.jugador_nombre.charAt(0)}
                             </span>
                         </div>
@@ -311,21 +311,21 @@ function GoleadorCard({ goleador, showRanking = true }: {
 
                 {/* Información del jugador */}
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 text-base sm:text-lg truncate">
+                    <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 text-lg sm:text-xl truncate">
                         {goleador.jugador_nombre}
                     </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm truncate">
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm sm:text-base truncate">
                         {goleador.equipo_nombre}
                     </p>
                 </div>
 
                 {/* Estadísticas */}
-                <div className="text-right flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-goal-gold" />
-                    <span className="font-bold text-xl sm:text-2xl text-goal-gold">
+                <div className="text-right flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-goal-gold" />
+                    <span className="font-bold text-2xl sm:text-3xl text-goal-gold">
                         {goleador.total_goles}
                     </span>
-                    <span className="hidden sm:inline text-xs text-neutral-500 dark:text-neutral-400 ml-1">
+                    <span className="hidden sm:inline text-sm text-neutral-500 dark:text-neutral-400 ml-1">
                         ({goleador.promedio_goles.toFixed(1)})
                     </span>
                 </div>
@@ -546,7 +546,7 @@ export default async function GoleadoresListServer({
             </div>
 
             {/* Vista móvil con cards */}
-            <div className="lg:hidden space-y-2.5 sm:space-y-3">
+            <div className="lg:hidden space-y-4">
                 {goleadores.map((goleador) => (
                     <GoleadorCard key={goleador.id} goleador={goleador} />
                 ))}

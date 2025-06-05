@@ -89,11 +89,11 @@ export default function QuickLinks() {
 
     return (
         <div ref={sectionRef} className="w-full">
-            <h2 className="text-3xl font-heading text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-heading text-center mb-6 sm:mb-8">
                 Acceso Rápido
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
                 {quickLinks.map((link, index) => (
                     <div key={index} className="card-item">
                         <QuickLinkCard

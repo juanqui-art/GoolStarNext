@@ -20,7 +20,7 @@ const Hero = () => {
           <div className="absolute inset-0 bg-black/45"></div>
           
           {/* Gradiente superior para integración con navbar */}
-          <div className="absolute top-0 left-0 right-0 h-[80px] md:h-[333px] bg-gradient-to-b from-black/80 via-black/60 to-transparent"></div>
+          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 md:h-24 lg:h-[333px] bg-gradient-to-b from-black/80 via-black/60 to-transparent"></div>
           
           {/* Efecto de luz dorada desde abajo */}
           <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-primary/10 to-transparent"></div>
@@ -28,27 +28,27 @@ const Hero = () => {
       </div>
       
       {/* Contenido del hero con padding para el navbar */}
-      <div className="h-screen min-h-[600px] w-full flex items-center  ">
+      <div className="h-[85vh] min-h-[500px] sm:h-[90vh] sm:min-h-[550px] md:h-screen md:min-h-[600px] w-full flex items-center">
 
 
         {/* Contenido centrado - ajustado para dar espacio a la navbar */}
-        <div className="container relative mx-auto px-4 pt-0">
-          <div className="max-w-3xl mx-auto text-center">
+        <div className="container relative mx-auto px-4 sm:px-6 md:px-8 pt-0">
+          <div className="max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto text-center">
             {/* Título principal con combinación de fuentes moderna y dinámica */}
             <h1 className="text-white flex flex-col items-center justify-center">
-              <span className="font-subtitle uppercase text-4xl md:text-6xl tracking-wide ">
+              <span className="font-subtitle uppercase text-2xl sm:text-3xl md:text-4xl lg:text-6xl tracking-wide leading-tight">
                 Tu Momento de
               </span>
-              <span className=" text-7xl md:text-9xl tracking-wider uppercase px-2">
+              <span className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl tracking-wider uppercase px-1 sm:px-2 leading-none block my-2 sm:my-4">
                 <BrillarAnimation className="" />
               </span>
-              <span className="font-subtitle text-4xl uppercase md:text-6xl tracking-wide">
+              <span className="font-subtitle text-2xl sm:text-3xl md:text-4xl lg:text-6xl uppercase tracking-wide leading-tight">
                 Ha Llegado
               </span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-xl md:text-2xl mb-4 text-white/90 font-subtitle mt-12">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-subtitle mt-6 sm:mt-8 md:mt-12 leading-relaxed">
               Únete al torneo más emocionante de fútbol indoor
             </p>
 
@@ -58,11 +58,11 @@ const Hero = () => {
                 href={`https://wa.me/${process.env.NEXT_PUBLIC_CONTACT_PHONE?.replace(/\D/g, '') || '593978692269'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-center bg-transparent text-white px-8 py-4 text-base font-light tracking-widest uppercase rounded-md border border-accent/50 hover:border-accent backdrop-blur-sm transition-all duration-300 hover:bg-accent/5 shadow-sm hover:shadow-neon-blue"
+                className="group flex items-center justify-center bg-transparent text-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-light tracking-widest uppercase rounded-md border border-accent/50 hover:border-accent backdrop-blur-sm transition-all duration-300 hover:bg-accent/5 shadow-sm hover:shadow-neon-blue"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 opacity-80 group-hover:opacity-100 transition-all"
+                  className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 opacity-80 group-hover:opacity-100 transition-all"
                   fill="white"
                   viewBox="0 0 24 24"
                 >

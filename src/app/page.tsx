@@ -9,8 +9,8 @@ import { Suspense } from 'react';
 // Loading component para TorneoActual
 function TorneoActualLoading() {
     return (
-        <section className="py-20 bg-neutral-100 dark:bg-neutral-900">
-            <div className="container mx-auto px-4">
+        <section className="py-12 sm:py-16 md:py-20 bg-neutral-100 dark:bg-neutral-900">
+            <div className="container mx-auto px-4 sm:px-6 md:px-8">
                 <div className="max-w-xl mx-auto mb-8">
                     <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow-sm animate-pulse">
                         <div className="text-center">
@@ -56,16 +56,16 @@ export default function Home() {
                 <TorneoActualServer />
             </Suspense>
 
-            <section className="py-16 bg-neutral-50 dark:bg-neutral-900">
-                <div className="container mx-auto px-4">
+            <section className="py-12 sm:py-16 bg-neutral-50 dark:bg-neutral-900">
+                <div className="container mx-auto px-4 sm:px-6 md:px-8">
                     <Suspense fallback={<EquiposLoading />}>
                         <EquiposListServer />
                     </Suspense>
                 </div>
             </section>
 
-            <section className="py-16 bg-white dark:bg-neutral-800">
-                <div className="container mx-auto px-4">
+            <section className="py-12 sm:py-16 bg-white dark:bg-neutral-800">
+                <div className="container mx-auto px-4 sm:px-6 md:px-8">
                     <QuickLinks />
                 </div>
             </section>

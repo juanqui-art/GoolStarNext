@@ -92,19 +92,19 @@ export default function QuickLinkCard({
     <Link href={href} className="block">
       <div 
         ref={cardRef}
-        className={`group bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 ${hoverBorder} rounded-lg p-5 transition-all duration-300 ${shadow}`}
+        className={`group bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 ${hoverBorder} rounded-lg p-4 sm:p-5 transition-all duration-300 ${shadow} min-h-[140px] sm:min-h-[160px] flex flex-col`}
       >
-        <div className={`${iconBg} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
+        <div className={`${iconBg} w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 sm:mb-4 flex-shrink-0`}>
           <div className={`${iconText}`}>
             {icon}
           </div>
         </div>
         
-        <h3 className="font-semibold text-lg mb-2 text-neutral-800 dark:text-neutral-100">
+        <h3 className="font-semibold text-base sm:text-lg mb-2 text-neutral-800 dark:text-neutral-100 leading-tight">
           {title}
         </h3>
         
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed flex-1">
           {description}
         </p>
       </div>
