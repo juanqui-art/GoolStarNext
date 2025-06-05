@@ -146,10 +146,6 @@ function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
                         </h2>
                         <div className="space-y-3">
                             <div className="flex justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Total jugadores:</span>
-                                <span className="font-medium">{equipo.jugadores?.length || 0}</span>
-                            </div>
-                            <div className="flex justify-between">
                                 <span className="text-neutral-600 dark:text-neutral-400">Inasistencias:</span>
                                 <span className="font-medium">{equipo.inasistencias || 0}</span>
                             </div>
