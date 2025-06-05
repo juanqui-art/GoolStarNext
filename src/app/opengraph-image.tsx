@@ -115,7 +115,7 @@ export default async function Image() {
                             textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
                         }}
                     >
-                        Organizamos Campeonatos de Fútbol Indoor
+                        Organizamos Campeonatos de Indoor Fútbol
                     </div>
 
                     {/* 📊 ESTADÍSTICAS EN CARDS */}
