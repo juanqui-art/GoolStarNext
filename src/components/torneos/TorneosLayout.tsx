@@ -396,7 +396,7 @@ export default function TorneosLayout({ children, torneoData }: TorneosLayoutPro
                                     ¿Cuándo terminará este torneo?
                                 </h3>
                                 <p className="text-neutral-600 dark:text-neutral-300">
-                                    El {torneoData.nombre} está programado para finalizar en <strong>Mayo 2025</strong>.
+                                    El {torneoData.nombre} está programado para finalizar en <strong>Junio 2025</strong>.
                                     {torneoData.activo
                                         ? ' Actualmente estamos en la fase de grupos, luego seguirán las eliminatorias hasta la gran final.'
                                         : ' Las inscripciones comenzarán pronto y el torneo iniciará según el cronograma establecido.'
@@ -410,7 +410,7 @@ export default function TorneosLayout({ children, torneoData }: TorneosLayoutPro
                                     ¿Dónde se juegan los partidos?
                                 </h3>
                                 <p className="text-neutral-600 dark:text-neutral-300">
-                                    Todos los partidos se disputan en nuestras instalaciones oficiales: <strong>CANCHA GOAL STAR</strong>
+                                    Todos los partidos se disputan en nuestras instalaciones oficiales: <strong>CANCHA ️GOAL⭐️STAR </strong>
                                     ubicada en Pumayunga (junto antena Claro). Contamos con canchas de primera calidad para fútbol indoor.
                                 </p>
                             </div>
