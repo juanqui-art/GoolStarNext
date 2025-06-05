@@ -65,33 +65,16 @@ export async function generateMetadata(): Promise<Metadata> {
           type: 'website',
           locale: 'es_EC',
           siteName: 'GoolStar',
-          images: [
-            {
-              url: "/fotocancha.jpg",
-              width: 1200,
-              height: 630,
-              alt: `${torneoActivo.nombre} - GoolStar`,
-              type: 'image/jpg',
-            },
-            {
-              url: "/canchaReflejo.jpeg",
-              width: 600,
-              height: 600,
-              alt: `${torneoActivo.nombre} - Vista móvil`,
-              type: 'image/jpeg',
-            }
-          ],
         },
         twitter: {
           card: 'summary_large_image',
           title: `${torneoActivo.nombre} | GoolStar`,
           description: `🏆 Torneo activo: ${torneoActivo.total_equipos} equipos compitiendo por la gloria. ¡Sigue la acción en vivo!`,
-          images: [`${process.env.NEXT_PUBLIC_SITE_URL || 'https://goolstar.vercel.app'}/images/torneos/fotocancha.jpg`],
           creator: '@GoolStarEc',
           site: '@GoolStarEc',
         },
         alternates: {
-          canonical: 'https://goolstar.vercel.app/torneos',
+          canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/torneos`,
         },
         other: {
           'tournament:name': torneoActivo.nombre,
@@ -112,26 +95,16 @@ export async function generateMetadata(): Promise<Metadata> {
         type: 'website',
         locale: 'es_EC',
         siteName: 'GoolStar',
-        images: [
-          {
-            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goolstar.vercel.app'}/images/torneos/fotocancha.jpg`,
-            width: 1200,
-            height: 630,
-            alt: 'Torneos de Fútbol Indoor - GoolStar',
-            type: 'image/jpg',
-          }
-        ],
       },
       twitter: {
         card: 'summary_large_image',
         title: baseMetadata.title,
         description: '🏆 La mejor plataforma de torneos de fútbol indoor en Ecuador. ¡Únete a la competencia!',
-        images: [`${process.env.NEXT_PUBLIC_SITE_URL || 'https://goolstar.vercel.app'}/images/torneos/canchaReflejo.jpeg`],
         creator: '@GoolStarEc',
         site: '@GoolStarEc',
       },
       alternates: {
-        canonical: 'https://goolstar.vercel.app/torneos',
+        canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/torneos`,
       }
     };
 
