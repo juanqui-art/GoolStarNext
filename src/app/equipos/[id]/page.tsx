@@ -119,12 +119,6 @@ function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
                                 <span className="font-medium capitalize">{equipo.estado || 'Activo'}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Nivel:</span>
-                                <span className="font-medium">
-                                    {equipo.nivel ? `Nivel ${equipo.nivel}` : 'No especificado'}
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
                                 <span className="text-neutral-600 dark:text-neutral-400">Fecha registro:</span>
                                 <span className="font-medium">
                                     {new Date(equipo.fecha_registro).toLocaleDateString('es-ES')}
