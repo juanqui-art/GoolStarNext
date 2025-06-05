@@ -54,25 +54,25 @@ export default async function Image() {
                     />
 
                     {/* 🇪🇨 BANDERA ECUATORIANA */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: '20px',
-                            right: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            width: '60px',
-                            height: '40px',
-                            borderRadius: '4px',
-                            overflow: 'hidden',
-                            border: '2px solid rgba(255, 255, 255, 0.2)',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                        }}
-                    >
-                        <div style={{ backgroundColor: '#FFD700', height: '33.33%', width: '100%' }} />
-                        <div style={{ backgroundColor: '#006992', height: '33.33%', width: '100%' }} />
-                        <div style={{ backgroundColor: '#FF0000', height: '33.33%', width: '100%' }} />
-                    </div>
+                    {/*<div*/}
+                    {/*    style={{*/}
+                    {/*        position: 'absolute',*/}
+                    {/*        top: '20px',*/}
+                    {/*        right: '20px',*/}
+                    {/*        display: 'flex',*/}
+                    {/*        flexDirection: 'column',*/}
+                    {/*        width: '60px',*/}
+                    {/*        height: '40px',*/}
+                    {/*        borderRadius: '4px',*/}
+                    {/*        overflow: 'hidden',*/}
+                    {/*        border: '2px solid rgba(255, 255, 255, 0.2)',*/}
+                    {/*        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',*/}
+                    {/*    }}*/}
+                    {/*>*/}
+                    {/*    <div style={{ backgroundColor: '#FFD700', height: '33.33%', width: '100%' }} />*/}
+                    {/*    <div style={{ backgroundColor: '#006992', height: '33.33%', width: '100%' }} />*/}
+                    {/*    <div style={{ backgroundColor: '#FF0000', height: '33.33%', width: '100%' }} />*/}
+                    {/*</div>*/}
 
                     {/* 🏆 LOGO PRINCIPAL CON EFECTO */}
                     <div
