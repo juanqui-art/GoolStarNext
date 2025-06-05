@@ -7,7 +7,9 @@ import { Share } from 'lucide-react';
 // Extender el objeto global Window para incluir FB
 declare global {
     interface Window {
-        FB: any;
+        FB: {
+            ui: (params: object, callback?: (response: { error_message?: string }) => void) => void;
+        };
         fbAsyncInit: () => void;
     }
 }
@@ -55,7 +57,7 @@ export default function FacebookShare({
             method: 'share',
             href: url || window.location.href,
             quote: quote,
-        }, function(response: any) {
+        }, function(response: { error_message?: string }) {
             if (response && !response.error_message) {
                 console.log('¡Compartido exitosamente!');
                 // Aquí podrías agregar analytics o notificaciones
