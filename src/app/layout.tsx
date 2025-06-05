@@ -2,6 +2,7 @@
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -255,36 +256,34 @@ export default function RootLayout({
                     })
                 }}
             />
-
-            {/* 📱 FACEBOOK SDK JAVASCRIPT */}
-            <script
-                dangerouslySetInnerHTML={{
-                    __html: `
-                            window.fbAsyncInit = function() {
-                                FB.init({
-                                    appId: '1753629471919536',
-                                    cookie: true,
-                                    xfbml: true,
-                                    version: 'v18.0'
-                                });
-                            };
-
-                            (function(d, s, id) {
-                                var js, fjs = d.getElementsByTagName(s)[0];
-                                if (d.getElementById(id)) return;
-                                js = d.createElement(s); js.id = id;
-                                js.src = "https://connect.facebook.net/es_ES/sdk.js";
-                                fjs.parentNode.insertBefore(js, fjs);
-                            }(document, 'script', 'facebook-jssdk'));
-                        `
-                }}
-            />
         </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}
         >
         {/* 📱 DIV REQUERIDO PARA FACEBOOK SDK */}
         <div id="fb-root"></div>
+        
+        {/* Use Next.js Script component for Facebook SDK */}
+        <Script strategy="afterInteractive" id="facebook-sdk">
+          {`
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId: '1753629471919536',
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v18.0'
+                });
+            };
+            
+            (function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s); js.id = id;
+                js.src = "https://connect.facebook.net/es_ES/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+          `}
+        </Script>
 
         <ThemeProvider>
             {children}
