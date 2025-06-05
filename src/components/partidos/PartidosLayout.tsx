@@ -1,7 +1,7 @@
 // src/components/partidos/PartidosLayout.tsx
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '@/components/layout/Navbar';
@@ -18,16 +18,7 @@ export default function PartidosLayout({ children }: { children: React.ReactNode
     const titleRef = useRef<HTMLHeadingElement>(null);
     const descriptionRef = useRef<HTMLParagraphElement>(null);
     const partidosListRef = useRef<HTMLDivElement>(null);
-    const navbarContainerRef = useRef<HTMLDivElement>(null);
-    const [scrolled, setScrolled] = useState(false);
-
     useEffect(() => {
-        // Control del fondo del navbar al hacer scroll
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 10);
-        };
-
-        window.addEventListener('scroll', handleScroll);
 
         // Animación de entrada para el hero
         const heroTl = gsap.timeline();
@@ -66,21 +57,14 @@ export default function PartidosLayout({ children }: { children: React.ReactNode
 
         // Limpieza al desmontar
         return () => {
-            window.removeEventListener('scroll', handleScroll);
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
         };
     }, []);
 
     return (
         <div className="relative min-h-screen overflow-hidden">
-            {/* Contenedor del navbar con transición */}
-            <div
-                ref={navbarContainerRef}
-                className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 
-          ${scrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm dark:bg-neutral-900/95' : 'bg-transparent'}`}
-            >
-                <Navbar />
-            </div>
+            {/* Navbar con variant solid para evitar conflictos */}
+            <Navbar variant="solid" />
 
             <main>
                 {/* Hero Section */}
