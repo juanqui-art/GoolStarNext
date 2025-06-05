@@ -197,17 +197,21 @@ function JugadoresList({ jugadores }: { jugadores: Jugador[] }) {
         );
     }
 
+    // Limitar a solo 12 jugadores
+    const jugadoresLimitados = jugadores.slice(0, 12);
+    const jugadoresTotal = jugadores.length;
+
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden">
             <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
                 <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
-                    Jugadores ({jugadores.length})
+                    Jugadores ({jugadoresTotal}) {jugadoresTotal > 12 && <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">(mostrando 12)</span>}
                 </h2>
             </div>
 
             <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {jugadores.map((jugador) => (
+                    {jugadoresLimitados.map((jugador) => (
                         <div
                             key={jugador.id}
                             className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"

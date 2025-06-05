@@ -51,7 +51,7 @@ export default async function GoleadoresPage({ searchParams }: GoleadoresPagePro
     const equipo_id = params.equipo ? parseInt(params.equipo) : undefined;
     const search = params.search;
     const page = params.page ? parseInt(params.page) : 1;
-    const limite = params.limite ? parseInt(params.limite) : 20;
+    const limite = params.limite ? parseInt(params.limite) : 12;
 
     return (
         <GoleadoresLayout>
