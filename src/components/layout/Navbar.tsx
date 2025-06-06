@@ -3,8 +3,9 @@
 import { X, Menu } from 'lucide-react';
 import Image from "next/image";
 import Link from 'next/link';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import gsap from 'gsap';
 
 interface NavbarProps {
     variant?: 'transparent' | 'solid';
@@ -13,15 +14,20 @@ interface NavbarProps {
 
 const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
     const pathname = usePathname();
+    const menuRef = useRef<HTMLDivElement>(null);
+    const backdropRef = useRef<HTMLDivElement>(null);
 
     const toggleMenu = useCallback(() => {
+        if (isAnimating) return; // Evitar múltiples clics durante la animación
         setIsOpen(prev => !prev);
-    }, []);
+    }, [isAnimating]);
 
     const closeMenu = useCallback(() => {
+        if (isAnimating) return; // Evitar múltiples clics durante la animación
         setIsOpen(false);
-    }, []);
+    }, [isAnimating]);
 
     const navLinks = [
         { href: '/', label: 'Inicio' },
@@ -48,6 +54,51 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
         }
         ${className}
     `;
+
+    // Efecto para animar la apertura y cierre del menú móvil
+    useEffect(() => {
+        if (!menuRef.current || !backdropRef.current) return;
+        
+        const menu = menuRef.current;
+        const backdrop = backdropRef.current;
+        
+        setIsAnimating(true);
+        
+        if (isOpen) {
+            // Configuración inicial para la animación de apertura
+            gsap.set(menu, { x: '100%' });
+            gsap.set(backdrop, { opacity: 0 });
+            
+            // Animación de apertura
+            const tl = gsap.timeline({
+                onComplete: () => setIsAnimating(false)
+            });
+            tl.to(backdrop, { opacity: 1, duration: 0.3 })
+              .to(menu, { 
+                x: '0%', 
+                duration: 0.4, 
+                ease: 'power2.out'
+              }, '-=0.1');
+        } else if (menu.style.transform) { // Solo animar si el menú ya ha sido mostrado
+            // Animación de cierre
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    // Limpiar la visibilidad después de la animación
+                    gsap.set([menu, backdrop], { clearProps: "all" });
+                    setIsAnimating(false);
+                }
+            });
+            
+            tl.to(menu, { 
+                x: '100%', 
+                duration: 0.3, 
+                ease: 'power2.in' 
+              })
+              .to(backdrop, { opacity: 0, duration: 0.2 }, '-=0.1');
+        } else {
+            setIsAnimating(false);
+        }
+    }, [isOpen]);
 
     return (
         <>
@@ -106,20 +157,24 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                             className="lg:hidden p-2 rounded-md text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
                             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
                         >
-                            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            {isOpen && !isAnimating ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
                     </div>
                 </div>
             </nav>
 
             {/* Mobile Menu */}
-            {isOpen && (
+            {(isOpen || isAnimating) && (
                 <>
                     <div 
+                        ref={backdropRef}
                         className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
                         onClick={closeMenu}
                     />
-                    <div className="fixed top-0 right-0 z-50 h-full w-72 bg-neutral-50 dark:bg-neutral-900 shadow-elevation-3 lg:hidden">
+                    <div 
+                        ref={menuRef}
+                        className="fixed top-0 right-0 z-50 h-full w-72 bg-neutral-50 dark:bg-neutral-900 shadow-elevation-3 lg:hidden"
+                    >
                         <div className="flex justify-end p-4 border-b border-neutral-200 dark:border-neutral-700">
                             <button 
                                 onClick={closeMenu} 
