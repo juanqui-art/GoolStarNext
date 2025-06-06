@@ -36,19 +36,19 @@ const Hero = () => {
           <div className="max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto text-center">
             {/* Título principal con combinación de fuentes moderna y dinámica */}
             <h1 className="text-white flex flex-col items-center justify-center">
-              <span className="font-subtitle uppercase text-2xl sm:text-3xl md:text-4xl lg:text-6xl tracking-wide leading-tight">
+              <span className="font-subtitle uppercase text-4xl sm:text-4xl md:text-4xl lg:text-7xl tracking-wide ">
                 Tu Momento de
               </span>
-              <span className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl tracking-wider uppercase px-1 sm:px-2 leading-none block my-2 sm:my-4">
+              <span className="text-5xl sm:text-5xl md:text-7xl lg:text-9xl tracking-wider uppercase px-1 sm:px-2 leading-none block my-2 sm:my-0">
                 <BrillarAnimation className="" />
               </span>
-              <span className="font-subtitle text-2xl sm:text-3xl md:text-4xl lg:text-6xl uppercase tracking-wide leading-tight">
+              <span className="font-subtitle text-4xl sm:text-5xl md:text-7xl lg:text-7xl uppercase tracking-wide leading-tight">
                 Ha Llegado
               </span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-subtitle mt-6 sm:mt-8 md:mt-12 leading-relaxed">
+            <p className="text-lg sm:text-lg md:text-xl lg:text-2xl mb-3 sm:mb-6 text-white/90 font-subtitle mt-6 sm:mt-8 md:mt-22 leading-relaxed">
               Únete al torneo más emocionante de fútbol indoor
             </p>
 
@@ -58,7 +58,7 @@ const Hero = () => {
                 href={`https://wa.me/${process.env.NEXT_PUBLIC_CONTACT_PHONE?.replace(/\D/g, '') || '593978692269'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-center bg-transparent text-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-light tracking-widest uppercase rounded-md border border-accent/50 hover:border-accent backdrop-blur-sm transition-all duration-300 hover:bg-accent/5 shadow-sm hover:shadow-neon-blue"
+                className="group flex items-center justify-center bg-transparent text-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-light tracking-widest uppercase rounded-md border border-accent/90 hover:border-accent backdrop-blur-sm transition-all duration-300 hover:bg-accent/6 shadow-sm hover:shadow-neon-blue"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
