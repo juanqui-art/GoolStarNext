@@ -19,20 +19,13 @@ interface GoleadoresPageProps {
 // Metadata ESTÁTICA para evitar dynamic server usage
 export const metadata: Metadata = {
     title: 'Goleadores | GoolStar',
-    description: 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles',
+    description: '"Ranking oficial de goleadores del torneo GoolStar 2025. Estadísticas actualizadas de los máximos anotadores del fútbol indoor más competitivo."',
     keywords: ['goleadores', 'fútbol indoor', 'máximos anotadores', 'estadísticas', 'GoolStar'],
     openGraph: {
         title: 'Goleadores | GoolStar',
-        description: 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles',
+        description: '"Ranking oficial de goleadores del torneo GoolStar 2025. Estadísticas actualizadas de los máximos anotadores del fútbol indoor más competitivo."',
         type: 'website',
-        images: [
-            {
-                url: '/images/goleadores-og.jpg',
-                width: 1200,
-                height: 630,
-                alt: 'Goleadores GoolStar',
-            }
-        ],
+
     },
     twitter: {
         card: 'summary_large_image',
