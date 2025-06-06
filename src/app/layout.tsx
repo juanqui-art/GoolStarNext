@@ -1,6 +1,6 @@
 // src/app/layout.tsx - ACTUALIZADO CON TU FACEBOOK APP ID REAL
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -124,11 +124,6 @@ export const metadata: Metadata = {
     },
     manifest: '/manifest.json',
 
-    // 🎨 COLORES DE TEMA
-    themeColor: [
-        { media: '(prefers-color-scheme: light)', color: '#FFD700' },
-        { media: '(prefers-color-scheme: dark)', color: '#006992' },
-    ],
 
     // 📊 VERIFICACIONES Y ANALYTICS
     verification: {
@@ -175,6 +170,14 @@ export const metadata: Metadata = {
         'tournament:location': 'Pumayunga, Cuenca',
         'tournament:status': 'active',
     },
+};
+
+// 🎨 VIEWPORT CONFIGURATION - Fixed themeColor warnings
+export const viewport: Viewport = {
+    themeColor: [
+        { media: '(prefers-color-scheme: light)', color: '#FFD700' },
+        { media: '(prefers-color-scheme: dark)', color: '#006992' },
+    ],
 };
 
 export default function RootLayout({
