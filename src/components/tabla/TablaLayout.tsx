@@ -71,12 +71,22 @@ export default function TablaLayout({ children }: { children: React.ReactNode })
                 {/* Hero Section */}
                 <section
                     ref={heroRef}
-                    className="relative pt-28 pb-16 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800"
+                    className="relative pt-28 pb-16 bg-gradient-to-br from-neutral-50 via-white to-goal-gold/5 dark:from-neutral-900 dark:via-neutral-800 dark:to-goal-gold/10"
                 >
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-gold/10 blur-3xl"></div>
-                        <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-goal-blue/10 blur-3xl"></div>
-                        <div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full bg-goal-orange/20 blur-xl"></div>
+                        {/* Sophisticated Background Effects - Light/Dark Mode Optimized */}
+                        {/* Primary Gold Orb - 20% Secondary Brand Usage */}
+                        <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-gold-100 dark:bg-goal-gold-200 blur-3xl opacity-30 dark:opacity-40"></div>
+                        
+                        {/* Large Blue Orb - Strategic Brand Placement */}
+                        <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-goal-blue-100 dark:bg-goal-blue-200 blur-3xl opacity-25 dark:opacity-35"></div>
+                        
+                        {/* Accent Orange Dot - 8% Brand Strategic Use */}
+                        <div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full bg-goal-orange-200 dark:bg-goal-orange-300 blur-xl opacity-35 dark:opacity-50"></div>
+                        
+                        {/* Additional Neutral Elements - 72% Base Usage */}
+                        <div className="absolute top-1/2 right-1/3 w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-700 blur-2xl opacity-15 dark:opacity-20"></div>
+                        <div className="absolute bottom-1/4 right-20 w-24 h-24 rounded-full bg-neutral-100 dark:bg-neutral-800 blur-xl opacity-12 dark:opacity-15"></div>
                     </div>
 
                     <div className="container mx-auto px-4 relative z-10">
@@ -153,6 +163,10 @@ export default function TablaLayout({ children }: { children: React.ReactNode })
                 >
                     <div className="container mx-auto px-4">
                         <div className="relative">
+                            {/* Sophisticated Side Decorations - Optimized for Light/Dark */}
+                            <div className="hidden md:block absolute -left-6 top-1/3 w-12 h-12 rounded-full bg-goal-gold-100 dark:bg-goal-gold-200 opacity-40 dark:opacity-40"></div>
+                            <div className="hidden md:block absolute -right-6 bottom-1/4 w-12 h-12 rounded-full bg-goal-blue-100 dark:bg-goal-blue-200 opacity-40 dark:opacity-40"></div>
+                            
                             {/* Contenedor para el componente de server */}
                             <div className="backdrop-blur-sm bg-white/50 dark:bg-neutral-800/50 rounded-2xl p-6 md:p-8 shadow-xl border border-neutral-200/50 dark:border-neutral-700/50">
                                 {children}

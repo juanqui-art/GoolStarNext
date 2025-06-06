@@ -41,9 +41,10 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
     const navbarClasses = `
         fixed top-0 left-0 right-0 z-50 
         h-18
+        transition-colors duration-300
         ${variant === 'solid' 
-            ? 'bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-lg border-b border-neutral-200/50 dark:border-neutral-700/50'
-            : 'bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-lg border-b border-neutral-200/50 dark:border-neutral-700/50'
+            ? 'bg-neutral-50/60 dark:bg-neutral-900/60 backdrop-blur-md shadow-elevation-2 dark:border-neutral-700'
+            : 'bg-neutral-50/60 dark:bg-neutral-950/60 backdrop-blur-md shadow-elevation-1  dark:border-neutral-800/30'
         }
         ${className}
     `;
@@ -56,14 +57,27 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                         
                         {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <Image
-                                alt="GoolStar Logo"
-                                src="/images/logos/logooficial.svg"
-                                width={120}
-                                height={40}
-                                className="h-10 w-auto"
-                                priority
-                            />
+                            {/* Logo para modo claro */}
+                            <div className="relative">
+                                <Image
+                                    alt="GoolStar Logo"
+                                    src="/images/logos/logooficial.svg"
+                                    width={120}
+                                    height={40}
+                                    className="h-10 w-auto block dark:hidden"
+                                    style={{ filter: 'brightness(0) saturate(100%)' }}
+                                    priority
+                                />
+                                {/* Logo para modo oscuro */}
+                                <Image
+                                    alt="GoolStar Logo"
+                                    src="/images/logos/logooficial.svg"
+                                    width={120}
+                                    height={40}
+                                    className="h-10 w-auto hidden dark:block"
+                                    priority
+                                />
+                            </div>
                         </Link>
 
                         {/* Desktop Links */}
@@ -73,10 +87,11 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                                     key={link.href}
                                     href={link.href}
                                     className={`
-                                        px-3 py-2 text-sm font-medium rounded-md
+                                        px-3 py-2 text-base font-medium rounded-md
+                                        transition-colors duration-200
                                         ${isActive(link.href)
-                                            ? 'text-goal-gold bg-goal-gold/10'
-                                            : 'text-gray-700 dark:text-gray-100 hover:text-goal-gold'
+                                            ? 'text-goal-blue bg-goal-blue-100 font-semibold hover:bg-goal-blue-200'
+                                            : 'text-neutral-700 dark:text-neutral-200 hover:text-goal-blue hover:bg-neutral-100 dark:hover:bg-neutral-800'
                                         }
                                     `}
                                 >
@@ -88,7 +103,8 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                         {/* Mobile Menu Button */}
                         <button
                             onClick={toggleMenu}
-                            className="lg:hidden p-2 rounded-md text-gray-600 dark:text-gray-300"
+                            className="lg:hidden p-2 rounded-md text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
+                            aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
                         >
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
@@ -103,9 +119,13 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                         className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
                         onClick={closeMenu}
                     />
-                    <div className="fixed top-0 right-0 z-50 h-full w-72 bg-white dark:bg-neutral-900 shadow-xl lg:hidden">
+                    <div className="fixed top-0 right-0 z-50 h-full w-72 bg-neutral-50 dark:bg-neutral-900 shadow-elevation-3 lg:hidden">
                         <div className="flex justify-end p-4 border-b border-neutral-200 dark:border-neutral-700">
-                            <button onClick={closeMenu} className="p-2 rounded-md">
+                            <button 
+                                onClick={closeMenu} 
+                                className="p-2 rounded-md text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
+                                aria-label="Cerrar menú"
+                            >
                                 <X className="h-6 w-6" />
                             </button>
                         </div>
@@ -117,9 +137,10 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                                     onClick={closeMenu}
                                     className={`
                                         block px-4 py-3 rounded-md text-base font-medium
+                                        transition-colors duration-200
                                         ${isActive(link.href)
-                                            ? 'text-goal-gold bg-goal-gold/10'
-                                            : 'text-gray-700 dark:text-gray-300'
+                                            ? 'text-goal-gold bg-goal-gold-100 font-semibold hover:bg-goal-gold-200'
+                                            : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
                                         }
                                     `}
                                 >

@@ -7,20 +7,27 @@ const Hero = () => {
   return (
     <div className="relative w-full overflow-hidden">
       {/* Contenedor para la imagen de fondo que ocupa toda la pantalla */}
-      <div className="fixed inset-0 -z-10">
+      <div className="absolute -top-10 left-0 w-full h-screen z-[1]">
         <div className="absolute inset-0 w-full h-screen">
           <Image
             src="/images/pelota.webp"
             alt="Fútbol Indoor"
             fill
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center brightness-110 contrast-110 saturate-110 opacity-90"
+            style={{
+              filter: 'brightness(1.1) contrast(1.1) saturate(1.1)',
+              transition: 'filter 0.5s ease-in-out'
+            }}
             priority
           />
-          {/* Overlay oscuro general */}
-          <div className="absolute inset-0 bg-black/45"></div>
+          {/* Overlay degradado para mejorar legibilidad */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/70 dark:from-black/70 dark:via-black/30 dark:to-black/70"></div>
           
           {/* Gradiente superior para integración con navbar */}
-          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 md:h-24 lg:h-[333px] bg-gradient-to-b from-black/80 via-black/60 to-transparent"></div>
+          <div className="absolute top-0 left-0 right-0 h-36 sm:h-20 md:h-24 lg:h-[333px]
+            bg-gradient-to-b from-white/60 via-transparent to-transparent
+            dark:from-black/80 dark:via-black/60 dark:to-transparent">
+          </div>
           
           {/* Efecto de luz dorada desde abajo */}
           <div className="absolute bottom-0 left-0 right-0 h-[45%] bg-gradient-to-t from-primary/10 to-transparent"></div>
@@ -30,9 +37,8 @@ const Hero = () => {
       {/* Contenido del hero con padding para el navbar */}
       <div className="h-[85vh] min-h-[500px] sm:h-[90vh] sm:min-h-[550px] md:h-screen md:min-h-[600px] w-full flex items-center">
 
-
         {/* Contenido centrado - ajustado para dar espacio a la navbar */}
-        <div className="container relative mx-auto px-4 sm:px-6 md:px-8 pt-0">
+        <div className="container relative mx-auto px-4 sm:px-6 md:px-8 pt-0 z-20">
           <div className="max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto text-center">
             {/* Título principal con combinación de fuentes moderna y dinámica */}
             <h1 className="text-white flex flex-col items-center justify-center">

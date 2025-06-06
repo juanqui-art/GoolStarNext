@@ -4,12 +4,12 @@ import TorneoActual from './TorneoActual';
 import type { components } from '@/types/api';
 
 // Usar tipos ya definidos en la API
-type Torneo = components['schemas']['Torneo'];
+type TorneoDetalle = components['schemas']['TorneoDetalle'];
 
 /**
  * Transforma los datos de la API al formato requerido por TorneoActual
  */
-function transformarDatosTorneo(torneo: Torneo) {
+function transformarDatosTorneo(torneo: TorneoDetalle) {
     // Mapeo de fase_actual a texto descriptivo
     const fasesDescriptivas: Record<string, string> = {
         'inscripcion': 'Inscripciones abiertas',
@@ -24,16 +24,16 @@ function transformarDatosTorneo(torneo: Torneo) {
     return {
         nombre: torneo.nombre,
         fechaInicio: torneo.fecha_inicio,
-        categoria: torneo.categoria_nombre,
+        categoria: torneo.categoria.nombre,
         faseActual: fasesDescriptivas[torneo.fase_actual || 'grupos'] || 'Fase de grupos',
         equiposInscritos: torneo.total_equipos,
         activo: torneo.activo,
 
-        // Datos con valores por defecto (no disponibles en API actual)
-        costoInscripcion: "$100",
-        modalidad: "Sin mundialitos (jugadores que no hayan participado en campeonatos del amistad club o mundialito)",
-        totalPremios: "$1,900",
-        ubicacion: "CANCHA GOAL STAR - Pumayunga",
+        // Datos de la categoría (ahora disponibles desde la API)
+        costoInscripcion: torneo.categoria.costo_inscripcion ? `$${torneo.categoria.costo_inscripcion}` : "$100",
+        modalidad: torneo.categoria.descripcion || "Sin mundialitos (jugadores que no hayan participado en campeonatos del amistad club o mundialito)",
+        totalPremios: torneo.categoria.premio_primero ? `$${torneo.categoria.premio_primero}` : "$1,900",
+        ubicacion: "CANCHA GOAL STAR - Pumayunga", // Este campo no está en la API aún
     };
 }
 
@@ -64,53 +64,39 @@ export default async function TorneoActualServer() {
     try {
         console.log('🏆 Obteniendo datos del torneo activo...');
 
-        // Obtener torneos activos desde la API
-        const torneosActivos = await serverApi.torneos.getActivos({
+        // Obtener torneos con filtro activo desde endpoint principal
+        const respuestaTorneos = await serverApi.torneos.getActivos({
             page_size: 1 // Solo necesitamos el primer torneo activo
         });
 
-        console.log('📊 Respuesta completa de torneos activos:', torneosActivos);
-        console.log('📊 Tipo de respuesta:', typeof torneosActivos);
-        console.log('📊 Keys de la respuesta:', Object.keys(torneosActivos));
-
-        // El endpoint /api/torneos/activos/ devuelve un array directo, no un objeto paginado
-        let torneos: Torneo[] = [];
-
-        if (Array.isArray(torneosActivos)) {
-            // Si es un array directo (formato esperado según documentación)
-            torneos = torneosActivos;
-            console.log('📋 Formato array directo detectado, torneos encontrados:', torneos.length);
-        } else if (torneosActivos.results && Array.isArray(torneosActivos.results)) {
-            // Si tiene formato paginado como fallback
-            torneos = torneosActivos.results;
-            console.log('📋 Formato paginado detectado, torneos encontrados:', torneos.length);
-        } else {
-            console.warn('⚠️ Formato de respuesta no reconocido:', torneosActivos);
-        }
-
-        console.log('📊 Torneos procesados:', {
-            count: torneos.length,
-            torneos: torneos.map(t => ({ id: t.id, nombre: t.nombre, activo: t.activo }))
-        });
+        console.log('📊 Respuesta de torneos activos:', respuestaTorneos);
 
         // Verificar si hay torneos activos
-        if (!torneos || torneos.length === 0) {
+        if (!respuestaTorneos.results || respuestaTorneos.results.length === 0) {
             console.warn('⚠️ No se encontraron torneos activos, mostrando fallback');
             return <TorneoFallback />;
         }
 
-        // Tomar el primer torneo activo
-        const torneoActivo = torneos[0];
-        console.log('✅ Torneo activo encontrado:', {
-            id: torneoActivo.id,
-            nombre: torneoActivo.nombre,
-            fase: torneoActivo.fase_actual,
-            equipos: torneoActivo.total_equipos,
-            activo: torneoActivo.activo
+        // Tomar el primer torneo activo (solo tenemos ID y datos básicos)
+        const torneoBasico = respuestaTorneos.results[0];
+        console.log('📋 Torneo básico encontrado:', {
+            id: torneoBasico.id,
+            nombre: torneoBasico.nombre,
+            activo: torneoBasico.activo
+        });
+
+        // Obtener detalles completos del torneo (incluye categoría completa)
+        const torneoDetalle = await serverApi.torneos.getById(torneoBasico.id);
+        console.log('✅ Detalle del torneo obtenido:', {
+            id: torneoDetalle.id,
+            nombre: torneoDetalle.nombre,
+            categoria: torneoDetalle.categoria.nombre,
+            fase: torneoDetalle.fase_actual,
+            equipos: torneoDetalle.total_equipos
         });
 
         // Transformar datos para el componente
-        const propsTransformadas = transformarDatosTorneo(torneoActivo);
+        const propsTransformadas = transformarDatosTorneo(torneoDetalle);
 
         console.log('🔄 Datos transformados para TorneoActual:', propsTransformadas);
 

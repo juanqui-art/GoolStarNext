@@ -21,25 +21,28 @@ export default function QuickLinkCard({
 }: QuickLinkCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   
-  // Mapeo de colores de acento a clases CSS
+  // Mapeo de colores de acento con distribución 8% brand / 20% secondary
   const accentColorMap = {
     gold: {
-      iconBg: 'bg-goal-gold/10',
+      iconBg: 'bg-goal-gold-100',
       iconText: 'text-goal-gold',
-      hoverBorder: 'group-hover:border-goal-gold/50',
-      shadow: 'group-hover:shadow-[0_0_15px_rgba(255,215,0,0.15)]'
+      hoverBorder: 'group-hover:border-goal-gold-300',
+      shadow: 'group-hover:shadow-elevation-2',
+      hoverShadow: 'group-hover:shadow-neon-gold'
     },
     blue: {
-      iconBg: 'bg-goal-blue/10',
+      iconBg: 'bg-goal-blue-100',
       iconText: 'text-goal-blue',
-      hoverBorder: 'group-hover:border-goal-blue/50',
-      shadow: 'group-hover:shadow-[0_0_15px_rgba(0,105,146,0.15)]'
+      hoverBorder: 'group-hover:border-goal-blue-300',
+      shadow: 'group-hover:shadow-elevation-2',
+      hoverShadow: 'group-hover:shadow-neon-blue'
     },
     orange: {
-      iconBg: 'bg-goal-orange/10',
+      iconBg: 'bg-goal-orange-100',
       iconText: 'text-goal-orange',
-      hoverBorder: 'group-hover:border-goal-orange/50',
-      shadow: 'group-hover:shadow-[0_0_15px_rgba(255,127,17,0.15)]'
+      hoverBorder: 'group-hover:border-goal-orange-300',
+      shadow: 'group-hover:shadow-elevation-2',
+      hoverShadow: ''
     }
   };
   
@@ -92,7 +95,7 @@ export default function QuickLinkCard({
     <Link href={href} className="block">
       <div 
         ref={cardRef}
-        className={`group bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 ${hoverBorder} rounded-lg p-4 sm:p-5 transition-all duration-300 ${shadow} min-h-[140px] sm:min-h-[160px] flex flex-col`}
+        className={`group bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 ${hoverBorder} rounded-lg p-4 sm:p-5 transition-all duration-300 ${shadow} min-h-[140px] sm:min-h-[160px] flex flex-col`}
       >
         <div className={`${iconBg} w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 sm:mb-4 flex-shrink-0`}>
           <div className={`${iconText}`}>

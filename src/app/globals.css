@@ -16,11 +16,11 @@
   --secondary: #ff7f11;
   --accent: #006992;
 
-  /* Sombras neón - CORREGIDAS */
-  --shadow-card: 0 4px 20px -5px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.05);
-  --shadow-button: 0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 215, 0, 0.1);
-  --shadow-neon-gold: 0 0 7px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
-  --shadow-neon-blue: 0 0 7px rgba(0, 105, 146, 0.7), 0 0 25px rgba(0, 105, 146, 0.3);
+  /* LIGHT MODE SHADOWS - Warm neutral tones */
+  --shadow-card: 0 4px 20px -5px rgba(120, 113, 108, 0.15), 0 0 15px rgba(255, 215, 0, 0.05);
+  --shadow-button: 0 4px 15px -3px rgba(120, 113, 108, 0.08), 0 0 10px rgba(255, 215, 0, 0.08);
+  --shadow-neon-gold: 0 0 7px rgba(255, 215, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.2);
+  --shadow-neon-blue: 0 0 7px rgba(0, 105, 146, 0.6), 0 0 25px rgba(0, 105, 146, 0.2);
   /* Navbar Heights - Mobile First */
   --navbar-height-mobile: 56px;
   --navbar-height-tablet: 64px;
@@ -32,10 +32,10 @@
   --modal-z-index: 200;
   --tooltip-z-index: 300;
 
-  /* Navbar Background Colors */
-  --navbar-bg-transparent: rgba(255, 255, 255, 0);
-  --navbar-bg-scrolled: rgba(255, 255, 255, 0.60);
-  --navbar-bg-scrolled-dark: rgba(23, 23, 23, 0.60);
+  /* Navbar Background Colors - Sophisticated warm tones */
+  --navbar-bg-transparent: rgba(250, 250, 249, 0);
+  --navbar-bg-scrolled: rgba(250, 250, 249, 0.85);
+  --navbar-bg-scrolled-dark: rgba(44, 40, 60, 0.85);
 
   /* Navbar Transitions */
   --navbar-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -56,37 +56,109 @@
     --navbar-total-height: var(--navbar-height-desktop);
   }
 }
-/* Variables para dark mode */
+/* Variables para dark mode - Enhanced with warm undertones */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --navbar-bg-scrolled: rgba(10, 10, 10, 0.98);
-  --navbar-bg-scrolled-dark: rgba(20, 17, 17, 0.8);
+  /* Dark backgrounds with warm undertone - Not pure black to prevent flash */
+  --background: #1c1917;
+  --foreground: #fafaf9;
+  
+  /* Navbar dark mode with warm undertones - Sophisticated */
+  --navbar-bg-transparent: rgba(28, 25, 23, 0);
+  --navbar-bg-scrolled: rgba(28, 25, 23, 0.90);
+  --navbar-bg-scrolled-dark: rgba(12, 10, 9, 0.95);
+  
+  /* DARK MODE SHADOWS - Maintain black for depth in dark theme */
+  --shadow-card: 0 4px 20px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.08);
+  --shadow-button: 0 4px 15px -3px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 215, 0, 0.12);
+  --shadow-neon-gold: 0 0 7px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.3);
+  --shadow-neon-blue: 0 0 7px rgba(0, 105, 146, 0.8), 0 0 25px rgba(0, 105, 146, 0.3);
+  
+  /* DARK MODE ELEVATION SHADOWS */
+  --shadow-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-2: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --shadow-elevation-3: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  
+  /* Dark mode secondary variants - enhanced opacity for better contrast */
+  --color-goal-gold-50: rgba(255, 215, 0, 0.08);
+  --color-goal-gold-100: rgba(255, 215, 0, 0.12);
+  --color-goal-gold-200: rgba(255, 215, 0, 0.18);
+  --color-goal-gold-300: rgba(255, 215, 0, 0.25);
+  --color-goal-gold-400: rgba(255, 215, 0, 0.35);
+
+  --color-goal-orange-50: rgba(255, 127, 17, 0.08);
+  --color-goal-orange-100: rgba(255, 127, 17, 0.12);
+  --color-goal-orange-200: rgba(255, 127, 17, 0.18);
+  --color-goal-orange-300: rgba(255, 127, 17, 0.25);
+  --color-goal-orange-400: rgba(255, 127, 17, 0.35);
+
+  --color-goal-blue-50: rgba(0, 105, 146, 0.08);
+  --color-goal-blue-100: rgba(0, 105, 146, 0.12);
+  --color-goal-blue-200: rgba(0, 105, 146, 0.18);
+  --color-goal-blue-300: rgba(0, 105, 146, 0.25);
+  --color-goal-blue-400: rgba(0, 105, 146, 0.35);
+  
   color-scheme: dark;
 }
 
-/* Tailwind Theme Inline - CORREGIDO */
+/* Tailwind Theme Inline - Sophisticated Sports Design */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Paleta personalizada como tokens de Tailwind */
-  --color-goal-gold: var(--color-goal-gold);
-  --color-goal-orange: var(--color-goal-orange);
-  --color-goal-blue: var(--color-goal-blue);
-  --color-goal-black: var(--color-goal-black);
-  --color-goal-white: var(--color-goal-white);
+  /* 72% BASE NEUTRAL PALETTE - Warm grays with 5500K temperature */
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1c1917;
+  --color-neutral-950: #0c0a09;
 
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
+  /* Enhanced off-whites with subtle golden undertone */
+  --color-white: #fefcfb;
+  --color-black: #0f0e0d;
 
-  /* Sombras como utilidades de Tailwind */
-  --shadow-card: var(--shadow-card);
-  --shadow-button: var(--shadow-button);
-  --shadow-neon-gold: var(--shadow-neon-gold);
-  --shadow-neon-blue: var(--shadow-neon-blue);
+  /* 8% BRAND COLORS - Strategic accent use only */
+  --color-goal-gold: #ffd700;
+  --color-goal-orange: #ff7f11;
+  --color-goal-blue: #006992;
+  --color-goal-black: #1a1a1a;
+  --color-goal-white: #f7f7ff;
 
+  /* Primary system colors */
+  --color-primary: var(--color-goal-gold);
+  --color-secondary: var(--color-goal-orange);
+  --color-accent: var(--color-goal-blue);
+
+  /* 20% SECONDARY BRAND VARIANTS - Desaturated for backgrounds */
+  --color-goal-gold-50: rgba(255, 215, 0, 0.05);
+  --color-goal-gold-100: rgba(255, 215, 0, 0.1);
+  --color-goal-gold-200: rgba(255, 215, 0, 0.15);
+  --color-goal-gold-300: rgba(255, 215, 0, 0.2);
+  --color-goal-gold-400: rgba(255, 215, 0, 0.3);
+
+  --color-goal-orange-50: rgba(255, 127, 17, 0.05);
+  --color-goal-orange-100: rgba(255, 127, 17, 0.1);
+  --color-goal-orange-200: rgba(255, 127, 17, 0.15);
+  --color-goal-orange-300: rgba(255, 127, 17, 0.2);
+  --color-goal-orange-400: rgba(255, 127, 17, 0.3);
+
+  --color-goal-blue-50: rgba(0, 105, 146, 0.05);
+  --color-goal-blue-100: rgba(0, 105, 146, 0.1);
+  --color-goal-blue-200: rgba(0, 105, 146, 0.15);
+  --color-goal-blue-300: rgba(0, 105, 146, 0.2);
+  --color-goal-blue-400: rgba(0, 105, 146, 0.3);
+
+  /* LIGHT MODE ELEVATION SHADOWS - Neutral tones for subtle depth */
+  --shadow-elevation-1: 0 1px 3px 0 rgba(120, 113, 108, 0.12), 0 1px 2px -1px rgba(120, 113, 108, 0.1);
+  --shadow-elevation-2: 0 4px 6px -1px rgba(120, 113, 108, 0.12), 0 2px 4px -2px rgba(120, 113, 108, 0.1);
+  --shadow-elevation-3: 0 10px 15px -3px rgba(120, 113, 108, 0.12), 0 4px 6px -4px rgba(120, 113, 108, 0.1);
+
+  /* Typography */
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-playfair: "Playfair Display", serif;
@@ -99,6 +171,17 @@ body {
   font-family: var(--font-sans), serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Prevent flash of unstyled content during navigation */
+html {
+  background: var(--background);
+}
+
+.dark html, 
+.dark body {
+  background: var(--background);
 }
 
 /* Clase para la fuente Playfair Display */
@@ -108,13 +191,25 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* Utilidades personalizadas para sombras */
+/* Utilidades personalizadas para sombras deportivas sofisticadas */
 .shadow-neon-gold {
   box-shadow: var(--shadow-neon-gold);
 }
 
 .shadow-neon-blue {
   box-shadow: var(--shadow-neon-blue);
+}
+
+.shadow-elevation-1 {
+  box-shadow: var(--shadow-elevation-1);
+}
+
+.shadow-elevation-2 {
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.shadow-elevation-3 {
+  box-shadow: var(--shadow-elevation-3);
 }
 
 .hover\:shadow-neon-gold:hover {
@@ -125,6 +220,54 @@ body {
   box-shadow: var(--shadow-neon-blue);
 }
 
+.hover\:shadow-elevation-1:hover {
+  box-shadow: var(--shadow-elevation-1);
+}
+
+.hover\:shadow-elevation-2:hover {
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.hover\:shadow-elevation-3:hover {
+  box-shadow: var(--shadow-elevation-3);
+}
+
+/* Colores de acento secundarios como utilidades */
+.bg-goal-gold-50 { background-color: var(--color-goal-gold-50); }
+.bg-goal-gold-100 { background-color: var(--color-goal-gold-100); }
+.bg-goal-gold-200 { background-color: var(--color-goal-gold-200); }
+.bg-goal-gold-300 { background-color: var(--color-goal-gold-300); }
+.bg-goal-gold-400 { background-color: var(--color-goal-gold-400); }
+
+.bg-goal-blue-50 { background-color: var(--color-goal-blue-50); }
+.bg-goal-blue-100 { background-color: var(--color-goal-blue-100); }
+.bg-goal-blue-200 { background-color: var(--color-goal-blue-200); }
+.bg-goal-blue-300 { background-color: var(--color-goal-blue-300); }
+.bg-goal-blue-400 { background-color: var(--color-goal-blue-400); }
+
+.bg-goal-orange-50 { background-color: var(--color-goal-orange-50); }
+.bg-goal-orange-100 { background-color: var(--color-goal-orange-100); }
+.bg-goal-orange-200 { background-color: var(--color-goal-orange-200); }
+.bg-goal-orange-300 { background-color: var(--color-goal-orange-300); }
+.bg-goal-orange-400 { background-color: var(--color-goal-orange-400); }
+
+.border-goal-gold-300 { border-color: var(--color-goal-gold-300); }
+.border-goal-blue-300 { border-color: var(--color-goal-blue-300); }
+.border-goal-orange-300 { border-color: var(--color-goal-orange-300); }
+
+/* Hover backgrounds */
+.hover\:bg-goal-gold-100:hover { background-color: var(--color-goal-gold-100); }
+.hover\:bg-goal-gold-200:hover { background-color: var(--color-goal-gold-200); }
+.hover\:bg-goal-blue-100:hover { background-color: var(--color-goal-blue-100); }
+.hover\:bg-goal-blue-200:hover { background-color: var(--color-goal-blue-200); }
+.hover\:bg-goal-orange-100:hover { background-color: var(--color-goal-orange-100); }
+.hover\:bg-goal-orange-200:hover { background-color: var(--color-goal-orange-200); }
+
+/* Hover text colors */
+.hover\:text-goal-blue:hover { color: var(--color-goal-blue); }
+.hover\:text-goal-gold:hover { color: var(--color-goal-gold); }
+.hover\:text-goal-orange:hover { color: var(--color-goal-orange); }
+
 /* Navbar states */
 .navbar-transparent {
   background-color: var(--navbar-bg-transparent);
@@ -134,7 +277,7 @@ body {
 .navbar-scrolled {
   background-color: var(--navbar-bg-scrolled);
   border-bottom: 1px solid rgb(229, 231, 235);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px 0 rgba(120, 113, 108, 0.12);
 }
 
 .dark .navbar-scrolled,

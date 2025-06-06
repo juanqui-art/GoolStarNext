@@ -1,3 +1,4 @@
+// src/components/equipos/EquiposLayout.tsx - CLIENT COMPONENT FOR ANIMATIONS
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -90,12 +91,22 @@ export default function EquiposLayout({ children }: { children: React.ReactNode 
         {/* Hero Section */}
         <section 
           ref={heroRef}
-          className="relative pt-28 pb-16 "
+          className="relative pt-28 pb-16 bg-gradient-to-br from-neutral-50 via-white to-goal-gold/5 dark:from-neutral-900 dark:via-neutral-800 dark:to-goal-gold/10"
         >
+          {/* Sophisticated Background Effects - Light/Dark Mode Optimized */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-blue/10 blur-3xl"></div>
-            <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-goal-gold/10 blur-3xl"></div>
-            <div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full bg-goal-gold/20 blur-xl"></div>
+            {/* Primary Blue Orb - 20% Secondary Brand Usage */}
+            <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-blue-100 dark:bg-goal-blue-200 blur-3xl opacity-30 dark:opacity-40"></div>
+            
+            {/* Large Gold Orb - Strategic Brand Placement */}
+            <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-goal-gold-100 dark:bg-goal-gold-200 blur-3xl opacity-25 dark:opacity-35"></div>
+            
+            {/* Accent Gold Dot - 8% Brand Strategic Use */}
+            <div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full bg-goal-gold-200 dark:bg-goal-gold-300 blur-xl opacity-35 dark:opacity-50"></div>
+            
+            {/* Additional Neutral Elements - 72% Base Usage */}
+            <div className="absolute top-1/2 right-1/3 w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-700 blur-2xl opacity-15 dark:opacity-20"></div>
+            <div className="absolute bottom-1/4 right-20 w-24 h-24 rounded-full bg-neutral-100 dark:bg-neutral-800 blur-xl opacity-12 dark:opacity-15"></div>
           </div>
           
           <div className="container mx-auto px-4 relative z-10">
@@ -125,9 +136,9 @@ export default function EquiposLayout({ children }: { children: React.ReactNode 
         >
           <div className="container mx-auto px-4">
             <div className="relative">
-              {/* Decoración */}
-              <div className="hidden md:block absolute -left-6 top-1/3 w-12 h-12 rounded-full bg-goal-gold/10"></div>
-              <div className="hidden md:block absolute -right-6 bottom-1/4 w-12 h-12 rounded-full bg-goal-blue/10"></div>
+              {/* Sophisticated Side Decorations - Optimized for Light/Dark */}
+              <div className="hidden md:block absolute -left-6 top-1/3 w-12 h-12 rounded-full bg-goal-gold-100 dark:bg-goal-gold-200 opacity-40 dark:opacity-40"></div>
+              <div className="hidden md:block absolute -right-6 bottom-1/4 w-12 h-12 rounded-full bg-goal-blue-100 dark:bg-goal-blue-200 opacity-40 dark:opacity-40"></div>
               
               {/* Título decorativo */}
               <div className="flex items-center justify-center mb-10">
@@ -154,9 +165,9 @@ export default function EquiposLayout({ children }: { children: React.ReactNode 
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto bg-white dark:bg-neutral-800 rounded-2xl overflow-hidden shadow-lg border border-neutral-200/80 dark:border-neutral-700/80">
               <div className="p-8 md:p-10 relative">
-                {/* Elementos decorativos */}
-                <div className="absolute top-0 right-0 w-40 h-40 bg-goal-blue/5 dark:bg-goal-blue/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-goal-gold/5 dark:bg-goal-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                {/* Sophisticated CTA Decorations - Light/Dark Optimized */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-goal-blue-50 dark:bg-goal-blue-100 rounded-full -translate-y-1/2 translate-x-1/2 opacity-40 dark:opacity-60"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-goal-gold-50 dark:bg-goal-gold-100 rounded-full translate-y-1/2 -translate-x-1/2 opacity-40 dark:opacity-60"></div>
                 
                 <div className="text-center relative z-10">
                   <h3 className="text-2xl md:text-3xl font-bold mb-4 text-neutral-800 dark:text-neutral-100">

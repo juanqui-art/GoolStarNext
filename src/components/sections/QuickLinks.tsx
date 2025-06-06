@@ -89,7 +89,7 @@ export default function QuickLinks() {
 
     return (
         <div ref={sectionRef} className="w-full">
-            <h2 className="text-2xl sm:text-3xl font-heading text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-heading text-center mb-6 sm:mb-8 text-neutral-900 dark:text-neutral-300">
                 Acceso Rápido
             </h2>
 

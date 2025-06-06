@@ -1,3 +1,4 @@
+// src/app/contacto/page.tsx - CLIENT COMPONENT FOR ANIMATIONS  
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -105,19 +106,30 @@ export default function ContactoPage() {
   }, []);
 
   return (
-    <div className="min-h-screen relative">
-      <Navbar />
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Navbar con variant solid para consistencia */}
+      <Navbar variant="solid" />
       
-      <main className="pt-16">
+      <main>
         {/* Hero Section */}
         <section 
           ref={heroRef}
-          className="relative py-28"
+          className="relative pt-28 pb-16 bg-gradient-to-br from-neutral-50 via-white to-goal-gold/5 dark:from-neutral-900 dark:via-neutral-800 dark:to-goal-gold/10"
         >
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-blue/10 blur-3xl"></div>
-            <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-goal-gold/10 blur-3xl"></div>
-            <div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full bg-goal-gold/20 blur-xl"></div>
+            {/* Sophisticated Background Effects - Light/Dark Mode Optimized */}
+            {/* Primary Blue Orb - 20% Secondary Brand Usage */}
+            <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-goal-blue-100 dark:bg-goal-blue-200 blur-3xl opacity-30 dark:opacity-40"></div>
+            
+            {/* Large Gold Orb - Strategic Brand Placement */}
+            <div className="absolute bottom-10 left-10 w-60 h-60 rounded-full bg-goal-gold-100 dark:bg-goal-gold-200 blur-3xl opacity-25 dark:opacity-35"></div>
+            
+            {/* Accent Gold Dot - 8% Brand Strategic Use */}
+            <div className="absolute top-1/3 left-1/4 w-20 h-20 rounded-full bg-goal-gold-200 dark:bg-goal-gold-300 blur-xl opacity-35 dark:opacity-50"></div>
+            
+            {/* Additional Neutral Elements - 72% Base Usage */}
+            <div className="absolute top-1/2 right-1/3 w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-700 blur-2xl opacity-15 dark:opacity-20"></div>
+            <div className="absolute bottom-1/4 right-20 w-24 h-24 rounded-full bg-neutral-100 dark:bg-neutral-800 blur-xl opacity-12 dark:opacity-15"></div>
           </div>
           
           <div className="container mx-auto px-4 relative z-10">
@@ -143,12 +155,17 @@ export default function ContactoPage() {
         {/* Contacto y Mapa Section */}
         <section className="py-16 bg-white dark:bg-neutral-800">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-              {/* Información de Contacto */}
-              <div ref={infoRef} className="order-2 lg:order-1">
-                <h2 className="text-2xl md:text-3xl font-bold mb-8 text-neutral-800 dark:text-neutral-100">
-                  Información de Contacto
-                </h2>
+            <div className="relative">
+              {/* Sophisticated Side Decorations - Optimized for Light/Dark */}
+              <div className="hidden md:block absolute -left-6 top-1/3 w-12 h-12 rounded-full bg-goal-gold-100 dark:bg-goal-gold-200 opacity-40 dark:opacity-40"></div>
+              <div className="hidden md:block absolute -right-6 bottom-1/4 w-12 h-12 rounded-full bg-goal-blue-100 dark:bg-goal-blue-200 opacity-40 dark:opacity-40"></div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+                {/* Información de Contacto */}
+                <div ref={infoRef} className="order-2 lg:order-1">
+                  <h2 className="text-2xl md:text-3xl font-bold mb-8 text-neutral-800 dark:text-neutral-100">
+                    Información de Contacto
+                  </h2>
                 
                 <div className="space-y-8">
                   <div className="flex items-start space-x-4 info-item">
@@ -248,6 +265,7 @@ export default function ContactoPage() {
                   <p className="font-medium mt-1">CANCHA GOAL STAR - Pumayunga (junto antena Claro)</p>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </section>
