@@ -157,7 +157,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                             className="lg:hidden p-2 rounded-md text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
                             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
                         >
-                            {isOpen && !isAnimating ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            <Menu className="h-6 w-6" />
                         </button>
                     </div>
                 </div>
