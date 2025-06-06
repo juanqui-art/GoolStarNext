@@ -121,7 +121,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                         <div className="flex-shrink-0 h-full flex items-center">
                             <Link
                                 href={"/"}
-                                className={"block h-6 sm:h-7 md:h-8 lg:h-10 xl:h-12 w-auto hover:scale-105 transition-transform duration-300"}
+                                className={"block h-11  xl:h-12 w-auto hover:scale-105 transition-transform duration-300"}
                                 aria-label={"GoolStar - Ir al inicio"}
                             >
                                 <Image
