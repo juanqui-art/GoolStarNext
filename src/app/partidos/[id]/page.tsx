@@ -422,7 +422,7 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                                             <div 
                                                 key={`tarjeta-${tarjeta.id}`} 
                                                 className="group flex items-center justify-end gap-3 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-yellow-400/30"
-                                                style={{ animationDelay: `${(partido.goles?.filter(g => g.equipo_nombre === partido.equipo_1.nombre).length || 0 + index) * 100}ms` }}
+                                                style={{ animationDelay: `${(partido.goles?.filter(g => g.equipo_nombre === partido.equipo_1.nombre).length || index) * 100}ms` }}
                                             >
                                                 <span className="text-sm font-semibold text-white/95 group-hover:text-white transition-colors duration-200">{tarjeta.jugador_nombre}</span>
                                                 <div className="flex items-center">
@@ -467,7 +467,7 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                                             <div 
                                                 key={`tarjeta-${tarjeta.id}`} 
                                                 className="group flex items-center justify-start gap-3 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-yellow-400/30"
-                                                style={{ animationDelay: `${(partido.goles?.filter(g => g.equipo_nombre === partido.equipo_2.nombre).length || 0 + index) * 100}ms` }}
+                                                style={{ animationDelay: `${(partido.goles?.filter(g => g.equipo_nombre === partido.equipo_2.nombre).length || index) * 100}ms` }}
                                             >
                                                 <div className="flex items-center">
                                                     <span className={`text-lg drop-shadow-sm filter group-hover:scale-110 transition-transform duration-200 ${
