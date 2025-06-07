@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, MapPin, Users, Trophy, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Users, Trophy, AlertCircle, RefreshCw } from 'lucide-react';
 import { serverApi } from '@/lib/api/server';
 import type { components } from '@/types/api';
 
@@ -133,13 +133,13 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden">
             {/* Header del partido */}
-            <div className={`p-6 text-white ${
+            <header className={`p-6 text-white ${
                 partido.completado
                     ? 'bg-gradient-to-r from-green-600 to-green-700'
                     : esPasado
                         ? 'bg-gradient-to-r from-red-600 to-red-700'
                         : 'bg-gradient-to-r from-goal-blue to-goal-orange'
-            }`}>
+            }`} role="banner" aria-label="Información principal del partido">
                 <div className="text-center">
                     {/* Estado del partido */}
                     <div className="mb-4">
@@ -155,47 +155,51 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                     </div>
 
                     {/* Equipos y resultado */}
-                    <div className="grid grid-cols-3 items-center gap-4 mb-4">
+                    <div className="grid grid-cols-3 items-center gap-2 sm:gap-4 mb-4">
                         {/* Equipo 1 */}
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 mb-2">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-2">
                                 {partido.equipo_1.logo && (
                                     <Image
                                         src={partido.equipo_1.logo}
                                         alt={`Logo ${partido.equipo_1.nombre}`}
-                                        className="w-8 h-8 object-contain"
+                                        width={32}
+                                        height={32}
+                                        className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                                     />
                                 )}
-                                <h2 className="text-xl font-bold">{partido.equipo_1.nombre}</h2>
+                                <h2 className="text-sm sm:text-xl font-bold text-center break-words">{partido.equipo_1.nombre}</h2>
                             </div>
                             {partido.completado && (
-                                <div className="text-4xl font-bold">{partido.goles_equipo_1 || 0}</div>
+                                <div className="text-2xl sm:text-4xl font-bold">{partido.goles_equipo_1 || 0}</div>
                             )}
                         </div>
 
                         {/* VS o resultado */}
                         <div className="text-center">
                             {partido.completado ? (
-                                <div className="text-2xl font-bold">-</div>
+                                <div className="text-xl sm:text-2xl font-bold">-</div>
                             ) : (
-                                <div className="text-lg font-medium">VS</div>
+                                <div className="text-sm sm:text-lg font-medium">VS</div>
                             )}
                         </div>
 
                         {/* Equipo 2 */}
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 mb-2">
-                                <h2 className="text-xl font-bold">{partido.equipo_2.nombre}</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-2">
+                                <h2 className="text-sm sm:text-xl font-bold text-center break-words order-2 sm:order-1">{partido.equipo_2.nombre}</h2>
                                 {partido.equipo_2.logo && (
                                     <Image
                                         src={partido.equipo_2.logo}
                                         alt={`Logo ${partido.equipo_2.nombre}`}
-                                        className="w-8 h-8 object-contain"
+                                        width={32}
+                                        height={32}
+                                        className="w-6 h-6 sm:w-8 sm:h-8 object-contain order-1 sm:order-2"
                                     />
                                 )}
                             </div>
                             {partido.completado && (
-                                <div className="text-4xl font-bold">{partido.goles_equipo_2 || 0}</div>
+                                <div className="text-2xl sm:text-4xl font-bold">{partido.goles_equipo_2 || 0}</div>
                             )}
                         </div>
                     </div>
@@ -216,10 +220,10 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                         </div>
                     )}
                 </div>
-            </div>
+            </header>
 
             {/* Información del partido */}
-            <div className="p-6">
+            <section className="p-6" aria-label="Detalles del partido">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     {/* Información básica */}
                     <div>
@@ -283,70 +287,105 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                     </div>
 
                     {/* Estado del partido */}
-                    <div>
-                        <h3 className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
-                            Estado del Partido
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Acta firmada:</span>
-                                <span className={`font-medium ${
-                                    partido.acta_firmada ? 'text-green-600' : 'text-red-600'
-                                }`}>
-                                    {partido.acta_firmada ? 'Sí' : 'No'}
-                                </span>
-                            </div>
+                    {/*<div>*/}
+                    {/*    <h3 className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200">*/}
+                    {/*        Estado del Partido*/}
+                    {/*    </h3>*/}
+                    {/*    <div className="space-y-3">*/}
+                    {/*        <div className="flex justify-between">*/}
+                    {/*            <span className="text-neutral-600 dark:text-neutral-400">Acta firmada:</span>*/}
+                    {/*            <span className={`font-medium ${*/}
+                    {/*                partido.acta_firmada ? 'text-green-600' : 'text-red-600'*/}
+                    {/*            }`}>*/}
+                    {/*                {partido.acta_firmada ? 'Sí' : 'No'}*/}
+                    {/*            </span>*/}
+                    {/*        </div>*/}
 
-                            {partido.acta_firmada_equipo_1 !== undefined && (
-                                <div className="flex justify-between">
-                                    <span className="text-neutral-600 dark:text-neutral-400">Acta {partido.equipo_1.nombre}:</span>
-                                    <span className={`font-medium ${
-                                        partido.acta_firmada_equipo_1 ? 'text-green-600' : 'text-red-600'
-                                    }`}>
-                                        {partido.acta_firmada_equipo_1 ? 'Firmada' : 'Pendiente'}
-                                    </span>
-                                </div>
-                            )}
+                    {/*        {partido.acta_firmada_equipo_1 !== undefined && (*/}
+                    {/*            <div className="flex justify-between">*/}
+                    {/*                <span className="text-neutral-600 dark:text-neutral-400">Acta {partido.equipo_1.nombre}:</span>*/}
+                    {/*                <span className={`font-medium ${*/}
+                    {/*                    partido.acta_firmada_equipo_1 ? 'text-green-600' : 'text-red-600'*/}
+                    {/*                }`}>*/}
+                    {/*                    {partido.acta_firmada_equipo_1 ? 'Firmada' : 'Pendiente'}*/}
+                    {/*                </span>*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
 
-                            {partido.acta_firmada_equipo_2 !== undefined && (
-                                <div className="flex justify-between">
-                                    <span className="text-neutral-600 dark:text-neutral-400">Acta {partido.equipo_2.nombre}:</span>
-                                    <span className={`font-medium ${
-                                        partido.acta_firmada_equipo_2 ? 'text-green-600' : 'text-red-600'
-                                    }`}>
-                                        {partido.acta_firmada_equipo_2 ? 'Firmada' : 'Pendiente'}
-                                    </span>
-                                </div>
-                            )}
+                    {/*        {partido.acta_firmada_equipo_2 !== undefined && (*/}
+                    {/*            <div className="flex justify-between">*/}
+                    {/*                <span className="text-neutral-600 dark:text-neutral-400">Acta {partido.equipo_2.nombre}:</span>*/}
+                    {/*                <span className={`font-medium ${*/}
+                    {/*                    partido.acta_firmada_equipo_2 ? 'text-green-600' : 'text-red-600'*/}
+                    {/*                }`}>*/}
+                    {/*                    {partido.acta_firmada_equipo_2 ? 'Firmada' : 'Pendiente'}*/}
+                    {/*                </span>*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
 
-                            {/* Inasistencias */}
-                            {(partido.inasistencia_equipo_1 || partido.inasistencia_equipo_2) && (
-                                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
-                                    <div className="text-yellow-800 dark:text-yellow-200 font-medium text-sm">
-                                        Inasistencias registradas
-                                    </div>
-                                    {partido.inasistencia_equipo_1 && (
-                                        <div className="text-yellow-700 dark:text-yellow-300 text-sm">
-                                            • {partido.equipo_1.nombre}
-                                        </div>
-                                    )}
-                                    {partido.inasistencia_equipo_2 && (
-                                        <div className="text-yellow-700 dark:text-yellow-300 text-sm">
-                                            • {partido.equipo_2.nombre}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                    {/*        /!* Inasistencias *!/*/}
+                    {/*        {(partido.inasistencia_equipo_1 || partido.inasistencia_equipo_2) && (*/}
+                    {/*            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">*/}
+                    {/*                <div className="text-yellow-800 dark:text-yellow-200 font-medium text-sm">*/}
+                    {/*                    Inasistencias registradas*/}
+                    {/*                </div>*/}
+                    {/*                {partido.inasistencia_equipo_1 && (*/}
+                    {/*                    <div className="text-yellow-700 dark:text-yellow-300 text-sm">*/}
+                    {/*                        • {partido.equipo_1.nombre}*/}
+                    {/*                    </div>*/}
+                    {/*                )}*/}
+                    {/*                {partido.inasistencia_equipo_2 && (*/}
+                    {/*                    <div className="text-yellow-700 dark:text-yellow-300 text-sm">*/}
+                    {/*                        • {partido.equipo_2.nombre}*/}
+                    {/*                    </div>*/}
+                    {/*                )}*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
 
-                            {partido.observaciones && (
-                                <div>
-                                    <span className="text-neutral-600 dark:text-neutral-400">Observaciones:</span>
-                                    <p className="text-sm mt-1 p-3 bg-neutral-50 dark:bg-neutral-700 rounded">
-                                        {partido.observaciones}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                    {/*        {partido.observaciones && (*/}
+                    {/*            <div>*/}
+                    {/*                <span className="text-neutral-600 dark:text-neutral-400">Observaciones:</span>*/}
+                    {/*                <p className="text-sm mt-1 p-3 bg-neutral-50 dark:bg-neutral-700 rounded">*/}
+                    {/*                    {partido.observaciones}*/}
+                    {/*                </p>*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+                </div>
+            </section>
+        </div>
+    );
+}
+
+function ErrorView({ error, retry }: { error: string; retry?: () => void }) {
+    return (
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center">
+            <div className="bg-white dark:bg-neutral-800 rounded-xl p-8 shadow-lg max-w-md mx-4">
+                <div className="text-center">
+                    <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                    <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                        Error al cargar el partido
+                    </h1>
+                    <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+                        {error}
+                    </p>
+                    <div className="space-y-3">
+                        {retry && (
+                            <button
+                                onClick={retry}
+                                className="w-full bg-goal-blue hover:bg-goal-blue/90 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Reintentar
+                            </button>
+                        )}
+                        <Link
+                            href="/partidos"
+                            className="block w-full bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 px-4 py-2 rounded-lg transition-colors text-center"
+                        >
+                            Volver a partidos
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -357,6 +396,11 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
 export default async function PartidoDetailPage({ params }: PartidoDetailPageProps) {
     try {
         const { id } = await params;
+        
+        if (!id || isNaN(Number(id))) {
+            notFound();
+        }
+
         const partido = await serverApi.partidos.getById(id);
 
         if (!partido) {
@@ -368,7 +412,7 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                 {/* Breadcrumbs */}
                 <div className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
                     <div className="container mx-auto px-4 py-4">
-                        <nav className="flex items-center space-x-2 text-sm">
+                        <nav aria-label="Navegación de migas de pan" className="flex items-center space-x-2 text-sm">
                             <Link href="/" className="text-goal-blue dark:text-goal-gold hover:underline">
                                 Inicio
                             </Link>
@@ -384,38 +428,38 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                     </div>
                 </div>
 
-                <div className="container mx-auto px-4 py-8">
-                    <div className="space-y-8">
+                <div className="container mx-auto px-4 py-4 sm:py-8">
+                    <div className="space-y-4 sm:space-y-8">
                         {/* Información principal del partido */}
                         <PartidoInfo partido={partido} />
 
                         {/* Grid de detalles */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                             {/* Goles */}
-                            <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg">
+                            <section className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg" aria-label="Sección de goles">
                                 <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-goal-gold/10 to-goal-gold/5">
                                     <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                                        <Trophy className="w-5 h-5 text-goal-gold" />
+                                        <Trophy className="w-5 h-5 text-goal-gold" aria-hidden="true" />
                                         Goles ({partido.goles?.length || 0})
                                     </h2>
                                 </div>
                                 <div className="p-6">
                                     <GolesPartido goles={partido.goles || []} />
                                 </div>
-                            </div>
+                            </section>
 
                             {/* Tarjetas */}
-                            <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg">
+                            <section className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg" aria-label="Sección de tarjetas">
                                 <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-yellow-500/10 to-red-500/10">
                                     <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                                        <AlertCircle className="w-5 h-5 text-yellow-600" />
+                                        <AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
                                         Tarjetas ({partido.tarjetas?.length || 0})
                                     </h2>
                                 </div>
                                 <div className="p-6">
                                     <TarjetasPartido tarjetas={partido.tarjetas || []} />
                                 </div>
-                            </div>
+                            </section>
                         </div>
 
                         {/* Enlaces relacionados */}
@@ -423,7 +467,7 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                             <h2 className="text-xl font-semibold mb-6 text-neutral-800 dark:text-neutral-200">
                                 Información relacionada
                             </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                                 <Link
                                     href={`/equipos/${partido.equipo_1.id}`}
                                     className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg hover:bg-goal-blue/10 dark:hover:bg-goal-blue/20 transition-colors"
@@ -477,7 +521,7 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                             <h3 className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200 text-center">
                                 Explorar más partidos
                             </h3>
-                            <div className="flex flex-wrap justify-center gap-4">
+                            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
                                 <Link
                                     href="/partidos?estado=programado"
                                     className="bg-white dark:bg-neutral-800 hover:bg-goal-blue/10 dark:hover:bg-goal-blue/20 text-neutral-700 dark:text-neutral-300 px-6 py-3 rounded-lg transition-all duration-300 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue"
@@ -504,6 +548,11 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
         );
     } catch (error) {
         console.error('Error al cargar el partido:', error);
-        notFound();
+        
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : 'No se pudo cargar la información del partido';
+            
+        return <ErrorView error={errorMessage} />;
     }
 }
