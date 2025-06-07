@@ -31,7 +31,6 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Goleadores | GoolStar',
         description: 'Consulta la tabla de goleadores del torneo de fútbol indoor - máximos anotadores y estadísticas de goles',
-        images: ['/images/goleadores-twitter.jpg'],
     },
 };
 
@@ -44,7 +43,7 @@ export default async function GoleadoresPage({ searchParams }: GoleadoresPagePro
     const equipo_id = params.equipo ? parseInt(params.equipo) : undefined;
     const search = params.search;
     const page = params.page ? parseInt(params.page) : 1;
-    const limite = params.limite ? parseInt(params.limite) : 12;
+    const limite = params.limite ? parseInt(params.limite) : 21;
 
     return (
         <GoleadoresLayout>
