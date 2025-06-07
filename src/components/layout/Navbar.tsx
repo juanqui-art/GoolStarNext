@@ -194,7 +194,7 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
                                         block px-4 py-3 rounded-md text-base font-medium
                                         transition-colors duration-200
                                         ${isActive(link.href)
-                                            ? 'text-goal-gold bg-goal-gold-100 font-semibold hover:bg-goal-gold-200'
+                                            ? 'text-goal-blue bg-goal-blue-100 font-semibold hover:bg-goal-blue-200'
                                             : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
                                         }
                                     `}
