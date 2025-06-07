@@ -260,6 +260,7 @@ export default function RootLayout({
                     })
                 }}
             />
+            <title>GoolStar</title>
         </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} antialiased`}

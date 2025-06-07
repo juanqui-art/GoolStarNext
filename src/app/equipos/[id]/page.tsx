@@ -1,10 +1,11 @@
-// src/app/equipos/[id]/page.tsx - VERSIÓN CON TIPOS CORREGIDOS
+// src/app/equipos/[id]/page.tsx - VERSIÓN MEJORADA
 import { serverApi } from '@/lib/api/server';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { Users, Trophy, Target, AlertTriangle, MapPin, Star } from 'lucide-react';
 import type { components } from '@/types/api';
 
 // ✅ TIPOS CORRECTOS - Importados de la API
@@ -113,49 +114,107 @@ function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
                         <h2 className="text-xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
                             Información General
                         </h2>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Estado:</span>
-                                <span className="font-medium capitalize">{equipo.estado || 'Activo'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Fecha registro:</span>
-                                <span className="font-medium">
-                                    {new Date(equipo.fecha_registro).toLocaleDateString('es-ES')}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                                <div className="flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-goal-blue" />
+                                    <span className="text-neutral-600 dark:text-neutral-400">Estado:</span>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    equipo.activo 
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                }`}>
+                                    {equipo.activo ? 'Activo' : 'Inactivo'}
                                 </span>
                             </div>
+                            
+                            {equipo.categoria && (
+                                <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                        <Trophy className="w-4 h-4 text-goal-gold" />
+                                        <span className="text-neutral-600 dark:text-neutral-400">Categoría:</span>
+                                    </div>
+                                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                                        {equipo.categoria.nombre}
+                                    </span>
+                                </div>
+                            )}
+                            
+                            {equipo.grupo && (
+                                <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="w-4 h-4 text-goal-blue" />
+                                        <span className="text-neutral-600 dark:text-neutral-400">Grupo:</span>
+                                    </div>
+                                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                                        Grupo {equipo.grupo}
+                                    </span>
+                                </div>
+                            )}
+                            
                             {equipo.color_principal && (
-                                <div className="flex justify-between items-center">
-                                    <span className="text-neutral-600 dark:text-neutral-400">Color principal:</span>
+                                <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                        <Target className="w-4 h-4 text-goal-gold" />
+                                        <span className="text-neutral-600 dark:text-neutral-400">Color principal:</span>
+                                    </div>
                                     <div className="flex items-center gap-2">
                                         <div
-                                            className="w-6 h-6 rounded-full border border-neutral-300"
+                                            className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
                                             style={{ backgroundColor: equipo.color_principal }}
                                         ></div>
-                                        <span className="font-medium">{equipo.color_principal}</span>
+                                        <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                                            {equipo.color_principal}
+                                        </span>
                                     </div>
                                 </div>
                             )}
+                            
                         </div>
                     </div>
 
-                    {/* Estadísticas */}
+                    {/* Estadísticas del Torneo */}
                     <div>
-                        <h2 className="text-xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
-                            Estadísticas
+                        <h2 className="text-xl font-semibold mb-4 text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+                            <Star className="w-5 h-5 text-goal-gold" />
+                            Rendimiento
                         </h2>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-neutral-600 dark:text-neutral-400">Inasistencias:</span>
-                                <span className="font-medium">{equipo.inasistencias || 0}</span>
-                            </div>
+                        <div className="space-y-4">
                             {typeof equipo.clasificado_fase_grupos === 'boolean' && (
-                                <div className="flex justify-between">
-                                    <span className="text-neutral-600 dark:text-neutral-400">Clasificado:</span>
-                                    <span className={`font-medium ${
-                                        equipo.clasificado_fase_grupos ? 'text-green-600' : 'text-red-600'
+                                <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                                    <div className="flex items-center gap-2">
+                                        <Trophy className="w-4 h-4 text-goal-gold" />
+                                        <span className="text-neutral-600 dark:text-neutral-400">Clasificación:</span>
+                                    </div>
+                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        equipo.clasificado_fase_grupos 
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
                                     }`}>
-                                        {equipo.clasificado_fase_grupos ? 'Sí' : 'No'}
+                                        {equipo.clasificado_fase_grupos ? '✅ Clasificado' : '⏳ En competencia'}
+                                    </span>
+                                </div>
+                            )}
+                            
+                            {/* Información adicional de rendimiento */}
+                            <div className="p-4 bg-gradient-to-br from-goal-blue/5 to-goal-gold/5 rounded-lg border border-goal-blue/20">
+                                <div className="text-center">
+                                    <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-1">
+                                        Estado del Equipo
+                                    </div>
+                                    <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        {equipo.activo ? 'Participando activamente en el torneo' : 'Inactivo en la competencia actual'}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Alerta si hay muchos suspendidos */}
+                            {equipo.jugadores && equipo.jugadores.filter(j => j.suspendido).length > 2 && (
+                                <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-lg border border-amber-200 dark:border-amber-800">
+                                    <AlertTriangle className="w-4 h-4" />
+                                    <span className="text-sm">
+                                        Este equipo tiene varios jugadores suspendidos
                                     </span>
                                 </div>
                             )}
@@ -194,8 +253,10 @@ function JugadoresList({ jugadores }: { jugadores: Jugador[] }) {
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden">
             <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-                <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
-                    Jugadores ({jugadoresTotal}) {jugadoresTotal > 12 && <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">(mostrando 12)</span>}
+                <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-goal-blue" />
+                    Plantilla del Equipo
+                    {jugadoresTotal > 12 && <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">(mostrando primeros 12)</span>}
                 </h2>
             </div>
 
