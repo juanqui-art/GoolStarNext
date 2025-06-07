@@ -11,6 +11,7 @@
     "generate-types:prod": "openapi-typescript https://goolstar-backend.fly.dev/api/schema/ --output src/types/api.ts"
   },
   "dependencies": {
+    "@next/third-parties": "^15.3.3",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-slot": "^1.2.3",
     "@sentry/nextjs": "^9.24.0",
