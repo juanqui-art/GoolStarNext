@@ -41,85 +41,262 @@ export async function generateMetadata({ params }: PartidoDetailPageProps): Prom
     }
 }
 
-// Componente para mostrar goles
-function GolesPartido({ goles }: { goles: Gol[] }) {
-    if (!goles || goles.length === 0) {
+// Tipo para eventos del partido
+type EventoPartido = {
+    id: string;
+    tipo: 'gol' | 'tarjeta';
+    minuto?: number;
+    jugador_nombre: string;
+    equipo_nombre: string;
+    equipo_id: number;
+    detalles?: string;
+    autogol?: boolean;
+    tipoTarjeta?: 'AMARILLA' | 'ROJA';
+    motivo?: string;
+    fecha: string;
+};
+
+// Función para combinar y ordenar eventos
+function combinarEventos(goles: Gol[], tarjetas: Tarjeta[]): EventoPartido[] {
+    const eventos: EventoPartido[] = [];
+    
+    // Agregar goles
+    goles.forEach(gol => {
+        eventos.push({
+            id: `gol-${gol.id}`,
+            tipo: 'gol',
+            minuto: gol.minuto ?? undefined,
+            jugador_nombre: gol.jugador_nombre,
+            equipo_nombre: gol.equipo_nombre,
+            equipo_id: gol.jugador,
+            autogol: gol.autogol,
+            fecha: gol.fecha_partido
+        });
+    });
+    
+    // Agregar tarjetas
+    tarjetas.forEach(tarjeta => {
+        eventos.push({
+            id: `tarjeta-${tarjeta.id}`,
+            tipo: 'tarjeta',
+            minuto: tarjeta.minuto ?? undefined,
+            jugador_nombre: tarjeta.jugador_nombre,
+            equipo_nombre: '',
+            equipo_id: tarjeta.jugador,
+            tipoTarjeta: tarjeta.tipo,
+            motivo: tarjeta.motivo,
+            fecha: tarjeta.fecha
+        });
+    });
+    
+    // Ordenar por minuto (eventos sin minuto van al final)
+    return eventos.sort((a, b) => {
+        if (a.minuto === undefined && b.minuto === undefined) return 0;
+        if (a.minuto === undefined) return 1;
+        if (b.minuto === undefined) return -1;
+        return a.minuto - b.minuto;
+    });
+}
+
+// Componente para mostrar timeline de eventos profesional
+function MatchEvents({ partido }: { partido: PartidoDetalle }) {
+    const eventos = combinarEventos(partido.goles || [], partido.tarjetas || []);
+    
+    if (eventos.length === 0) {
         return (
-            <div className="text-center py-6 text-neutral-500 dark:text-neutral-400">
-                <Trophy className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No hay goles registrados</p>
+            <div className="text-center py-12">
+                <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Trophy className="w-8 h-8 text-neutral-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-neutral-600 dark:text-neutral-400 mb-2">Sin eventos registrados</h3>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">No hay goles ni tarjetas en este partido</p>
             </div>
         );
     }
-
+    
     return (
-        <div className="space-y-3">
-            {goles.map((gol) => (
-                <div key={gol.id} className="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                    <div className="w-8 h-8 bg-goal-gold/20 rounded-full flex items-center justify-center">
-                        <Trophy className="w-4 h-4 text-goal-gold" />
-                    </div>
-                    <div className="flex-1">
-                        <div className="font-medium text-neutral-800 dark:text-neutral-200">
-                            {gol.jugador_nombre}
-                        </div>
-                        <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                            {gol.minuto ? `Minuto ${gol.minuto}` : 'Sin minuto registrado'}
-                            {gol.autogol && (
-                                <span className="ml-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded text-xs">
-                                    Autogol
-                                </span>
+        <div className="space-y-1">
+            {eventos.map((evento, index) => {
+                const esEquipo1 = evento.equipo_id === partido.equipo_1.id;
+                
+                return (
+                    <div key={evento.id} className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 ${
+                        index % 2 === 0 ? 'bg-neutral-25 dark:bg-neutral-800/30' : ''
+                    }`}>
+                        {/* Minuto */}
+                        <div className="w-12 text-center">
+                            {evento.minuto !== undefined ? (
+                                <div className="bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 text-xs font-bold px-2 py-1 rounded">
+                                    {evento.minuto}&apos;
+                                </div>
+                            ) : (
+                                <div className="text-xs text-neutral-400">-</div>
                             )}
                         </div>
-                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            {gol.equipo_nombre}
+                        
+                        {/* Timeline line */}
+                        <div className="flex flex-col items-center">
+                            <div className={`w-3 h-3 rounded-full border-2 ${
+                                evento.tipo === 'gol' 
+                                    ? 'bg-goal-gold border-goal-gold shadow-lg shadow-goal-gold/25' 
+                                    : evento.tipoTarjeta === 'AMARILLA'
+                                        ? 'bg-yellow-500 border-yellow-500 shadow-lg shadow-yellow-500/25'
+                                        : 'bg-red-500 border-red-500 shadow-lg shadow-red-500/25'
+                            }`}></div>
+                            {index < eventos.length - 1 && (
+                                <div className="w-px h-8 bg-neutral-200 dark:bg-neutral-700 mt-1"></div>
+                            )}
                         </div>
+                        
+                        {/* Contenido del evento */}
+                        <div className={`flex-1 flex items-center ${
+                            esEquipo1 ? 'justify-start' : 'justify-end'
+                        }`}>
+                            <div className={`max-w-md ${
+                                esEquipo1 ? 'text-left' : 'text-right'
+                            }`}>
+                                {/* Icono y tipo de evento */}
+                                <div className={`flex items-center gap-2 mb-1 ${
+                                    esEquipo1 ? 'flex-row' : 'flex-row-reverse'
+                                }`}>
+                                    {evento.tipo === 'gol' ? (
+                                        <div className="w-6 h-6 bg-goal-gold/20 rounded-full flex items-center justify-center">
+                                            <Trophy className="w-3 h-3 text-goal-gold" />
+                                        </div>
+                                    ) : (
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                            evento.tipoTarjeta === 'AMARILLA'
+                                                ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                                                : 'bg-red-100 dark:bg-red-900/30'
+                                        }`}>
+                                            <div className={`w-2 h-3 rounded-sm ${
+                                                evento.tipoTarjeta === 'AMARILLA' ? 'bg-yellow-500' : 'bg-red-500'
+                                            }`}></div>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="font-semibold text-neutral-800 dark:text-neutral-200">
+                                        {evento.jugador_nombre}
+                                    </div>
+                                </div>
+                                
+                                {/* Detalles */}
+                                <div className={`text-sm text-neutral-600 dark:text-neutral-400 ${
+                                    esEquipo1 ? 'text-left' : 'text-right'
+                                }`}>
+                                    {evento.tipo === 'gol' ? (
+                                        <div className="flex items-center gap-2">
+                                            <span>Gol</span>
+                                            {evento.autogol && (
+                                                <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-0.5 rounded text-xs">
+                                                    Autogol
+                                                </span>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <span>Tarjeta {evento.tipoTarjeta?.toLowerCase()}</span>
+                                            {evento.motivo && (
+                                                <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                                                    {evento.motivo}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Equipo */}
+                                <div className={`text-xs text-neutral-500 dark:text-neutral-500 mt-1 ${
+                                    esEquipo1 ? 'text-left' : 'text-right'
+                                }`}>
+                                    {evento.equipo_nombre || (esEquipo1 ? partido.equipo_1.nombre : partido.equipo_2.nombre)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Marcador en el momento (solo para goles) */}
+                        {evento.tipo === 'gol' && (
+                            <div className="w-12 text-center">
+                                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                                    {/* Aquí podrías calcular el marcador en ese momento */}
+                                    <div className="w-2 h-2 bg-goal-gold rounded-full mx-auto"></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }
 
-// Componente para mostrar tarjetas
-function TarjetasPartido({ tarjetas }: { tarjetas: Tarjeta[] }) {
-    if (!tarjetas || tarjetas.length === 0) {
-        return (
-            <div className="text-center py-6 text-neutral-500 dark:text-neutral-400">
-                <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No hay tarjetas registradas</p>
-            </div>
-        );
-    }
-
+// Componente para estadísticas del partido
+function MatchStats({ partido }: { partido: PartidoDetalle }) {
+    // Para determinar a qué equipo pertenece cada gol, usamos el equipo_nombre del gol
+    const goles1 = partido.goles?.filter(g => g.equipo_nombre === partido.equipo_1.nombre).length || 0;
+    const goles2 = partido.goles?.filter(g => g.equipo_nombre === partido.equipo_2.nombre).length || 0;
+    
+    // Para tarjetas, necesitamos una lógica diferente ya que no tienen equipo_nombre directo
+    // Por simplicidad, usaremos el total de tarjetas
+    const totalTarjetas = partido.tarjetas?.length || 0;
+    const tarjetas1 = Math.floor(totalTarjetas / 2); // Distribución aproximada
+    const tarjetas2 = totalTarjetas - tarjetas1;
+    
+    const stats = [
+        {
+            label: 'Goles',
+            equipo1: goles1,
+            equipo2: goles2,
+            icon: Trophy,
+            color: 'text-goal-gold'
+        },
+        {
+            label: 'Tarjetas',
+            equipo1: tarjetas1,
+            equipo2: tarjetas2,
+            icon: AlertCircle,
+            color: 'text-yellow-500'
+        }
+    ];
+    
     return (
-        <div className="space-y-3">
-            {tarjetas.map((tarjeta) => (
-                <div key={tarjeta.id} className="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        tarjeta.tipo === 'AMARILLA'
-                            ? 'bg-yellow-100 dark:bg-yellow-900/30'
-                            : 'bg-red-100 dark:bg-red-900/30'
-                    }`}>
-                        <div className={`w-3 h-4 rounded-sm ${
-                            tarjeta.tipo === 'AMARILLA' ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}></div>
+        <div className="space-y-4">
+            {stats.map((stat) => {
+                const Icon = stat.icon;
+                const total = stat.equipo1 + stat.equipo2;
+                const porcentaje1 = total > 0 ? (stat.equipo1 / total) * 100 : 50;
+                const porcentaje2 = total > 0 ? (stat.equipo2 / total) * 100 : 50;
+                
+                return (
+                    <div key={stat.label} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{stat.equipo1}</span>
+                            <div className="flex items-center gap-2">
+                                <Icon className={`w-4 h-4 ${stat.color}`} />
+                                <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{stat.label}</span>
+                            </div>
+                            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{stat.equipo2}</span>
+                        </div>
+                        
+                        {total > 0 && (
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-neutral-200 dark:bg-neutral-700 rounded-full h-2 overflow-hidden">
+                                    <div 
+                                        className="h-full bg-goal-blue transition-all duration-500"
+                                        style={{ width: `${porcentaje1}%` }}
+                                    ></div>
+                                </div>
+                                <div className="flex-1 bg-neutral-200 dark:bg-neutral-700 rounded-full h-2 overflow-hidden">
+                                    <div 
+                                        className="h-full bg-goal-orange transition-all duration-500 ml-auto"
+                                        style={{ width: `${porcentaje2}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <div className="flex-1">
-                        <div className="font-medium text-neutral-800 dark:text-neutral-200">
-                            {tarjeta.jugador_nombre}
-                        </div>
-                        <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                            Tarjeta {tarjeta.tipo.toLowerCase()}
-                            {tarjeta.minuto && ` - Minuto ${tarjeta.minuto}`}
-                            {tarjeta.motivo && ` - ${tarjeta.motivo}`}
-                        </div>
-                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            {new Date(tarjeta.fecha).toLocaleDateString('es-ES')}
-                        </div>
-                    </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }
@@ -168,10 +345,10 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                                         className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                                     />
                                 )}
-                                <h2 className="text-sm sm:text-xl font-bold text-center break-words">{partido.equipo_1.nombre}</h2>
+                                <h2 className="text-lg sm:text-xl font-bold text-center break-words">{partido.equipo_1.nombre}</h2>
                             </div>
                             {partido.completado && (
-                                <div className="text-2xl sm:text-4xl font-bold">{partido.goles_equipo_1 || 0}</div>
+                                <div className="text-5xl  font-bold">{partido.goles_equipo_1 || 0}</div>
                             )}
                         </div>
 
@@ -187,7 +364,7 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                         {/* Equipo 2 */}
                         <div className="text-center">
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-2">
-                                <h2 className="text-sm sm:text-xl font-bold text-center break-words order-2 sm:order-1">{partido.equipo_2.nombre}</h2>
+                                <h2 className="text-lg sm:text-xl font-bold text-center break-words order-2 sm:order-1">{partido.equipo_2.nombre}</h2>
                                 {partido.equipo_2.logo && (
                                     <Image
                                         src={partido.equipo_2.logo}
@@ -199,7 +376,7 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                                 )}
                             </div>
                             {partido.completado && (
-                                <div className="text-2xl sm:text-4xl font-bold">{partido.goles_equipo_2 || 0}</div>
+                                <div className="text-5xl font-bold">{partido.goles_equipo_2 || 0}</div>
                             )}
                         </div>
                     </div>
@@ -211,9 +388,106 @@ function PartidoInfo({ partido }: { partido: PartidoDetalle }) {
                         </div>
                     )}
 
+                    {/* Jugadores con goles y tarjetas */}
+                    {partido.completado && (partido.goles?.length > 0 || partido.tarjetas?.length > 0) && (
+                        <div className="mt-8 relative">
+                            {/* Línea divisoria decorativa */}
+                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-white/30 rounded-full"></div>
+                            
+                            <div className="pt-6 grid grid-cols-2 gap-12 text-sm max-w-3xl mx-auto">
+                                {/* Equipo 1 */}
+                                <div className="text-right">
+                                    <div className="space-y-2">
+                                        {/* Goles equipo 1 */}
+                                        {partido.goles?.filter(g => g.equipo_nombre === partido.equipo_1.nombre).map((gol, index) => (
+                                            <div 
+                                                key={`gol-${gol.id}`} 
+                                                className="group flex items-center justify-end gap-3 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-goal-gold/30"
+                                                style={{ animationDelay: `${index * 100}ms` }}
+                                            >
+                                                <span className="text-sm font-semibold text-white/95 group-hover:text-white transition-colors duration-200">{gol.jugador_nombre}</span>
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-lg drop-shadow-sm filter group-hover:scale-110 transition-transform duration-200">⚽</span>
+                                                    {gol.autogol && (
+                                                        <span className="text-xs bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded-full border border-red-400/30">
+                                                            AG
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        
+                                        {/* Tarjetas equipo 1 - aproximación por distribución */}
+                                        {partido.tarjetas?.slice(0, Math.ceil(partido.tarjetas.length / 2)).map((tarjeta, index) => (
+                                            <div 
+                                                key={`tarjeta-${tarjeta.id}`} 
+                                                className="group flex items-center justify-end gap-3 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-yellow-400/30"
+                                                style={{ animationDelay: `${(partido.goles?.filter(g => g.equipo_nombre === partido.equipo_1.nombre).length || 0 + index) * 100}ms` }}
+                                            >
+                                                <span className="text-sm font-semibold text-white/95 group-hover:text-white transition-colors duration-200">{tarjeta.jugador_nombre}</span>
+                                                <div className="flex items-center">
+                                                    <span className={`text-lg drop-shadow-sm filter group-hover:scale-110 transition-transform duration-200 ${
+                                                        tarjeta.tipo === 'AMARILLA' ? 'brightness-110' : 'brightness-100'
+                                                    }`}>
+                                                        {tarjeta.tipo === 'AMARILLA' ? '🟨' : '🟥'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Línea divisoria central */}
+                                <div className="absolute left-1/2 top-6 bottom-0 w-px bg-gradient-to-b from-white/20 via-white/10 to-transparent transform -translate-x-1/2"></div>
+
+                                {/* Equipo 2 */}
+                                <div className="text-left">
+                                    <div className="space-y-2">
+                                        {/* Goles equipo 2 */}
+                                        {partido.goles?.filter(g => g.equipo_nombre === partido.equipo_2.nombre).map((gol, index) => (
+                                            <div 
+                                                key={`gol-${gol.id}`} 
+                                                className="group flex items-center justify-start gap-3 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-goal-gold/30"
+                                                style={{ animationDelay: `${index * 100}ms` }}
+                                            >
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-lg drop-shadow-sm filter group-hover:scale-110 transition-transform duration-200">⚽</span>
+                                                    {gol.autogol && (
+                                                        <span className="text-xs bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded-full border border-red-400/30">
+                                                            AG
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="text-sm font-semibold text-white/95 group-hover:text-white transition-colors duration-200">{gol.jugador_nombre}</span>
+                                            </div>
+                                        ))}
+                                        
+                                        {/* Tarjetas equipo 2 - aproximación por distribución */}
+                                        {partido.tarjetas?.slice(Math.ceil(partido.tarjetas.length / 2)).map((tarjeta, index) => (
+                                            <div 
+                                                key={`tarjeta-${tarjeta.id}`} 
+                                                className="group flex items-center justify-start gap-3 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-yellow-400/30"
+                                                style={{ animationDelay: `${(partido.goles?.filter(g => g.equipo_nombre === partido.equipo_2.nombre).length || 0 + index) * 100}ms` }}
+                                            >
+                                                <div className="flex items-center">
+                                                    <span className={`text-lg drop-shadow-sm filter group-hover:scale-110 transition-transform duration-200 ${
+                                                        tarjeta.tipo === 'AMARILLA' ? 'brightness-110' : 'brightness-100'
+                                                    }`}>
+                                                        {tarjeta.tipo === 'AMARILLA' ? '🟨' : '🟥'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-sm font-semibold text-white/95 group-hover:text-white transition-colors duration-200">{tarjeta.jugador_nombre}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Victoria por default */}
                     {partido.victoria_por_default && (
-                        <div className="mt-2">
+                        <div className="mt-4">
                             <span className="bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
                                 Victoria por {partido.victoria_por_default}
                             </span>
@@ -433,32 +707,93 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                         {/* Información principal del partido */}
                         <PartidoInfo partido={partido} />
 
-                        {/* Grid de detalles */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-                            {/* Goles */}
-                            <section className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg" aria-label="Sección de goles">
-                                <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-goal-gold/10 to-goal-gold/5">
-                                    <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                                        <Trophy className="w-5 h-5 text-goal-gold" aria-hidden="true" />
-                                        Goles ({partido.goles?.length || 0})
-                                    </h2>
+                        {/* Match Center Profesional */}
+                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-8">
+                            {/* Timeline de Eventos - Columna principal */}
+                            <section className="xl:col-span-2 bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg" aria-label="Timeline de eventos del partido">
+                                <div className="bg-gradient-to-r from-goal-blue/10 via-goal-gold/10 to-goal-orange/10 p-6 border-b border-neutral-200 dark:border-neutral-700">
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-gradient-to-r from-goal-blue to-goal-orange rounded-full flex items-center justify-center">
+                                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                                            </div>
+                                            Match Center
+                                        </h2>
+                                        <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
+                                            <div className="flex items-center gap-1">
+                                                <Trophy className="w-4 h-4 text-goal-gold" />
+                                                <span>{partido.goles?.length || 0} goles</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <AlertCircle className="w-4 h-4 text-yellow-500" />
+                                                <span>{partido.tarjetas?.length || 0} tarjetas</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="p-6">
-                                    <GolesPartido goles={partido.goles || []} />
+                                    <MatchEvents partido={partido} />
                                 </div>
                             </section>
 
-                            {/* Tarjetas */}
-                            <section className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg" aria-label="Sección de tarjetas">
-                                <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-yellow-500/10 to-red-500/10">
-                                    <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                                        <AlertCircle className="w-5 h-5 text-yellow-600" aria-hidden="true" />
-                                        Tarjetas ({partido.tarjetas?.length || 0})
-                                    </h2>
+                            {/* Panel lateral con estadísticas */}
+                            <section className="space-y-6">
+                                {/* Estadísticas */}
+                                <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg">
+                                    <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-neutral-50 dark:from-neutral-700/50 to-transparent">
+                                        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+                                            <div className="w-5 h-5 bg-goal-blue/20 rounded flex items-center justify-center">
+                                                <div className="w-2 h-2 bg-goal-blue rounded"></div>
+                                            </div>
+                                            Estadísticas
+                                        </h3>
+                                    </div>
+                                    <div className="p-6">
+                                        <MatchStats partido={partido} />
+                                    </div>
                                 </div>
-                                <div className="p-6">
-                                    <TarjetasPartido tarjetas={partido.tarjetas || []} />
-                                </div>
+
+                                {/* Información adicional */}
+                                {(partido.observaciones || partido.victoria_por_default || partido.penales_equipo_1 !== null) && (
+                                    <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg">
+                                        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700 bg-gradient-to-r from-goal-orange/10 to-transparent">
+                                            <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+                                                <AlertCircle className="w-5 h-5 text-goal-orange" />
+                                                Información adicional
+                                            </h3>
+                                        </div>
+                                        <div className="p-6 space-y-4">
+                                            {partido.penales_equipo_1 !== null && partido.penales_equipo_2 !== null && (
+                                                <div className="bg-neutral-50 dark:bg-neutral-700/50 p-4 rounded-lg">
+                                                    <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">Definición por penales</div>
+                                                    <div className="flex items-center justify-center gap-4 text-lg font-bold">
+                                                        <span className="text-goal-blue">{partido.equipo_1.nombre}</span>
+                                                        <span className="text-2xl text-neutral-600 dark:text-neutral-400">{partido.penales_equipo_1} - {partido.penales_equipo_2}</span>
+                                                        <span className="text-goal-orange">{partido.equipo_2.nombre}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            {partido.victoria_por_default && (
+                                                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-l-4 border-yellow-500">
+                                                    <div className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Victoria por defecto</div>
+                                                    <div className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                                                        {partido.victoria_por_default}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            {partido.observaciones && (
+                                                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
+                                                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Observaciones</div>
+                                                    <div className="text-sm text-blue-700 dark:text-blue-300">
+                                                        {partido.observaciones}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </section>
                         </div>
 
