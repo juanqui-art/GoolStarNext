@@ -292,12 +292,12 @@ export default function RootLayout({
         <ThemeProvider>
             {children}
         </ThemeProvider>
+        </body>
         
-        {/* Google Analytics */}
+        {/* Google Analytics - Debe estar fuera del body */}
         {process.env.NEXT_PUBLIC_GA_ID && (
             <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
-        </body>
         </html>
     );
 }
