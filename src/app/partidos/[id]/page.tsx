@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PartidoDetailPageProps): Prom
                 type: 'article',
             },
         };
-    } catch (_error) {
+    } catch {
         return {
             title: 'Partido | GoolStar',
             description: 'Detalles del partido',
@@ -466,7 +466,7 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                 </div>
             </div>
         );
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error al cargar el partido:', error);
 
         const errorMessage = error instanceof Error
