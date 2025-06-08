@@ -1,7 +1,7 @@
 // src/components/partidos/PartidoCard.tsx
 'use client';
 
-import {partidoUtils} from '@/services/partidoService';
+import {partidoUtils} from '@/utils/partidoHelpers';
 import type {components} from '@/types/api';
 import gsap from 'gsap';
 import {AlertCircle, Clock, MapPin, Trophy} from 'lucide-react';
@@ -26,7 +26,7 @@ export default function PartidoCard({
     const cardRef = useRef<HTMLDivElement>(null);
 
     // Obtener datos del partido usando utilidades
-    const resultado = partidoUtils.getResultado(partido);
+    const resultadoDetallado = partidoUtils.getResultadoDetallado(partido);
     const estado = partidoUtils.getEstado(partido);
     const tieneVictoriaDefault = partidoUtils.tieneVictoriaPorDefault(partido);
 
@@ -122,7 +122,7 @@ export default function PartidoCard({
                         </div>
                         {partido.completado && (
                             <div className={`text-2xl font-bold ${
-                                resultado === 'victoria_local'
+                                resultadoDetallado === 'victoria_local'
                                     ? 'text-goal-gold'
                                     : 'text-neutral-500 dark:text-neutral-400'
                             }`}>
@@ -166,7 +166,7 @@ export default function PartidoCard({
                         </div>
                         {partido.completado && (
                             <div className={`text-2xl font-bold ${
-                                resultado === 'victoria_visitante'
+                                resultadoDetallado === 'victoria_visitante'
                                     ? 'text-goal-gold'
                                     : 'text-neutral-500 dark:text-neutral-400'
                             }`}>
