@@ -26,11 +26,19 @@ import type {
     TorneoDetalle,
     Partido,
     PartidoDetalle,
-    PaginatedPartidoList, TablaPosicionesAgrupada,
-    // Jugador,
-    // PaginatedJugadorList,
+    PaginatedPartidoList, 
+    TablaPosicionesAgrupada,
+    Jugador,
+    PaginatedJugadorList,
     // Gol
 } from '@/types/server-api';
+
+// Tipo extendido para equipos con jugadores
+export interface EquipoConJugadores extends Equipo {
+    jugadores: Jugador[];
+    jugadores_activos: number;
+    necesita_limpieza: boolean;
+}
 
 // Configuración base
 const API_BASE_URL = 'https://goolstar-backend.fly.dev/api';
@@ -50,9 +58,9 @@ const REVALIDATION = {
  */
 async function serverFetch<T>(
     endpoint: string,
-    options: RequestInit & { revalidate?: number } = {}
+    options: RequestInit & { revalidate?: number; tags?: string[] } = {}
 ): Promise<T> {
-    const { revalidate = REVALIDATION.DYNAMIC, ...fetchOptions } = options;
+    const { revalidate = REVALIDATION.DYNAMIC, tags, ...fetchOptions } = options;
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
     console.log('🌐 Haciendo petición a:', url);
@@ -64,7 +72,7 @@ async function serverFetch<T>(
                 'Content-Type': 'application/json',
                 ...fetchOptions.headers,
             },
-            next: { revalidate },
+            next: { revalidate, tags },
             ...fetchOptions,
         });
 
@@ -128,7 +136,7 @@ export async function getServerEquipos(params?: EquiposQueryParams): Promise<Pag
 
         return serverFetch<PaginatedEquipoList>(
             `/equipos/?${queryParams.toString()}`,
-            { revalidate: REVALIDATION.DYNAMIC }
+            { revalidate: REVALIDATION.DYNAMIC, tags: ['equipos', 'dashboard'] }
         );
     };
 
@@ -543,6 +551,118 @@ export async function getServerJugadoresDestacados(
         `/torneos/${torneoId}/jugadores_destacados/${query}`,
         { revalidate: REVALIDATION.DYNAMIC }
     );
+}
+
+/* ============================================
+   FUNCIONES PARA JUGADORES
+============================================ */
+
+/**
+ * Obtener jugadores por equipo
+ */
+export async function getServerJugadoresPorEquipo(equipoId: number): Promise<PaginatedJugadorList> {
+    console.log('👤 Obteniendo jugadores del equipo:', equipoId);
+    
+    // Usar el endpoint correcto que devuelve array directo
+    const jugadoresDelEquipo = await serverFetch<Jugador[]>(
+        `/jugadores/por_equipo/?equipo_id=${equipoId}`,
+        { revalidate: REVALIDATION.DYNAMIC, tags: ['jugadores', 'dashboard', `equipo-${equipoId}`] }
+    );
+    
+    console.log(`✅ Encontrados ${jugadoresDelEquipo.length} jugadores para el equipo ${equipoId}`);
+    
+    return {
+        count: jugadoresDelEquipo.length,
+        next: null,
+        previous: null,
+        results: jugadoresDelEquipo
+    };
+}
+
+/**
+ * Actualizar estado activo_segunda_fase de un jugador
+ */
+export async function updateServerJugadorActivoSegundaFase(
+    jugadorId: number, 
+    activoSegundaFase: boolean
+): Promise<Jugador> {
+    console.log(`👤 Actualizando jugador ${jugadorId} - activo_segunda_fase: ${activoSegundaFase}`);
+    
+    return serverFetch<Jugador>(
+        `/jugadores/${jugadorId}/`,
+        {
+            method: 'PATCH', // Intentar PATCH primero
+            body: JSON.stringify({
+                activo_segunda_fase: activoSegundaFase
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            revalidate: 1 // Invalidar inmediatamente
+        }
+    );
+}
+
+/**
+ * Obtener equipos con sus jugadores y estado de limpieza para dashboard
+ */
+export async function getServerEquiposConJugadores(): Promise<EquipoConJugadores[]> {
+    console.log('🏆 Obteniendo equipos con jugadores para análisis de limpieza');
+    
+    try {
+        // Obtener todos los equipos
+        const equiposResponse = await getServerEquipos({ all_pages: true });
+        
+        if (!equiposResponse.results || equiposResponse.results.length === 0) {
+            console.log('⚠️ No se encontraron equipos');
+            return [];
+        }
+
+        // Para cada equipo, obtener sus jugadores
+        const equiposConJugadores = await Promise.all(
+            equiposResponse.results.map(async (equipo) => {
+                try {
+                    const jugadoresResponse = await getServerJugadoresPorEquipo(equipo.id);
+                    const jugadores = jugadoresResponse.results || [];
+
+                    // Contar jugadores activos para eliminatorias
+                    const jugadores_activos = jugadores.filter(j => 
+                        j.activo_segunda_fase !== false // Asumir true si no existe el campo
+                    ).length;
+
+                    return {
+                        ...equipo,
+                        jugadores,
+                        jugadores_activos,
+                        necesita_limpieza: jugadores_activos > 12
+                    };
+                } catch (error) {
+                    console.warn(`⚠️ Error al cargar jugadores del equipo ${equipo.id}:`, error);
+                    // Retornar equipo con datos vacíos si falla
+                    return {
+                        ...equipo,
+                        jugadores: [],
+                        jugadores_activos: 0,
+                        necesita_limpieza: false
+                    };
+                }
+            })
+        );
+
+        // Ordenar: problemáticos primero, luego por nombre
+        equiposConJugadores.sort((a, b) => {
+            if (a.necesita_limpieza !== b.necesita_limpieza) {
+                return a.necesita_limpieza ? -1 : 1;
+            }
+            return a.nombre.localeCompare(b.nombre);
+        });
+
+        console.log(`✅ ${equiposConJugadores.length} equipos procesados para análisis de limpieza`);
+        return equiposConJugadores;
+    } catch (error) {
+        console.error('❌ Error obteniendo equipos con jugadores:', error);
+        return [];
+    }
 }
 
 /* ============================================
