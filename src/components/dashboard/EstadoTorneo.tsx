@@ -111,7 +111,7 @@ export default function EstadoTorneo() {
             }
 
             // Obtener partidos próximos
-            let proximosPartidos: any[] = [];
+            let proximosPartidos: Partido[] = [];
             try {
                 const responsePartidos = await fetch('/api/partidos/proximos/?dias=7');
                 if (responsePartidos.ok) {
