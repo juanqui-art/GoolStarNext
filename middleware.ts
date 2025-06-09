@@ -1,6 +1,6 @@
 // middleware.ts
 import { NextRequest } from 'next/server';
-import { authMiddleware } from './src/lib/auth/middleware';
+import { authMiddleware } from '@/lib/auth/middleware';
 
 export function middleware(request: NextRequest) {
   return authMiddleware(request);
