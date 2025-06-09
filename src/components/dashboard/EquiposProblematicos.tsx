@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import { AlertTriangle, Users, CheckCircle, Settings } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import type { components } from '@/types/api';
 import FormularioLimpieza from './FormularioLimpieza';
 
@@ -23,7 +22,6 @@ interface EquiposProblematicosProps {
 }
 
 export default function EquiposProblematicos({ equipos }: EquiposProblematicosProps) {
-    const router = useRouter();
     const [equipoSeleccionado, setEquipoSeleccionado] = useState<EquipoConJugadores | null>(null);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
 

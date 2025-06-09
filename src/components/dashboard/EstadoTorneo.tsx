@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { TorneoEstadisticas } from '@/types/server-api';
 import {
     Calendar,
     Clock,
@@ -88,7 +89,16 @@ export default function EstadoTorneo() {
             }
 
             // Obtener estadísticas del torneo
-            let estadisticas: any = {};
+            let estadisticas: TorneoEstadisticas = {
+                total_equipos: 0,
+                total_partidos: 0,
+                partidos_jugados: 0,
+                partidos_pendientes: 0,
+                total_goles: 0,
+                promedio_goles_por_partido: 0,
+                total_tarjetas_amarillas: 0,
+                total_tarjetas_rojas: 0
+            };
             try {
                 const responseEstadisticas = await fetch(`/api/torneos/${torneoActivo.id}/estadisticas/`);
                 if (responseEstadisticas.ok) {
