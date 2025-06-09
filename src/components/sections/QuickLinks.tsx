@@ -52,7 +52,7 @@ export default function QuickLinks() {
     const quickLinks = [
         {
             title: 'Partidos',
-            description: 'Consulta los próximos partidos y resultados del torneo',
+            description: 'Consulta resultados y estadísticas de todos los partidos',
             icon: <CalendarDays size={24}/>,
             href: '/partidos',
             accentColor: 'gold' as const
