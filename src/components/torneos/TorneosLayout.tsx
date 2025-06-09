@@ -338,7 +338,7 @@ export default function TorneosLayout({ children, torneoData }: TorneosLayoutPro
                                     <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">Calendario de Partidos</h3>
                                 </div>
                                 <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                                    Próximos partidos, resultados y estadísticas completas.
+                                    Resultados y estadísticas completas de todos los partidos.
                                 </p>
                                 <div className="flex items-center text-goal-gold text-sm font-medium group-hover:translate-x-1 transition-transform">
                                     Ver partidos <ArrowRight className="w-4 h-4 ml-2" />

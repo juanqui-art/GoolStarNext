@@ -171,14 +171,8 @@ export default function TorneoActual({
         {/* Botones de acción */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
           <Link 
-            href="/proximos-partidos"
-            className="bg-goal-blue hover:bg-goal-blue/90 text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-sm inline-block text-center w-full sm:w-auto"
-          >
-            Ver próximos partidos
-          </Link>
-          <Link 
             href="/tabla"
-            className="bg-white dark:bg-neutral-800 border border-goal-gold hover:border-goal-gold/80 text-neutral-800 dark:text-neutral-200 font-semibold py-2 px-6 rounded-full transition-all duration-300 shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all duration-300 inline-block text-center w-full sm:w-auto"
+            className="bg-goal-blue hover:bg-goal-blue/90 text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-sm inline-block text-center w-full sm:w-auto"
           >
             Ver tabla de posiciones
           </Link>
