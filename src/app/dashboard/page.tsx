@@ -32,12 +32,13 @@ function DashboardLoading() {
 }
 
 interface DashboardPageProps {
-    searchParams: {
+    searchParams: Promise<{
         refresh?: string;
-    };
+    }>;
 }
 
-export default function DashboardPage({ searchParams }: DashboardPageProps) {
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+    const resolvedSearchParams = await searchParams;
     return (
         <DashboardGuard>
             <DashboardLayout>
@@ -89,7 +90,7 @@ export default function DashboardPage({ searchParams }: DashboardPageProps) {
                         </div>
                         <div className="p-6">
                             <Suspense fallback={<DashboardLoading />}>
-                                <EquiposProblematicosServer key={searchParams.refresh} />
+                                <EquiposProblematicosServer key={resolvedSearchParams.refresh} />
                             </Suspense>
                         </div>
                     </div>
