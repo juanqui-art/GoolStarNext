@@ -17,6 +17,16 @@ class ApiClient {
 
     private async getAuthToken(): Promise<string | null> {
         if (typeof window !== 'undefined') {
+            // Primero intentar obtener del Zustand store
+            try {
+                const { useAuthStore } = await import('@/store/auth-store');
+                const token = useAuthStore.getState().accessToken;
+                if (token) return token;
+            } catch (error) {
+                console.warn('No se pudo acceder al auth store:', error);
+            }
+            
+            // Fallback al localStorage
             return localStorage.getItem('accessToken');
         }
         return null;
@@ -41,26 +51,35 @@ class ApiClient {
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    // Intentar renovar token
-                    const refreshToken = localStorage.getItem('refreshToken');
-                    if (refreshToken) {
-                        const refreshResponse = await fetch(`${this.baseURL}/auth/token/refresh/`, {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({refresh: refreshToken}),
-                        });
-
-                        if (refreshResponse.ok) {
-                            const data = await refreshResponse.json();
-                            localStorage.setItem('accessToken', data.access);
-                            // Reintentar la petición original
-                            return this.request(endpoint, {...options, token: data.access});
+                    // Intentar renovar token usando el auth store
+                    try {
+                        const { useAuthStore } = await import('@/store/auth-store');
+                        const authStore = useAuthStore.getState();
+                        
+                        // Usar el método del store que maneja todo automáticamente
+                        const renewed = await authStore.refreshAccessToken();
+                        
+                        if (renewed) {
+                            // Obtener el nuevo token y reintentar
+                            const newToken = useAuthStore.getState().accessToken;
+                            if (newToken) {
+                                return this.request(endpoint, {...options, token: newToken});
+                            }
                         }
+                    } catch (error) {
+                        console.error('Error en refresh automático:', error);
                     }
 
-                    // Redirigir a login si no se puede renovar
+                    // Si no se pudo renovar, redirigir a login
                     if (typeof window !== 'undefined') {
-                        window.location.href = '/sign-in';
+                        // Limpiar el auth store también
+                        try {
+                            const { useAuthStore } = await import('@/store/auth-store');
+                            useAuthStore.getState().logout();
+                        } catch (error) {
+                            console.warn('No se pudo hacer logout del store:', error);
+                        }
+                        window.location.href = '/login';
                     }
                 }
 
