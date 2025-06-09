@@ -290,7 +290,7 @@ export default async function PartidosListServer({
                     )}
                     {completado === false && (
                         <p className="text-neutral-600 dark:text-neutral-400">
-                            Próximos partidos programados
+                            Partidos programados
                         </p>
                     )}
                 </div>

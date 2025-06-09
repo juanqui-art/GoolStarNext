@@ -443,12 +443,6 @@ export default async function PartidoDetailPage({ params }: PartidoDetailPagePro
                             </h3>
                             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
                                 <Link
-                                    href="/partidos?estado=programado"
-                                    className="bg-white dark:bg-neutral-800 hover:bg-goal-blue/10 dark:hover:bg-goal-blue/20 text-neutral-700 dark:text-neutral-300 px-6 py-3 rounded-lg transition-all duration-300 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue"
-                                >
-                                    Próximos partidos
-                                </Link>
-                                <Link
                                     href="/partidos?estado=completado"
                                     className="bg-white dark:bg-neutral-800 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-neutral-700 dark:text-neutral-300 px-6 py-3 rounded-lg transition-all duration-300 border border-neutral-200 dark:border-neutral-700 hover:border-emerald-500"
                                 >

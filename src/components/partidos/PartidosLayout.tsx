@@ -104,16 +104,9 @@ export default function PartidosLayout({ children }: { children: React.ReactNode
                         <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
                             <Link
                                 href="/partidos"
-                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-orange dark:hover:border-goal-orange text-neutral-700 dark:text-neutral-300 hover:text-goal-orange px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium"
+                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-accent text-neutral-700 dark:text-neutral-300 hover:text-accent px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium"
                             >
-                                Todos los partidos
-                            </Link>
-
-                            <Link
-                                href="/partidos?estado=programado"
-                                className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-goal-blue dark:hover:border-goal-blue text-neutral-700 dark:text-neutral-300 hover:text-goal-blue px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium"
-                            >
-                                Próximos partidos
+                                Todos
                             </Link>
 
                             <Link
