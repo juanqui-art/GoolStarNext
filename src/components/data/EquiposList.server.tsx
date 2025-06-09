@@ -212,7 +212,7 @@ export default async function EquiposListServer({
             return (
                 <div className="w-full max-w-4xl mx-auto">
                     {showTitle && (
-                        <h2 className="text-3xl font-heading text-center mb-6">
+                        <h2 className="text-3xl font-heading text-neutral-800 dark:text-neutral-200 text-center mb-6">
                             Equipos Participantes
                         </h2>
                     )}
@@ -248,7 +248,7 @@ export default async function EquiposListServer({
             <div className="w-full max-w-6xl mx-auto">
                 {showTitle && (
                     <div className="text-center mb-8">
-                        <h2 className="text-3xl font-heading mb-2">
+                        <h2 className="text-3xl font-heading text-neutral-800 dark:text-neutral-200 mb-2">
                             Equipos Participantes
                         </h2>
                         {searchQuery && (
@@ -306,7 +306,7 @@ export default async function EquiposListServer({
                 {/* CTA para inscripción */}
                 {!limit && (
                     <div className="mt-8 text-center p-6 bg-gradient-to-r from-goal-blue/10 to-goal-gold/10 rounded-xl">
-                        <h3 className="text-lg font-semibold mb-2">¿Tu equipo quiere participar?</h3>
+                        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-2">¿Tu equipo quiere participar?</h3>
                         <p className="text-neutral-600 dark:text-neutral-400 mb-4">
                             Únete a la próxima edición del torneo GoolStar
                         </p>
