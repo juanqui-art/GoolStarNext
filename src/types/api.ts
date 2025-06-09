@@ -956,6 +956,7 @@ export interface components {
             nivel?: (components["schemas"]["NivelEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Format: uri */
             foto?: string | null;
+            activo_segunda_fase?: boolean;
             suspendido?: boolean;
             partidos_suspension_restantes?: number;
             /** Format: date */
@@ -975,6 +976,7 @@ export interface components {
             nivel?: (components["schemas"]["NivelEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Format: binary */
             foto?: string | null;
+            activo_segunda_fase?: boolean;
             suspendido?: boolean;
             partidos_suspension_restantes?: number;
             /** Format: date */
@@ -1274,6 +1276,7 @@ export interface components {
             nivel?: (components["schemas"]["NivelEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Format: binary */
             foto?: string | null;
+            activo_segunda_fase?: boolean;
             suspendido?: boolean;
             partidos_suspension_restantes?: number;
             /** Format: date */
