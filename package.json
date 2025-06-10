@@ -16,6 +16,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@sentry/nextjs": "^9.24.0",
     "@tanstack/react-form": "^1.12.0",
+    "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.9",
     "@tanstack/zod-form-adapter": "^0.42.1",
     "class-variance-authority": "^0.7.1",
