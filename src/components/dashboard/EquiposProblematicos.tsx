@@ -67,8 +67,8 @@ Tiempo límite: 16 de Junio de 2025
 ¡Gracias por tu colaboración! ⚽`
         );
 
-        // Abrir WhatsApp Web con el mensaje
-        const whatsappUrl = `https://wa.me/?text=${mensaje}`;
+        // Abrir WhatsApp Web con el número oficial de GoolStar
+        const whatsappUrl = `https://wa.me/593978692269?text=${mensaje}`;
         window.open(whatsappUrl, '_blank');
     };
 
