@@ -3,11 +3,77 @@
 
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, Clock, LogOut, User } from 'lucide-react';
+import { ArrowLeft, Shield, Clock, LogOut, User, Home, Users, DollarSign, Calendar, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/useAuth';
+import { usePathname } from 'next/navigation';
 
 interface DashboardLayoutProps {
     children: ReactNode;
+}
+
+// Componente de navegación por pestañas
+function DashboardTabs() {
+    const pathname = usePathname();
+    
+    const tabs = [
+        {
+            id: 'overview',
+            name: 'Overview',
+            href: '/dashboard',
+            icon: Home,
+            current: pathname === '/dashboard'
+        },
+        {
+            id: 'jugadores',
+            name: 'Jugadores',
+            href: '/dashboard/jugadores',
+            icon: Users,
+            current: pathname.startsWith('/dashboard/jugadores')
+        },
+        {
+            id: 'finanzas',
+            name: 'Finanzas',
+            href: '/dashboard/finanzas',
+            icon: DollarSign,
+            current: pathname.startsWith('/dashboard/finanzas')
+        },
+        {
+            id: 'partidos',
+            name: 'Partidos',
+            href: '/dashboard/partidos',
+            icon: Calendar,
+            current: pathname.startsWith('/dashboard/partidos')
+        },
+        {
+            id: 'reportes',
+            name: 'Reportes',
+            href: '/dashboard/reportes',
+            icon: BarChart3,
+            current: pathname.startsWith('/dashboard/reportes')
+        }
+    ];
+
+    return (
+        <div className="flex space-x-8 overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                    <Link
+                        key={tab.id}
+                        href={tab.href}
+                        className={`flex items-center gap-2 py-4 px-1 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                            tab.current
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 hover:border-neutral-300 dark:hover:border-neutral-600'
+                        }`}
+                    >
+                        <Icon className="w-4 h-4" />
+                        <span className="hidden sm:inline">{tab.name}</span>
+                    </Link>
+                );
+            })}
+        </div>
+    );
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -39,7 +105,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 <Shield className="w-4 h-4 md:w-5 md:h-5 text-red-600 dark:text-red-400" />
                                 <span className="text-sm md:text-base font-semibold text-neutral-900 dark:text-white">
                                     <span className="hidden md:inline">Panel Organizador</span>
-                                    <span className="md:hidden">Dashboard</span>
+                                    <span className="md:hidden">Panel</span>
                                 </span>
                             </div>
                         </div>
@@ -92,8 +158,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
             </header>
 
+            {/* Navegación por pestañas */}
+            <nav className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+                <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+                    <DashboardTabs />
+                </div>
+            </nav>
+
             {/* Contenido principal */}
-            <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 md:py-8">
+            <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 md:py-8 min-h-[calc(100vh-200px)]">
                 {children}
             </main>
 
@@ -103,10 +176,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {/* Layout responsive del footer */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs md:text-sm text-neutral-500 dark:text-neutral-400">
                         <div className="flex items-center gap-2 md:gap-4">
-                            <span>🔥 Modo Crisis</span>
+                            <span>📋 Panel Organizador</span>
                             <span className="hidden sm:inline">•</span>
-                            <span className="hidden sm:inline">Dashboard de Emergencia</span>
-                            <span className="sm:hidden text-neutral-400">Dashboard de Emergencia</span>
+                            <span className="hidden sm:inline">GoolStar Admin</span>
+                            <span className="sm:hidden text-neutral-400">Administración</span>
                         </div>
 
                         <div className="flex items-center gap-2 md:gap-4">
