@@ -9,7 +9,7 @@ import { AlertTriangle, BarChart3, Users } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Dashboard Organizador | GoolStar',
-    description: 'Panel de control para gestión del torneo - Solo organizadores',
+    description: 'Panel de control para gestión y administración del torneo',
     robots: 'noindex, nofollow' // No indexar en buscadores
 };
 
@@ -50,24 +50,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </div>
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-neutral-900 dark:text-white">
-                            Dashboard de Emergencia
+                            Dashboard Organizador
                         </h1>
                         <p className="text-sm md:text-base text-neutral-600 dark:text-neutral-400">
-                            Control rápido para la transición a eliminatorias
+                            Panel de control y gestión del torneo
                         </p>
                     </div>
                 </div>
 
-                {/* Alerta principal */}
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 md:p-4">
+                {/* Información principal */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 md:p-4">
                     <div className="flex items-start gap-3">
-                        <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                        <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                         <div>
-                            <h3 className="text-sm md:text-base font-semibold text-amber-800 dark:text-amber-200">
-                                ⚠️ Preparación para Eliminatorias
+                            <h3 className="text-sm md:text-base font-semibold text-blue-800 dark:text-blue-200">
+                                📋 Gestión de Plantillas
                             </h3>
-                            <p className="text-amber-700 dark:text-amber-300 text-xs md:text-sm mt-1">
-                                Algunos equipos tienen más de 12 jugadores. Necesitan ajustar su plantilla antes de la segunda fase.
+                            <p className="text-blue-700 dark:text-blue-300 text-xs md:text-sm mt-1">
+                                Administra los equipos y jugadores activos para la fase eliminatoria del torneo.
                             </p>
                         </div>
                     </div>
@@ -84,7 +84,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                             <div className="flex items-center gap-3">
                                 <Users className="w-4 h-4 md:w-5 md:h-5 text-red-600 dark:text-red-400" />
                                 <h2 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white">
-                                    Equipos que Necesitan Limpieza
+                                    Gestión de Plantillas
                                 </h2>
                             </div>
                         </div>
