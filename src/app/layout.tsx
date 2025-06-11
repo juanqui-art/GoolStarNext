@@ -40,6 +40,15 @@ export default function RootLayout({
     return (
         <html lang="es" suppressHydrationWarning>
         <head>
+            {/* 🚀 PRELOAD CRITICAL HERO IMAGE */}
+            <link
+                rel="preload"
+                as="image"
+                href="/images/pelota.webp"
+                type="image/webp"
+                fetchPriority="high"
+            />
+            
             {/* 🔍 DATOS ESTRUCTURADOS JSON-LD */}
             <script
                 type="application/ld+json"

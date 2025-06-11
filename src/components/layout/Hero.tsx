@@ -13,12 +13,15 @@ const Hero = () => {
             src="/images/pelota.webp"
             alt="Fútbol Indoor"
             fill
+            sizes="100vw"
             className="w-full h-full object-cover object-center brightness-110 contrast-110 saturate-110 opacity-90"
             style={{
               filter: 'brightness(1.1) contrast(1.1) saturate(1.1)',
               transition: 'filter 0.5s ease-in-out'
             }}
             priority
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
           {/* Overlay degradado para mejorar legibilidad */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/70 dark:from-black/70 dark:via-black/30 dark:to-black/70"></div>
