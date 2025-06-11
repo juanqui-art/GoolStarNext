@@ -57,3 +57,4 @@ next-env.d.ts
 *.pem
 /qodana.yaml
 /CLAUDE.md
+/DESIGN_PROMPT.md
