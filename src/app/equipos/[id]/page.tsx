@@ -25,6 +25,15 @@ export async function generateMetadata({ params }: EquipoDetailPageProps): Promi
     try {
         // Await params antes de usar sus propiedades
         const { id } = await params;
+        
+        // Validar que el ID existe antes de usar
+        if (!id || typeof id !== 'string') {
+            return {
+                title: 'Equipo | GoolStar',
+                description: 'Información del equipo',
+            };
+        }
+        
         const equipo = await serverApi.equipos.getById(id);
 
         return {

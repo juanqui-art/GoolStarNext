@@ -24,6 +24,15 @@ interface PartidoDetailPageProps {
 export async function generateMetadata({ params }: PartidoDetailPageProps): Promise<Metadata> {
     try {
         const { id } = await params;
+        
+        // Validar que el ID existe antes de usar
+        if (!id || typeof id !== 'string') {
+            return {
+                title: 'Partido | GoolStar',
+                description: 'Detalles del partido',
+            };
+        }
+        
         const partido = await serverApi.partidos.getById(id);
 
         return {

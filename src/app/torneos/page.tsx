@@ -51,7 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
       return {
         title: `${torneoActivo.nombre} | Gool⭐️Star`,
-        description: `${torneoActivo.nombre} - Torneo de fútbol indoor ${torneoActivo.categoria_nombre}. Comenzó el ${fechaInicio} con ${torneoActivo.total_equipos} equipos participantes. ¡Sigue toda la acción en GoolStar!`,
+        description: `${torneoActivo.nombre} - Torneo de fútbol indoor ${torneoActivo.categoria_nombre}. Comenzó el ${fechaInicio} con ${torneoActivo.total_equipos || 0} equipos participantes. ¡Sigue toda la acción en GoolStar!`,
         keywords: [
           ...baseMetadata.keywords,
           torneoActivo.nombre,
@@ -61,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
         ],
         openGraph: {
           title: `${torneoActivo.nombre} | GoolStar`,
-          description: `Torneo activo de fútbol indoor con ${torneoActivo.total_equipos} equipos. ${torneoActivo.fase_actual ? `Fase actual: ${torneoActivo.fase_actual}` : 'En desarrollo'}`,
+          description: `Torneo activo de fútbol indoor con ${torneoActivo.total_equipos || 0} equipos. ${torneoActivo.fase_actual ? `Fase actual: ${torneoActivo.fase_actual}` : 'En desarrollo'}`,
           type: 'website',
           locale: 'es_EC',
           siteName: 'GoolStar',
@@ -69,7 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
         twitter: {
           card: 'summary_large_image',
           title: `${torneoActivo.nombre} | GoolStar`,
-          description: `🏆 Torneo activo: ${torneoActivo.total_equipos} equipos compitiendo por la gloria. ¡Sigue la acción en vivo!`,
+          description: `🏆 Torneo activo: ${torneoActivo.total_equipos || 0} equipos compitiendo por la gloria. ¡Sigue la acción en vivo!`,
           creator: '@GoolStarEc',
           site: '@GoolStarEc',
         },
@@ -78,7 +78,7 @@ export async function generateMetadata(): Promise<Metadata> {
         },
         other: {
           'tournament:name': torneoActivo.nombre,
-          'tournament:teams': torneoActivo.total_equipos.toString(),
+          'tournament:teams': torneoActivo.total_equipos?.toString() || '0',
           'tournament:category': torneoActivo.categoria_nombre,
           'tournament:status': torneoActivo.activo ? 'active' : 'inactive',
           'tournament:phase': torneoActivo.fase_actual || 'groups',
