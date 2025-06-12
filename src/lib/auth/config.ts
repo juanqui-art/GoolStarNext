@@ -1,8 +1,9 @@
 // src/lib/auth/config.ts
+import { API_CONFIG } from '@/lib/config/api';
 
 export const AUTH_CONFIG = {
-  // Endpoints del backend
-  API_BASE_URL: 'https://goolstar-backend.fly.dev/api',
+  // Endpoints del backend - usando configuración centralizada
+  API_BASE_URL: API_CONFIG.BASE_URL,
   
   // Endpoints de autenticación
   ENDPOINTS: {

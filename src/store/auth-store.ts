@@ -1,6 +1,12 @@
 // src/store/auth-store.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { API_CONFIG, buildApiUrl } from '@/lib/config/api';
+import { 
+  isTokenValid, 
+  shouldRefreshToken, 
+  getTokenExpirationTime 
+} from '@/lib/auth/jwt-validator';
 
 export interface User {
   id: number;
@@ -28,9 +34,15 @@ interface AuthState {
   setUser: (user: User) => void;
   refreshAccessToken: () => Promise<boolean>;
   checkAuth: () => Promise<void>;
+  
+  // Nuevas acciones con validación JWT
+  isTokenValidAndNotExpired: () => boolean;
+  getTokenTimeRemaining: () => number;
+  shouldRefreshTokenSoon: () => boolean;
+  validateAndRefreshIfNeeded: () => Promise<boolean>;
 }
 
-const API_URL = 'https://goolstar-backend.fly.dev/api';
+// API_URL removido - ahora usando configuración centralizada
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -47,7 +59,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
 
         try {
-          const response = await fetch(`${API_URL}/auth/token/`, {
+          const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.AUTH.LOGIN), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -146,7 +158,7 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await fetch(`${API_URL}/auth/token/refresh/`, {
+          const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.AUTH.REFRESH), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -192,10 +204,78 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
-        // Si tenemos tokens, consideramos al usuario autenticado
-        // En una implementación real, podrías hacer una llamada simple al backend
-        // para verificar que el token es válido
-        set({ isAuthenticated: true });
+        // Ahora validamos el token JWT antes de considerar autenticado
+        const isValid = get().isTokenValidAndNotExpired();
+        if (isValid) {
+          set({ isAuthenticated: true });
+        } else {
+          // Token inválido o expirado, hacer logout
+          get().logout();
+        }
+      },
+
+      // ✅ Nuevas acciones con validación JWT
+      
+      /**
+       * Verifica si el access token actual es válido y no ha expirado
+       */
+      isTokenValidAndNotExpired: () => {
+        const { accessToken } = get();
+        return isTokenValid(accessToken);
+      },
+
+      /**
+       * Obtiene el tiempo restante del access token en segundos
+       */
+      getTokenTimeRemaining: () => {
+        const { accessToken } = get();
+        return getTokenExpirationTime(accessToken);
+      },
+
+      /**
+       * Verifica si el token necesita renovación pronto (5 minutos por defecto)
+       */
+      shouldRefreshTokenSoon: () => {
+        const { accessToken } = get();
+        return shouldRefreshToken(accessToken, 5);
+      },
+
+      /**
+       * Valida el token actual y lo renueva automáticamente si es necesario
+       * @returns true si el token es válido (original o renovado), false si falló
+       */
+      validateAndRefreshIfNeeded: async () => {
+        const { accessToken, refreshToken } = get();
+        
+        // Si no hay tokens, no está autenticado
+        if (!accessToken || !refreshToken) {
+          get().logout();
+          return false;
+        }
+        
+        // Si el token es válido y no necesita renovación, todo ok
+        if (isTokenValid(accessToken) && !shouldRefreshToken(accessToken, 5)) {
+          return true;
+        }
+        
+        // Si llegamos aquí, el token está expirado o próximo a expirar
+        console.log('🔄 Token expirado o próximo a expirar, renovando...');
+        
+        try {
+          const renewed = await get().refreshAccessToken();
+          if (renewed) {
+            console.log('✅ Token renovado exitosamente');
+            return true;
+          } else {
+            console.log('❌ Error renovando token, cerrando sesión');
+            get().logout();
+            return false;
+          }
+        } catch (error) {
+          console.error('❌ Error en validateAndRefreshIfNeeded:', error);
+          get().logout();
+          return false;
+        }
       },
     }),
     {

@@ -32,6 +32,7 @@ import type {
     PaginatedJugadorList,
     // Gol
 } from '@/types/server-api';
+import { API_CONFIG } from '@/lib/config/api';
 
 // Tipo extendido para equipos con jugadores
 export interface EquipoConJugadores extends Equipo {
@@ -40,8 +41,8 @@ export interface EquipoConJugadores extends Equipo {
     necesita_limpieza: boolean;
 }
 
-// Configuración base
-const API_BASE_URL = 'https://goolstar-backend.fly.dev/api';
+// Configuración base - importado desde configuración centralizada
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Opciones de revalidación corregidas
 const REVALIDATION = {

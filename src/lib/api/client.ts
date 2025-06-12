@@ -1,8 +1,6 @@
 // src/lib/api/client.ts
 import {toast} from 'sonner';
-
-// Añadir un valor predeterminado para evitar que API_URL sea una cadena vacía
-const API_URL = 'https://goolstar-backend.fly.dev/api';
+import { API_CONFIG } from '@/lib/config/api';
 
 interface FetchOptions extends RequestInit {
     token?: string;
@@ -11,7 +9,7 @@ interface FetchOptions extends RequestInit {
 class ApiClient {
     private baseURL: string;
 
-    constructor(baseURL: string) {
+    constructor(baseURL: string = API_CONFIG.BASE_URL) {
         this.baseURL = baseURL;
     }
 
@@ -35,7 +33,29 @@ class ApiClient {
     async request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
         const {token, headers = {}, ...fetchOptions} = options;
 
-        const authToken = token || await this.getAuthToken();
+        // ✅ MEJORA: Validar y renovar token automáticamente antes del request
+        let authToken = token;
+        
+        if (!authToken) {
+            try {
+                const { useAuthStore } = await import('@/store/auth-store');
+                const authStore = useAuthStore.getState();
+                
+                // Usar el nuevo método inteligente que valida y renueva si es necesario
+                const isValidOrRenewed = await authStore.validateAndRefreshIfNeeded();
+                
+                if (isValidOrRenewed) {
+                    authToken = useAuthStore.getState().accessToken || undefined;
+                } else {
+                    // No se pudo validar ni renovar, el usuario será redirigido automáticamente
+                    console.warn('No se pudo obtener token válido para el request');
+                }
+            } catch (error) {
+                console.warn('Error obteniendo token validado:', error);
+                // Fallback al método anterior
+                authToken = (await this.getAuthToken()) || undefined;
+            }
+        }
 
         const config: RequestInit = {
             ...fetchOptions,
@@ -56,8 +76,8 @@ class ApiClient {
                         const { useAuthStore } = await import('@/store/auth-store');
                         const authStore = useAuthStore.getState();
                         
-                        // Usar el método del store que maneja todo automáticamente
-                        const renewed = await authStore.refreshAccessToken();
+                        // ✅ MEJORA: Usar método inteligente de validación
+                        const renewed = await authStore.validateAndRefreshIfNeeded();
                         
                         if (renewed) {
                             // Obtener el nuevo token y reintentar
@@ -123,11 +143,11 @@ class ApiClient {
     }
 }
 
-export const apiClient = new ApiClient(API_URL);
+export const apiClient = new ApiClient();
 
 // Funciones específicas para Server Components
 export async function fetchTorneos() {
-    const res = await fetch(`${API_URL}/torneos/`, {
+    const res = await fetch(`${API_CONFIG.BASE_URL}/torneos/`, {
         next: {revalidate: 60}, // Revalidar cada minuto
     });
 
@@ -139,7 +159,7 @@ export async function fetchTorneos() {
 }
 
 export async function fetchTorneo(id: string) {
-    const res = await fetch(`${API_URL}/torneos/${id}/`, {
+    const res = await fetch(`${API_CONFIG.BASE_URL}/torneos/${id}/`, {
         next: {revalidate: 60},
     });
 
@@ -165,7 +185,7 @@ export async function fetchPartidos(params?: {
     if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    const res = await fetch(`${API_URL}/partidos${query}`, {
+    const res = await fetch(`${API_CONFIG.BASE_URL}/partidos${query}`, {
         next: {revalidate: 30}, // Revalidar cada 30 segundos
     });
 
@@ -188,7 +208,7 @@ export async function fetchPartidosProximos(params?: {
     if (params?.equipo_id) queryParams.append('equipo_id', params.equipo_id.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    const res = await fetch(`${API_URL}/partidos/proximos${query}`, {
+    const res = await fetch(`${API_CONFIG.BASE_URL}/partidos/proximos${query}`, {
         next: {revalidate: 60}, // Revalidar cada minuto
     });
 
@@ -200,7 +220,7 @@ export async function fetchPartidosProximos(params?: {
 }
 
 export async function fetchPartidoById(id: string) {
-    const res = await fetch(`${API_URL}/partidos/${id}/`, {
+    const res = await fetch(`${API_CONFIG.BASE_URL}/partidos/${id}/`, {
         next: {revalidate: 30},
     });
 

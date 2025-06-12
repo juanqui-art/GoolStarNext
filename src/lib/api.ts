@@ -1,5 +1,6 @@
-// API configuration
-export const API_URL = 'https://goolstar.vercel.app';
+// API configuration - importado desde configuración centralizada
+import { API_CONFIG } from '@/lib/config/api';
+export const API_URL = API_CONFIG.BASE_URL;
 
 interface FetchOptions extends RequestInit {
     token?: string;

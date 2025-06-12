@@ -1,4 +1,4 @@
-import {API_BASE_URL} from "@/lib/api/API_BASE_URL";
+import { API_CONFIG } from "@/lib/config/api";
 import type {components} from '@/types/api';
 
 type Partido = components['schemas']['Partido'];
@@ -22,7 +22,7 @@ async function partidosFetch<T>(
 ): Promise<T> {
     const {revalidate = REVALIDATION.PARTIDOS_LIST, ...fetchOptions} = options;
 
-    const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const url = `${API_CONFIG.BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
     try {
         const response = await fetch(url, {
