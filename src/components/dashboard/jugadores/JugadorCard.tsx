@@ -40,7 +40,7 @@ export default function JugadorCard({ jugador, equipos, onEdit, onDelete, onView
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-neutral-900 dark:text-white truncate">
-                                {jugador.nombre_completo}
+                                {jugador.nombre_completo || `${jugador.primer_nombre} ${jugador.primer_apellido}` || 'Sin nombre'}
                             </h3>
                             
                             {/* Estados */}

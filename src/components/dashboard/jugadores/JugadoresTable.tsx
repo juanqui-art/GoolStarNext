@@ -102,11 +102,12 @@ export default function JugadoresTable({
                 const jugador = row.original;
                 const isActivo = jugador.activo_segunda_fase !== false;
                 const isSuspendido = jugador.suspendido === true;
+                const nombreCompleto = getValue();
                 
                 return (
                     <div className="min-w-0">
                         <div className="font-medium text-neutral-900 dark:text-white truncate">
-                            {getValue()}
+                            {nombreCompleto || `${jugador.primer_nombre} ${jugador.primer_apellido}` || 'Sin nombre'}
                         </div>
                         <div className="flex items-center gap-1 mt-1">
                             {!isActivo && (

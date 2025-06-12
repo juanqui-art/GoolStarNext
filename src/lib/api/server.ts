@@ -33,6 +33,7 @@ import type {
     // Gol
 } from '@/types/server-api';
 import { API_CONFIG } from '@/lib/config/api';
+import { requestOptimizer } from './request-optimizer';
 
 // Tipo extendido para equipos con jugadores
 export interface EquipoConJugadores extends Equipo {
@@ -55,64 +56,69 @@ const REVALIDATION = {
 } as const;
 
 /**
- * Función auxiliar para hacer peticiones al servidor
+ * Función auxiliar optimizada para hacer peticiones al servidor
+ * ✅ Implementa caching agresivo y throttling para evitar rate limiting
  */
 async function serverFetch<T>(
     endpoint: string,
-    options: RequestInit & { revalidate?: number; tags?: string[] } = {}
+    options: RequestInit & { revalidate?: number } = {}
 ): Promise<T> {
-    const { revalidate = REVALIDATION.DYNAMIC, tags, ...fetchOptions } = options;
+    const { revalidate = REVALIDATION.DYNAMIC, ...rawFetchOptions } = options;
+    // Excluir propiedades que pueden causar conflictos de tipos
+    const { priority: _priority, ...fetchOptions } = rawFetchOptions; // eslint-disable-line @typescript-eslint/no-unused-vars
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-    console.log('🌐 Haciendo petición a:', url);
-    console.log('⚙️ Opciones:', { revalidate, ...fetchOptions });
+    // ✅ Calcular TTL inteligente basado en revalidate y tipo de endpoint
+    let cacheTTL: number;
+    if (typeof revalidate === 'number') {
+        cacheTTL = revalidate * 1000; // Convertir a milliseconds
+    } else if (endpoint.includes('torneos')) {
+        cacheTTL = 600000; // 10 minutos para torneos
+    } else if (endpoint.includes('equipos')) {
+        cacheTTL = 300000; // 5 minutos para equipos
+    } else {
+        cacheTTL = 180000; // 3 minutos por defecto
+    }
+    
+    console.log('🚀 Request OPTIMIZADO a:', url);
+    console.log('⏱️ Cache TTL:', Math.round(cacheTTL / 1000), 'segundos');
 
     try {
-        const response = await fetch(url, {
+        // ✅ USAR OPTIMIZADOR para reducir requests
+        const data = await requestOptimizer.optimizedFetch<T>(url, {
             headers: {
                 'Content-Type': 'application/json',
                 ...fetchOptions.headers,
             },
-            next: { revalidate, tags },
+            cacheTTL,
+            // priority removido temporalmente para evitar conflicto de tipos
             ...fetchOptions,
         });
 
-        console.log('📡 Respuesta recibida:', {
-            status: response.status,
-            statusText: response.statusText,
-            ok: response.ok,
-            url: response.url
-        });
+        console.log('✅ Datos obtenidos (optimizado):', typeof data, 'keys:', Object.keys(data || {}));
+        return data;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('❌ Error en respuesta:', errorText);
-
-            let errorMessage = `Error ${response.status}: ${response.statusText}`;
-
-            try {
-                const errorData = JSON.parse(errorText);
-                errorMessage = errorData.detail || errorData.message || errorMessage;
-                console.error('📋 Datos de error parseados:', errorData);
-            } catch {
-                if (errorText && errorText.length < 200) {
-                    errorMessage = errorText;
+    } catch (error) {
+        // ✅ MANEJO ESPECIAL para throttling
+        if (error instanceof Error) {
+            if (error.message.includes('throttled') || error.message.includes('regulada')) {
+                console.error('🚨 RATE LIMITING DETECTADO:', error.message);
+                
+                // Extraer tiempo de espera si está disponible
+                const match = error.message.match(/(\d+) seconds/);
+                if (match) {
+                    const waitTime = parseInt(match[1]);
+                    const waitMinutes = Math.round(waitTime / 60);
+                    console.error(`⏰ Tiempo de espera: ${waitMinutes} minutos`);
                 }
+                
+                throw new Error(`⚠️ Servidor temporalmente sobrecargado. Datos en cache se mostrarán si están disponibles.`);
             }
 
-            throw new Error(errorMessage);
-        }
-
-        const data = await response.json();
-        console.log('✅ Datos recibidos exitosamente, tipo:', typeof data, 'keys:', Object.keys(data || {}));
-        return data;
-    } catch (error) {
-        console.error('💥 Error en serverFetch:', error);
-        if (error instanceof Error) {
-            console.error('Error name:', error.name);
-            console.error('Error message:', error.message);
+            console.error('💥 Error en serverFetch optimizado:', error.message);
             throw error;
         }
+        
         throw new Error('Error de conexión con el servidor');
     }
 }
@@ -137,7 +143,7 @@ export async function getServerEquipos(params?: EquiposQueryParams): Promise<Pag
 
         return serverFetch<PaginatedEquipoList>(
             `/equipos/?${queryParams.toString()}`,
-            { revalidate: REVALIDATION.DYNAMIC, tags: ['equipos', 'dashboard'] }
+            { revalidate: REVALIDATION.DYNAMIC }
         );
     };
 
@@ -567,7 +573,7 @@ export async function getServerJugadoresPorEquipo(equipoId: number): Promise<Pag
     // Usar el endpoint correcto que devuelve array directo
     const jugadoresDelEquipo = await serverFetch<Jugador[]>(
         `/jugadores/por_equipo/?equipo_id=${equipoId}`,
-        { revalidate: REVALIDATION.DYNAMIC, tags: ['jugadores', 'dashboard', `equipo-${equipoId}`] }
+        { revalidate: REVALIDATION.DYNAMIC }
     );
     
     console.log(`✅ Encontrados ${jugadoresDelEquipo.length} jugadores para el equipo ${equipoId}`);
