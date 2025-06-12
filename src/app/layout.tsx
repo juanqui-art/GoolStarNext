@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { getStructuredData } from "@/lib/metadata";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 // Re-export metadata from centralized config
@@ -85,6 +86,13 @@ export default function RootLayout({
 
         <ThemeProvider>
             {children}
+            <Toaster 
+                position="top-right"
+                richColors
+                closeButton
+                expand={false}
+                duration={4000}
+            />
         </ThemeProvider>
         </body>
         

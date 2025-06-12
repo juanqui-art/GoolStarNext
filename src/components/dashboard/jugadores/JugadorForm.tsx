@@ -1,7 +1,7 @@
 // src/components/dashboard/jugadores/JugadorForm.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { X, Save, Loader2, User, Calendar, MapPin, Hash } from 'lucide-react';
@@ -12,20 +12,92 @@ import type { components } from '@/types/api';
 type Jugador = components['schemas']['Jugador'];
 type Equipo = components['schemas']['Equipo'];
 
-// Schema de validación
+// Validación de cédula ecuatoriana
+const validarCedulaEcuatoriana = (cedula: string): boolean => {
+    if (!/^\d{10}$/.test(cedula)) return false;
+    
+    const digits = cedula.split('').map(Number);
+    const provincia = parseInt(cedula.substring(0, 2));
+    
+    if (provincia < 1 || provincia > 24) return false;
+    
+    const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+    let suma = 0;
+    
+    for (let i = 0; i < 9; i++) {
+        let producto = digits[i] * coeficientes[i];
+        if (producto > 9) producto -= 9;
+        suma += producto;
+    }
+    
+    const digitoVerificador = suma % 10 === 0 ? 0 : 10 - (suma % 10);
+    return digitoVerificador === digits[9];
+};
+
+// Schema de validación mejorado
 const jugadorSchema = z.object({
-    primer_nombre: z.string().min(2, 'Mínimo 2 caracteres').max(50, 'Máximo 50 caracteres'),
-    segundo_nombre: z.string().max(50, 'Máximo 50 caracteres').optional(),
-    primer_apellido: z.string().min(2, 'Mínimo 2 caracteres').max(50, 'Máximo 50 caracteres'),
-    segundo_apellido: z.string().max(50, 'Máximo 50 caracteres').optional(),
-    cedula: z.string().max(20, 'Máximo 20 caracteres').optional(),
-    fecha_nacimiento: z.string().optional(),
-    numero_dorsal: z.number().min(1, 'Mínimo 1').max(99, 'Máximo 99').optional(),
-    posicion: z.string().max(30, 'Máximo 30 caracteres').optional(),
+    primer_nombre: z.string()
+        .min(2, 'Mínimo 2 caracteres')
+        .max(50, 'Máximo 50 caracteres')
+        .regex(/^[a-zA-ZÀ-ſ\s]+$/, 'Solo se permiten letras'),
+    segundo_nombre: z.string()
+        .max(50, 'Máximo 50 caracteres')
+        .regex(/^[a-zA-ZÀ-ſ\s]*$/, 'Solo se permiten letras')
+        .optional(),
+    primer_apellido: z.string()
+        .min(2, 'Mínimo 2 caracteres')
+        .max(50, 'Máximo 50 caracteres')
+        .regex(/^[a-zA-ZÀ-ſ\s]+$/, 'Solo se permiten letras'),
+    segundo_apellido: z.string()
+        .max(50, 'Máximo 50 caracteres')
+        .regex(/^[a-zA-ZÀ-ſ\s]*$/, 'Solo se permiten letras')
+        .optional(),
+    cedula: z.string()
+        .max(20, 'Máximo 20 caracteres')
+        .refine((val) => !val || validarCedulaEcuatoriana(val), {
+            message: 'Cédula ecuatoriana inválida'
+        })
+        .optional(),
+    fecha_nacimiento: z.string()
+        .refine((val) => {
+            if (!val) return true;
+            const fecha = new Date(val);
+            const hoy = new Date();
+            const edad = hoy.getFullYear() - fecha.getFullYear();
+            return edad >= 16 && edad <= 50;
+        }, {
+            message: 'La edad debe estar entre 16 y 50 años'
+        })
+        .optional(),
+    numero_dorsal: z.number()
+        .min(1, 'Mínimo 1')
+        .max(99, 'Máximo 99')
+        .optional(),
+    posicion: z.string()
+        .max(30, 'Máximo 30 caracteres')
+        .optional(),
     equipo: z.number().optional(),
     activo_segunda_fase: z.boolean(),
     suspendido: z.boolean(),
     partidos_suspension_restantes: z.number().min(0).optional()
+});
+
+// Schema para validación onBlur (más estricta)
+const jugadorSchemaBlur = jugadorSchema.extend({
+    primer_nombre: z.string()
+        .min(2, 'Mínimo 2 caracteres')
+        .max(50, 'Máximo 50 caracteres')
+        .regex(/^[a-zA-ZÀ-ſ\s]+$/, 'Solo se permiten letras')
+        .refine((val) => val.trim().length >= 2, {
+            message: 'El nombre no puede ser solo espacios'
+        }),
+    primer_apellido: z.string()
+        .min(2, 'Mínimo 2 caracteres')
+        .max(50, 'Máximo 50 caracteres')
+        .regex(/^[a-zA-ZÀ-ſ\s]+$/, 'Solo se permiten letras')
+        .refine((val) => val.trim().length >= 2, {
+            message: 'El apellido no puede ser solo espacios'
+        })
 });
 
 type FormData = z.infer<typeof jugadorSchema>;
@@ -40,10 +112,15 @@ interface JugadorFormProps {
 const posicionesComunes = [
     'Portero',
     'Defensa',
-    'Lateral',
+    'Lateral Derecho',
+    'Lateral Izquierdo', 
     'Mediocampista',
+    'Mediocampista Defensivo',
+    'Mediocampista Ofensivo',
+    'Extremo Derecho',
+    'Extremo Izquierdo',
     'Delantero',
-    'Volante'
+    'Delantero Centro'
 ];
 
 export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: JugadorFormProps) {
@@ -66,11 +143,31 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
         partidos_suspension_restantes: jugador?.partidos_suspension_restantes || 0
     };
 
-    // Configurar formulario
+    // Validación async para dorsal único
+    const validarDorsalUnico = useCallback(async (dorsal: number, equipoId?: number) => {
+        if (!dorsal || !equipoId) return undefined;
+        
+        try {
+            const response = await apiClient.request(
+                `/jugadores/?equipo=${equipoId}&numero_dorsal=${dorsal}${jugador?.id ? `&exclude=${jugador.id}` : ''}`,
+                { method: 'GET' }
+            ) as Response;
+            
+            if (!response.ok) return undefined;
+            
+            const jugadores = await response.json();
+            return jugadores.length > 0 ? 'Este número de dorsal ya está en uso en el equipo' : undefined;
+        } catch {
+            return undefined;
+        }
+    }, [jugador?.id]);
+
+    // Configurar formulario con validación optimizada
     const form = useForm({
         defaultValues: valoresIniciales,
         validators: {
             onChange: jugadorSchema,
+            onBlur: jugadorSchemaBlur,
         },
         onSubmit: async ({ value }) => {
             await handleSubmit(value);
@@ -117,26 +214,51 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
         } catch (error: unknown) {
             console.error('Error guardando jugador:', error);
             
-            // Manejar errores específicos
-            if (error && typeof error === 'object' && 'response' in error) {
-                const errorResponse = error.response as Response;
-                if (errorResponse?.status === 400) {
-                    const errorData = await errorResponse.json();
+            // Manejar errores específicos con parser mejorado
+            const handleApiError = (error: unknown) => {
+                if (error && typeof error === 'object' && 'response' in error) {
+                    const errorResponse = error.response as Response;
                     
-                    // Mostrar errores de validación específicos
-                    if (errorData.numero_dorsal) {
-                        toast.error('El número de dorsal ya está en uso');
-                    } else if (errorData.cedula) {
-                        toast.error('La cédula ya está registrada');
+                    if (errorResponse?.status === 400) {
+                        errorResponse.json().then((errorData) => {
+                            const errorMessages: Record<string, string> = {
+                                numero_dorsal: 'El número de dorsal ya está en uso en este equipo',
+                                cedula: 'La cédula ya está registrada en el sistema',
+                                primer_nombre: 'Error en el primer nombre',
+                                primer_apellido: 'Error en el primer apellido',
+                                fecha_nacimiento: 'Fecha de nacimiento inválida',
+                                equipo: 'El equipo seleccionado no es válido',
+                                posicion: 'La posición seleccionada no es válida'
+                            };
+                            
+                            // Encontrar el primer error y mostrarlo
+                            for (const [field, message] of Object.entries(errorMessages)) {
+                                if (errorData[field]) {
+                                    toast.error(message);
+                                    return;
+                                }
+                            }
+                            
+                            // Error genérico si no se encuentra un campo específico
+                            toast.error('Error de validación. Revisa los datos ingresados');
+                        }).catch(() => {
+                            toast.error('Error de validación. Revisa los datos ingresados');
+                        });
+                    } else if (errorResponse?.status === 404) {
+                        toast.error('Jugador o equipo no encontrado');
+                    } else if (errorResponse?.status === 403) {
+                        toast.error('No tienes permisos para realizar esta acción');
+                    } else if (errorResponse?.status >= 500) {
+                        toast.error('Error del servidor. Inténtalo nuevamente');
                     } else {
-                        toast.error('Error de validación. Revisa los datos ingresados');
+                        toast.error('Error al guardar jugador');
                     }
                 } else {
-                    toast.error('Error al guardar jugador');
+                    toast.error('Error de conexión. Verifica tu internet');
                 }
-            } else {
-                toast.error('Error al guardar jugador');
-            }
+            };
+            
+            handleApiError(error);
         } finally {
             setLoading(false);
         }
@@ -200,9 +322,12 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
                                             onChange={(e) => field.handleChange(e.target.value)}
                                             className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="Ej: Juan"
+                                            aria-describedby="primer-nombre-error"
+                                            aria-invalid={field.state.meta.errors.length > 0}
+                                            aria-required="true"
                                         />
                                         {field.state.meta.errors?.length > 0 && (
-                                            <p className="text-red-500 text-xs mt-1">{String(field.state.meta.errors[0])}</p>
+                                            <p id="primer-nombre-error" className="text-red-500 text-xs mt-1">{String(field.state.meta.errors[0])}</p>
                                         )}
                                     </div>
                                 )}
@@ -287,7 +412,7 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
                             <form.Field name="fecha_nacimiento">
                                 {(field) => (
                                     <div>
-                                        <label className=" text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-1">
+                                        <label className="flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                                             <Calendar className="w-4 h-4" />
                                             Fecha de Nacimiento
                                         </label>
@@ -311,8 +436,20 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
                         </h3>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Número de dorsal */}
-                            <form.Field name="numero_dorsal">
+                            {/* Número de dorsal con validación async */}
+                            <form.Field 
+                                name="numero_dorsal"
+                                validators={{
+                                    onChangeAsyncDebounceMs: 500,
+                                    onChangeAsync: async ({ value }) => {
+                                        const equipoId = form.getFieldValue('equipo');
+                                        if (value && equipoId) {
+                                            return await validarDorsalUnico(value, equipoId);
+                                        }
+                                        return undefined;
+                                    }
+                                }}
+                            >
                                 {(field) => (
                                     <div>
                                         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
@@ -326,9 +463,17 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
                                             onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : undefined)}
                                             className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="1-99"
+                                            aria-describedby="dorsal-error"
+                                            aria-invalid={field.state.meta.errors.length > 0}
                                         />
+                                        {field.state.meta.isValidating && (
+                                            <p className="text-blue-500 text-xs mt-1 flex items-center gap-1">
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                                Verificando disponibilidad...
+                                            </p>
+                                        )}
                                         {field.state.meta.errors?.length > 0 && (
-                                            <p className="text-red-500 text-xs mt-1">{String(field.state.meta.errors[0])}</p>
+                                            <p id="dorsal-error" className="text-red-500 text-xs mt-1">{String(field.state.meta.errors[0])}</p>
                                         )}
                                     </div>
                                 )}
@@ -338,7 +483,7 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
                             <form.Field name="posicion">
                                 {(field) => (
                                     <div>
-                                        <label className=" text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-1">
+                                        <label className="flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
                                             <MapPin className="w-4 h-4" />
                                             Posición
                                         </label>

@@ -433,7 +433,9 @@ export default function JugadoresManager() {
                                 <div>
                                     <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Nombre
                                         Completo</label>
-                                    <p className="text-neutral-900 dark:text-white">{jugadorDetalle.nombre_completo}</p>
+                                    <p className="text-neutral-900 dark:text-white">
+                                        {jugadorDetalle.nombre_completo || `${jugadorDetalle.primer_nombre} ${jugadorDetalle.primer_apellido}` || 'Sin nombre'}
+                                    </p>
                                 </div>
                                 <div>
                                     <label
