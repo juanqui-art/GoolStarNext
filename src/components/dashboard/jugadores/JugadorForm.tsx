@@ -1,7 +1,7 @@
 // src/components/dashboard/jugadores/JugadorForm.tsx
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { X, Save, Loader2, User, Calendar, MapPin, Hash } from 'lucide-react';
@@ -127,21 +127,24 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
     const [loading, setLoading] = useState(false);
     const isEditing = !!jugador;
 
+    // Función para generar valores iniciales
+    const generarValoresIniciales = useCallback((jugadorData?: Jugador | null): FormData => ({
+        primer_nombre: jugadorData?.primer_nombre || '',
+        segundo_nombre: jugadorData?.segundo_nombre || '',
+        primer_apellido: jugadorData?.primer_apellido || '',
+        segundo_apellido: jugadorData?.segundo_apellido || '',
+        cedula: jugadorData?.cedula || '',
+        fecha_nacimiento: jugadorData?.fecha_nacimiento || '',
+        numero_dorsal: jugadorData?.numero_dorsal || undefined,
+        posicion: jugadorData?.posicion || '',
+        equipo: jugadorData?.equipo || undefined,
+        activo_segunda_fase: jugadorData?.activo_segunda_fase !== false,
+        suspendido: jugadorData?.suspendido === true,
+        partidos_suspension_restantes: jugadorData?.partidos_suspension_restantes || 0
+    }), []);
+
     // Configurar valores iniciales
-    const valoresIniciales: FormData = {
-        primer_nombre: jugador?.primer_nombre || '',
-        segundo_nombre: jugador?.segundo_nombre || '',
-        primer_apellido: jugador?.primer_apellido || '',
-        segundo_apellido: jugador?.segundo_apellido || '',
-        cedula: jugador?.cedula || '',
-        fecha_nacimiento: jugador?.fecha_nacimiento || '',
-        numero_dorsal: jugador?.numero_dorsal || undefined,
-        posicion: jugador?.posicion || '',
-        equipo: jugador?.equipo || undefined,
-        activo_segunda_fase: jugador?.activo_segunda_fase !== false,
-        suspendido: jugador?.suspendido === true,
-        partidos_suspension_restantes: jugador?.partidos_suspension_restantes || 0
-    };
+    const valoresIniciales = generarValoresIniciales(jugador);
 
     // Validación async para dorsal único
     const validarDorsalUnico = useCallback(async (dorsal: number, equipoId?: number) => {
@@ -173,6 +176,14 @@ export default function JugadorForm({ jugador, equipos, onClose, onSuccess }: Ju
             await handleSubmit(value);
         },
     });
+
+    // Efecto para actualizar valores del formulario cuando cambie el jugador
+    useEffect(() => {
+        if (jugador !== undefined) { // undefined significa que no se ha cargado aún
+            const nuevosValores = generarValoresIniciales(jugador);
+            form.reset(nuevosValores);
+        }
+    }, [jugador, form, generarValoresIniciales]);
 
     const handleSubmit = async (data: FormData) => {
         try {
