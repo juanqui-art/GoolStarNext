@@ -1,4 +1,5 @@
 // src/components/dashboard/jugadores/JugadoresManager.tsx
+// TEMPORALMENTE DESHABILITADO - Problemas con backend de lista de jugadores
 'use client';
 
 import {apiClient} from '@/lib/api/client';

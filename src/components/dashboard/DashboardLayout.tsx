@@ -23,13 +23,13 @@ function DashboardTabs() {
             icon: Home,
             current: pathname === '/dashboard'
         },
-        {
-            id: 'jugadores',
-            name: 'Jugadores',
-            href: '/dashboard/jugadores',
-            icon: Users,
-            current: pathname.startsWith('/dashboard/jugadores')
-        },
+        // {
+        //     id: 'jugadores',
+        //     name: 'Jugadores',
+        //     href: '/dashboard/jugadores',
+        //     icon: Users,
+        //     current: pathname.startsWith('/dashboard/jugadores')
+        // },
         {
             id: 'finanzas',
             name: 'Finanzas',

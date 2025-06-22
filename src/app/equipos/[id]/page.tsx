@@ -203,15 +203,15 @@ function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
                                 </div>
                             </div>
                             
-                            {/* Alerta si hay muchos suspendidos */}
-                            {equipo.jugadores && equipo.jugadores.filter(j => j.suspendido).length > 2 && (
+                            {/* Alerta si hay muchos suspendidos - TEMPORALMENTE DESHABILITADO */}
+                            {/* {equipo.jugadores && equipo.jugadores.filter(j => j.suspendido).length > 2 && (
                                 <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-lg border border-amber-200 dark:border-amber-800">
                                     <AlertTriangle className="w-4 h-4" />
                                     <span className="text-sm">
                                         Este equipo tiene varios jugadores suspendidos
                                     </span>
                                 </div>
-                            )}
+                            )} */}
                         </div>
                     </div>
                 </div>

@@ -79,7 +79,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Filtrar equipos por categoría.
+        /** @description Filtrar equipos por categoría con cache optimizado.
          *
          *     Parámetros:
          *     - categoria_id: ID de la categoría para filtrar los equipos
@@ -207,6 +207,182 @@ export interface paths {
          *
          *     Un jugador pertenece a un equipo y tiene estadísticas asociadas. */
         patch: operations["jugadores_partial_update"];
+        trace?: never;
+    };
+    "/api/jugador-documentos/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Listar documentos con filtros. */
+        get: operations["jugador_documentos_list"];
+        put?: never;
+        /** @description Crear un nuevo documento de jugador. */
+        post: operations["jugador_documentos_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jugador-documentos/by-jugador/{jugador_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Obtener todos los documentos de un jugador específico.
+         *
+         *     GET /api/jugador-documentos/by-jugador/{jugador_id}/ */
+        get: operations["jugador_documentos_by_jugador_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jugador-documentos/pending/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Obtener documentos pendientes de verificación.
+         *
+         *     GET /api/jugador-documentos/pending/ */
+        get: operations["jugador_documentos_pending_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jugador-documentos/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Obtener estadísticas de documentos.
+         *
+         *     GET /api/jugador-documentos/stats/ */
+        get: operations["jugador_documentos_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jugador-documentos/upload/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Endpoint específico para subida de documentos.
+         *
+         *     POST /api/jugador-documentos/upload/ */
+        post: operations["jugador_documentos_upload_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jugador-documentos/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description API endpoint para gestionar documentos de jugadores.
+         *
+         *     Proporciona funcionalidades completas para:
+         *     - Subir documentos de identidad (DNI, cédula)
+         *     - Verificar documentos
+         *     - Listar y filtrar documentos
+         *     - Gestionar estados de verificación */
+        get: operations["jugador_documentos_retrieve"];
+        /** @description API endpoint para gestionar documentos de jugadores.
+         *
+         *     Proporciona funcionalidades completas para:
+         *     - Subir documentos de identidad (DNI, cédula)
+         *     - Verificar documentos
+         *     - Listar y filtrar documentos
+         *     - Gestionar estados de verificación */
+        put: operations["jugador_documentos_update"];
+        post?: never;
+        /** @description API endpoint para gestionar documentos de jugadores.
+         *
+         *     Proporciona funcionalidades completas para:
+         *     - Subir documentos de identidad (DNI, cédula)
+         *     - Verificar documentos
+         *     - Listar y filtrar documentos
+         *     - Gestionar estados de verificación */
+        delete: operations["jugador_documentos_destroy"];
+        options?: never;
+        head?: never;
+        /** @description API endpoint para gestionar documentos de jugadores.
+         *
+         *     Proporciona funcionalidades completas para:
+         *     - Subir documentos de identidad (DNI, cédula)
+         *     - Verificar documentos
+         *     - Listar y filtrar documentos
+         *     - Gestionar estados de verificación */
+        patch: operations["jugador_documentos_partial_update"];
+        trace?: never;
+    };
+    "/api/jugador-documentos/{id}/reject/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Rechazar un documento con comentarios obligatorios.
+         *
+         *     PATCH /api/jugador-documentos/{id}/reject/ */
+        patch: operations["jugador_documentos_reject_partial_update"];
+        trace?: never;
+    };
+    "/api/jugador-documentos/{id}/verify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Verificar un documento como válido.
+         *
+         *     PATCH /api/jugador-documentos/{id}/verify/ */
+        patch: operations["jugador_documentos_verify_partial_update"];
         trace?: never;
     };
     "/api/jornadas/": {
@@ -841,6 +1017,17 @@ export interface components {
             torneo: number;
             dirigente?: number | null;
         };
+        /** @description Serializer optimizado para listado de equipos (solo campos esenciales) */
+        EquipoList: {
+            readonly id: number;
+            nombre: string;
+            categoria: number;
+            readonly categoria_nombre: string;
+            activo?: boolean;
+            estado?: components["schemas"]["EstadoEnum"];
+            /** Format: date-time */
+            readonly fecha_registro: string;
+        };
         EquipoRequest: {
             nombre: string;
             /** Format: binary */
@@ -886,6 +1073,14 @@ export interface components {
          * @enum {string}
          */
         EstadoEnum: "activo" | "retirado" | "suspendido";
+        /**
+         * @description * `pendiente` - Pendiente
+         *     * `verificado` - Verificado
+         *     * `rechazado` - Rechazado
+         *     * `resubir` - Requiere resubir
+         * @enum {string}
+         */
+        EstadoVerificacionEnum: "pendiente" | "verificado" | "rechazado" | "resubir";
         /**
          * @description * `inscripcion` - Inscripción
          *     * `grupos` - Fase de Grupos
@@ -963,6 +1158,138 @@ export interface components {
             fecha_fin_suspension?: string | null;
             equipo: number;
         };
+        /** @description Serializer completo para documentos de jugadores con validaciones de seguridad. */
+        JugadorDocumento: {
+            readonly id: number;
+            jugador: number;
+            readonly jugador_nombre: string;
+            /** Tipo de documento */
+            tipo_documento: components["schemas"]["TipoDocumentoEnum"];
+            readonly tipo_documento_display: string;
+            /**
+             * Archivo del documento
+             * @description Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+             */
+            archivo_documento: string;
+            readonly url_documento: string;
+            /** Estado de verificación */
+            estado_verificacion?: components["schemas"]["EstadoVerificacionEnum"];
+            readonly estado_verificacion_display: string;
+            readonly verificado_por: number | null;
+            /**
+             * Nombre de usuario
+             * @description Requerido. 150 carácteres como máximo. Únicamente letras, dígitos y @/./+/-/_
+             */
+            readonly verificado_por_username: string;
+            /**
+             * Fecha de verificación
+             * Format: date-time
+             */
+            readonly fecha_verificacion: string | null;
+            /**
+             * Comentarios de verificación
+             * @description Comentarios sobre la verificación o razones de rechazo
+             */
+            comentarios_verificacion?: string;
+            /**
+             * Fecha de subida
+             * Format: date-time
+             */
+            readonly fecha_subida: string;
+            /**
+             * Última actualización
+             * Format: date-time
+             */
+            readonly fecha_actualizacion: string;
+            /** Tamaño del archivo (bytes) */
+            readonly "tama\u00F1o_archivo": number | null;
+            readonly "tama\u00F1o_archivo_mb": string;
+            /** Formato del archivo */
+            readonly formato_archivo: string;
+            readonly esta_verificado: string;
+        };
+        /** @description Serializer optimizado para listado de documentos (solo campos esenciales). */
+        JugadorDocumentoList: {
+            readonly id: number;
+            jugador: number;
+            readonly jugador_nombre: string;
+            /** Tipo de documento */
+            tipo_documento: components["schemas"]["TipoDocumentoEnum"];
+            readonly tipo_documento_display: string;
+            /** Estado de verificación */
+            estado_verificacion?: components["schemas"]["EstadoVerificacionEnum"];
+            readonly estado_verificacion_display: string;
+            /**
+             * Fecha de subida
+             * Format: date-time
+             */
+            readonly fecha_subida: string;
+            readonly "tama\u00F1o_archivo_mb": string;
+            /** Formato del archivo */
+            formato_archivo?: string;
+        };
+        /** @description Serializer completo para documentos de jugadores con validaciones de seguridad. */
+        JugadorDocumentoRequest: {
+            jugador: number;
+            /** Tipo de documento */
+            tipo_documento: components["schemas"]["TipoDocumentoEnum"];
+            /**
+             * Archivo del documento
+             * @description Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+             */
+            archivo_documento: string;
+            /** Estado de verificación */
+            estado_verificacion?: components["schemas"]["EstadoVerificacionEnum"];
+            /**
+             * Comentarios de verificación
+             * @description Comentarios sobre la verificación o razones de rechazo
+             */
+            comentarios_verificacion?: string;
+        };
+        /** @description Serializer específico para subida de documentos (campos mínimos). */
+        JugadorDocumentoUpload: {
+            jugador: number;
+            /** Tipo de documento */
+            tipo_documento: components["schemas"]["TipoDocumentoEnum"];
+            /**
+             * Archivo del documento
+             * @description Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+             */
+            archivo_documento: string;
+        };
+        /** @description Serializer específico para subida de documentos (campos mínimos). */
+        JugadorDocumentoUploadRequest: {
+            jugador: number;
+            /** Tipo de documento */
+            tipo_documento: components["schemas"]["TipoDocumentoEnum"];
+            /**
+             * Archivo del documento
+             * @description Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+             */
+            archivo_documento: string;
+        };
+        /** @description Serializer específico para verificación de documentos. */
+        JugadorDocumentoVerification: {
+            /** Estado de verificación */
+            estado_verificacion?: components["schemas"]["EstadoVerificacionEnum"];
+            /**
+             * Comentarios de verificación
+             * @description Comentarios sobre la verificación o razones de rechazo
+             */
+            comentarios_verificacion?: string;
+        };
+        /** @description Serializer optimizado para listado de jugadores (solo campos esenciales) */
+        JugadorList: {
+            readonly id: number;
+            primer_nombre: string;
+            primer_apellido: string;
+            segundo_apellido?: string | null;
+            cedula: string | null;
+            equipo: number;
+            readonly equipo_nombre: string;
+            numero_dorsal: number | null;
+            posicion?: string | null;
+        };
         JugadorRequest: {
             primer_nombre: string;
             segundo_nombre?: string | null;
@@ -1009,7 +1336,7 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Categoria"][];
         };
-        PaginatedEquipoList: {
+        PaginatedEquipoListList: {
             /** @example 123 */
             count: number;
             /**
@@ -1022,7 +1349,7 @@ export interface components {
              * @example http://api.example.org/accounts/?page=2
              */
             previous?: string | null;
-            results: components["schemas"]["Equipo"][];
+            results: components["schemas"]["EquipoList"][];
         };
         PaginatedGolList: {
             /** @example 123 */
@@ -1054,7 +1381,7 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Jornada"][];
         };
-        PaginatedJugadorList: {
+        PaginatedJugadorDocumentoListList: {
             /** @example 123 */
             count: number;
             /**
@@ -1067,9 +1394,9 @@ export interface components {
              * @example http://api.example.org/accounts/?page=2
              */
             previous?: string | null;
-            results: components["schemas"]["Jugador"][];
+            results: components["schemas"]["JugadorDocumentoList"][];
         };
-        PaginatedPartidoList: {
+        PaginatedJugadorListList: {
             /** @example 123 */
             count: number;
             /**
@@ -1082,7 +1409,22 @@ export interface components {
              * @example http://api.example.org/accounts/?page=2
              */
             previous?: string | null;
-            results: components["schemas"]["Partido"][];
+            results: components["schemas"]["JugadorList"][];
+        };
+        PaginatedPartidoListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["PartidoList"][];
         };
         PaginatedTarjetaList: {
             /** @example 123 */
@@ -1113,6 +1455,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Torneo"][];
+        };
+        PaginatedTorneoListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["TorneoList"][];
         };
         Partido: {
             readonly id: number;
@@ -1176,6 +1533,19 @@ export interface components {
             arbitro?: number | null;
             equipo_ganador_default?: number | null;
             equipo_pone_balon?: number | null;
+        };
+        /** @description Serializer optimizado para listado de partidos (solo campos esenciales) */
+        PartidoList: {
+            readonly id: number;
+            /** Format: date-time */
+            fecha: string;
+            equipo_1: number;
+            readonly equipo_1_nombre: string;
+            equipo_2: number;
+            readonly equipo_2_nombre: string;
+            goles_equipo_1?: number;
+            goles_equipo_2?: number;
+            completado?: boolean;
         };
         PartidoRequest: {
             /** Format: date-time */
@@ -1262,6 +1632,34 @@ export interface components {
             /** Format: date */
             fecha?: string | null;
             activa?: boolean;
+        };
+        /** @description Serializer completo para documentos de jugadores con validaciones de seguridad. */
+        PatchedJugadorDocumentoRequest: {
+            jugador?: number;
+            /** Tipo de documento */
+            tipo_documento?: components["schemas"]["TipoDocumentoEnum"];
+            /**
+             * Archivo del documento
+             * @description Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB
+             */
+            archivo_documento?: string;
+            /** Estado de verificación */
+            estado_verificacion?: components["schemas"]["EstadoVerificacionEnum"];
+            /**
+             * Comentarios de verificación
+             * @description Comentarios sobre la verificación o razones de rechazo
+             */
+            comentarios_verificacion?: string;
+        };
+        /** @description Serializer específico para verificación de documentos. */
+        PatchedJugadorDocumentoVerificationRequest: {
+            /** Estado de verificación */
+            estado_verificacion?: components["schemas"]["EstadoVerificacionEnum"];
+            /**
+             * Comentarios de verificación
+             * @description Comentarios sobre la verificación o razones de rechazo
+             */
+            comentarios_verificacion?: string;
         };
         PatchedJugadorRequest: {
             primer_nombre?: string;
@@ -1369,6 +1767,16 @@ export interface components {
             partido: number;
         };
         /**
+         * @description * `dni_frontal` - DNI - Frontal
+         *     * `dni_posterior` - DNI - Posterior
+         *     * `cedula_frontal` - Cédula - Frontal
+         *     * `cedula_posterior` - Cédula - Posterior
+         *     * `pasaporte` - Pasaporte
+         *     * `otro` - Otro documento
+         * @enum {string}
+         */
+        TipoDocumentoEnum: "dni_frontal" | "dni_posterior" | "cedula_frontal" | "cedula_posterior" | "pasaporte" | "otro";
+        /**
          * @description * `AMARILLA` - Amarilla
          *     * `ROJA` - Roja
          * @enum {string}
@@ -1425,6 +1833,19 @@ export interface components {
             tiene_eliminacion_directa?: boolean;
             numero_grupos?: number;
             equipos_clasifican_por_grupo?: number;
+            fase_actual?: components["schemas"]["FaseActualEnum"];
+        };
+        /** @description Serializer optimizado para listado de torneos (solo campos esenciales) */
+        TorneoList: {
+            readonly id: number;
+            nombre: string;
+            categoria: number;
+            readonly categoria_nombre: string;
+            /** Format: date */
+            fecha_inicio: string;
+            /** Format: date */
+            fecha_fin?: string | null;
+            activo?: boolean;
             fase_actual?: components["schemas"]["FaseActualEnum"];
         };
         TorneoRequest: {
@@ -1630,7 +2051,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedEquipoList"];
+                    "application/json": components["schemas"]["PaginatedEquipoListList"];
                 };
             };
         };
@@ -1801,7 +2222,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedJugadorList"];
+                    "application/json": components["schemas"]["PaginatedJugadorListList"];
                 };
             };
         };
@@ -1964,6 +2385,308 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Jugador"];
+                };
+            };
+        };
+    };
+    jugador_documentos_list: {
+        parameters: {
+            query?: {
+                /** @description * `pendiente` - Pendiente
+                 *     * `verificado` - Verificado
+                 *     * `rechazado` - Rechazado
+                 *     * `resubir` - Requiere resubir */
+                estado_verificacion?: "pendiente" | "rechazado" | "resubir" | "verificado";
+                /** @description Múltiples valores separados por comas. */
+                estado_verificacion__in?: string[];
+                fecha_subida__gte?: string;
+                fecha_subida__lte?: string;
+                jugador?: number;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description * `dni_frontal` - DNI - Frontal
+                 *     * `dni_posterior` - DNI - Posterior
+                 *     * `cedula_frontal` - Cédula - Frontal
+                 *     * `cedula_posterior` - Cédula - Posterior
+                 *     * `pasaporte` - Pasaporte
+                 *     * `otro` - Otro documento */
+                tipo_documento?: "cedula_frontal" | "cedula_posterior" | "dni_frontal" | "dni_posterior" | "otro" | "pasaporte";
+                /** @description Múltiples valores separados por comas. */
+                tipo_documento__in?: string[];
+                verificado_por?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedJugadorDocumentoListList"];
+                };
+            };
+        };
+    };
+    jugador_documentos_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["JugadorDocumentoRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["JugadorDocumentoRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_by_jugador_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jugador_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_pending_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_stats_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_upload_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["JugadorDocumentoUploadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["JugadorDocumentoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumentoUpload"];
+                };
+            };
+        };
+    };
+    jugador_documentos_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Documento de Jugador. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Documento de Jugador. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["JugadorDocumentoRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["JugadorDocumentoRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Documento de Jugador. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    jugador_documentos_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Documento de Jugador. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["PatchedJugadorDocumentoRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedJugadorDocumentoRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumento"];
+                };
+            };
+        };
+    };
+    jugador_documentos_reject_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Documento de Jugador. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["PatchedJugadorDocumentoVerificationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedJugadorDocumentoVerificationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumentoVerification"];
+                };
+            };
+        };
+    };
+    jugador_documentos_verify_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this Documento de Jugador. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["PatchedJugadorDocumentoVerificationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedJugadorDocumentoVerificationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JugadorDocumentoVerification"];
                 };
             };
         };
@@ -2161,7 +2884,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedPartidoList"];
+                    "application/json": components["schemas"]["PaginatedPartidoListList"];
                 };
             };
         };
@@ -2719,7 +3442,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedTorneoList"];
+                    "application/json": components["schemas"]["PaginatedTorneoListList"];
                 };
             };
         };

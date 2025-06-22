@@ -565,26 +565,26 @@ export async function getServerJugadoresDestacados(
 ============================================ */
 
 /**
- * Obtener jugadores por equipo
+ * Obtener jugadores por equipo - TEMPORALMENTE DESHABILITADO
  */
-export async function getServerJugadoresPorEquipo(equipoId: number): Promise<PaginatedJugadorList> {
-    console.log('👤 Obteniendo jugadores del equipo:', equipoId);
+// export async function getServerJugadoresPorEquipo(equipoId: number): Promise<PaginatedJugadorList> {
+//     console.log('👤 Obteniendo jugadores del equipo:', equipoId);
     
-    // Usar el endpoint correcto que devuelve array directo
-    const jugadoresDelEquipo = await serverFetch<Jugador[]>(
-        `/jugadores/por_equipo/?equipo_id=${equipoId}`,
-        { revalidate: REVALIDATION.DYNAMIC }
-    );
+//     // Usar el endpoint correcto que devuelve array directo
+//     const jugadoresDelEquipo = await serverFetch<Jugador[]>(
+//         `/jugadores/por_equipo/?equipo_id=${equipoId}`,
+//         { revalidate: REVALIDATION.DYNAMIC }
+//     );
     
-    console.log(`✅ Encontrados ${jugadoresDelEquipo.length} jugadores para el equipo ${equipoId}`);
+//     console.log(`✅ Encontrados ${jugadoresDelEquipo.length} jugadores para el equipo ${equipoId}`);
     
-    return {
-        count: jugadoresDelEquipo.length,
-        next: null,
-        previous: null,
-        results: jugadoresDelEquipo
-    };
-}
+//     return {
+//         count: jugadoresDelEquipo.length,
+//         next: null,
+//         previous: null,
+//         results: jugadoresDelEquipo
+//     };
+// }
 
 /**
  * Actualizar estado activo_segunda_fase de un jugador
@@ -611,66 +611,16 @@ export async function updateServerJugadorActivoSegundaFase(
 }
 
 /**
- * Obtener equipos con sus jugadores y estado de limpieza para dashboard
+ * Obtener equipos con sus jugadores y estado de limpieza para dashboard - TEMPORALMENTE DESHABILITADO
  */
 export async function getServerEquiposConJugadores(): Promise<EquipoConJugadores[]> {
-    console.log('🏆 Obteniendo equipos con jugadores para análisis de limpieza');
-    
-    try {
-        // Obtener todos los equipos
-        const equiposResponse = await getServerEquipos({ all_pages: true });
-        
-        if (!equiposResponse.results || equiposResponse.results.length === 0) {
-            console.log('⚠️ No se encontraron equipos');
-            return [];
-        }
-
-        // Para cada equipo, obtener sus jugadores
-        const equiposConJugadores = await Promise.all(
-            equiposResponse.results.map(async (equipo) => {
-                try {
-                    const jugadoresResponse = await getServerJugadoresPorEquipo(equipo.id);
-                    const jugadores = jugadoresResponse.results || [];
-
-                    // Contar jugadores activos para eliminatorias
-                    const jugadores_activos = jugadores.filter(j => 
-                        j.activo_segunda_fase !== false // Asumir true si no existe el campo
-                    ).length;
-
-                    return {
-                        ...equipo,
-                        jugadores,
-                        jugadores_activos,
-                        necesita_limpieza: jugadores_activos > 12
-                    };
-                } catch (error) {
-                    console.warn(`⚠️ Error al cargar jugadores del equipo ${equipo.id}:`, error);
-                    // Retornar equipo con datos vacíos si falla
-                    return {
-                        ...equipo,
-                        jugadores: [],
-                        jugadores_activos: 0,
-                        necesita_limpieza: false
-                    };
-                }
-            })
-        );
-
-        // Ordenar: problemáticos primero, luego por nombre
-        equiposConJugadores.sort((a, b) => {
-            if (a.necesita_limpieza !== b.necesita_limpieza) {
-                return a.necesita_limpieza ? -1 : 1;
-            }
-            return a.nombre.localeCompare(b.nombre);
-        });
-
-        console.log(`✅ ${equiposConJugadores.length} equipos procesados para análisis de limpieza`);
-        return equiposConJugadores;
-    } catch (error) {
-        console.error('❌ Error obteniendo equipos con jugadores:', error);
-        return [];
-    }
+    console.log('🏆 Función temporalmente deshabilitada - retornando array vacío');
+    return [];
 }
+
+// FUNCIÓN ORIGINAL COMENTADA POR PROBLEMAS EN BACKEND
+// export async function getServerEquiposConJugadoresORIGINAL(): Promise<EquipoConJugadores[]> {
+//     console.log('🏆 Obteniendo equipos con jugadores para análisis de limpieza');
 
 /* ============================================
    FUNCIONES PARA GOLEADORES/JUGADORES
