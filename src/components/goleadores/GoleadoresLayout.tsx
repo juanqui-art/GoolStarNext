@@ -284,10 +284,10 @@ export default function GoleadoresLayout({ children }: { children: React.ReactNo
 
                                         {/* Botón terciario - Contorno */}
                                         <Link
-                                            href="/tabla"
+                                            href="/equipos"
                                             className="group relative bg-white dark:bg-neutral-700 border-2 border-goal-orange hover:border-goal-orange/80 hover:bg-goal-orange/5 dark:hover:bg-goal-orange/10 text-neutral-800 dark:text-neutral-200 hover:text-goal-orange dark:hover:text-goal-orange font-medium py-2.5 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-4 focus:ring-goal-orange/30 text-sm sm:text-base w-full sm:w-auto"
                                         >
-                                            <span className="relative z-10">Tabla posiciones</span>
+                                            <span className="relative z-10">Ver equipos</span>
                                             {/* Efecto de brillo sutil */}
                                             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-goal-orange/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         </Link>

@@ -587,11 +587,11 @@ export default async function GoleadoresListServer({
             {/* Enlaces relacionados */}
             <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2.5 sm:gap-4 text-xs sm:text-sm">
                 <Link
-                    href="/tabla"
+                    href="/equipos"
                     className="flex items-center gap-1 sm:gap-2 text-goal-blue dark:text-goal-gold hover:underline"
                 >
                     <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
-                    Tabla de posiciones
+                    Ver equipos
                 </Link>
                 <Link
                     href="/partidos"

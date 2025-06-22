@@ -2,7 +2,7 @@
 
 import gsap from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
-import {CalendarDays, Image as ImageIcon, Table, Trophy, Users} from 'lucide-react';
+import {CalendarDays, Image as ImageIcon, Trophy, Users} from 'lucide-react';
 import {useEffect, useRef} from 'react';
 import QuickLinkCard from '../ui/QuickLinkCard';
 
@@ -56,13 +56,6 @@ export default function QuickLinks() {
             icon: <CalendarDays size={24}/>,
             href: '/partidos',
             accentColor: 'gold' as const
-        },
-        {
-            title: 'Tabla de Posiciones',
-            description: 'Revisa la clasificación actual de todos los equipos',
-            icon: <Table size={24}/>,
-            href: '/tabla',
-            accentColor: 'blue' as const
         },
         {
             title: 'Goleadores',

@@ -400,10 +400,10 @@ export default async function EquipoDetailPage({ params }: EquipoDetailPageProps
                                     Ver torneo
                                 </Link>
                                 <Link
-                                    href="/tabla"
+                                    href="/partidos"
                                     className="border border-goal-blue text-goal-blue hover:bg-goal-blue/10 px-6 py-2 rounded-lg transition-colors"
                                 >
-                                    Tabla de posiciones
+                                    Ver partidos
                                 </Link>
                             </div>
                         </div>

@@ -145,23 +145,23 @@ export default function PartidosLayout({ children }: { children: React.ReactNode
                                     </h3>
 
                                     <p className="text-neutral-600 dark:text-neutral-300 mb-8 max-w-xl mx-auto">
-                                        Explora la tabla de posiciones para ver el rendimiento de los equipos
-                                        o consulta la página de equipos para más información.
+                                        Consulta la página de equipos para más información sobre cada equipo
+                                        y conoce a los goleadores que marcan la diferencia.
                                     </p>
 
                                     <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                                         <Link
-                                            href="/tabla"
+                                            href="/equipos"
                                             className="bg-goal-orange hover:bg-goal-orange/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
                                         >
-                                            Ver tabla de posiciones
+                                            Ver equipos
                                         </Link>
 
                                         <Link
-                                            href="/equipos"
+                                            href="/goleadores"
                                             className="bg-white dark:bg-neutral-700 border border-goal-blue hover:border-goal-blue/80 text-neutral-800 dark:text-neutral-200 font-medium py-3 px-8 rounded-full transition-all duration-300 hover:bg-goal-blue/5"
                                         >
-                                            Ver equipos
+                                            Ver goleadores
                                         </Link>
                                     </div>
                                 </div>

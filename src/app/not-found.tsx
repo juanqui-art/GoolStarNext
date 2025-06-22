@@ -66,9 +66,6 @@ export default function NotFound() {
                         <Link href="/partidos" className="text-goal-blue hover:underline">
                             Partidos
                         </Link>
-                        <Link href="/tabla" className="text-goal-blue hover:underline">
-                            Tabla de Posiciones
-                        </Link>
                         <Link href="/equipos" className="text-goal-blue hover:underline">
                             Equipos
                         </Link>

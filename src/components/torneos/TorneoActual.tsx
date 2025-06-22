@@ -171,10 +171,10 @@ export default function TorneoActual({
         {/* Botones de acción */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
           <Link 
-            href="/tabla"
+            href="/partidos"
             className="bg-goal-blue hover:bg-goal-blue/90 text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-sm inline-block text-center w-full sm:w-auto"
           >
-            Ver tabla de posiciones
+            Ver partidos del torneo
           </Link>
         </div>
       </div>

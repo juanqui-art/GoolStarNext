@@ -189,11 +189,11 @@ export default function TorneosLayout({ children, torneoData }: TorneosLayoutPro
                                 </Link>
 
                                 <Link
-                                    href="/tabla"
+                                    href="/goleadores"
                                     className="bg-white dark:bg-neutral-800 border border-goal-gold text-neutral-800 dark:text-neutral-200 font-medium py-3 px-6 rounded-full transition-all shadow-sm hover:shadow-md hover:bg-goal-gold/5 flex items-center gap-2"
                                 >
                                     <Target className="w-5 h-5" />
-                                    Tabla de Posiciones
+                                    Ver Goleadores
                                 </Link>
                             </div>
                         </div>
@@ -310,20 +310,20 @@ export default function TorneosLayout({ children, torneoData }: TorneosLayoutPro
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                             <Link
-                                href="/tabla"
+                                href="/equipos"
                                 className="group bg-gradient-to-br from-goal-blue/5 to-goal-blue/10 dark:from-goal-blue/10 dark:to-goal-blue/20 rounded-xl p-6 border border-goal-blue/20 hover:border-goal-blue/40 transition-all duration-300 hover:shadow-lg hover:shadow-goal-blue/10"
                             >
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="w-12 h-12 bg-goal-blue/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                         <Trophy className="w-6 h-6 text-goal-blue" />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">Tabla de Posiciones</h3>
+                                    <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">Ver Equipos</h3>
                                 </div>
                                 <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                                    Consulta las posiciones actuales de todos los equipos por grupo.
+                                    Consulta información detallada de todos los equipos participantes.
                                 </p>
                                 <div className="flex items-center text-goal-blue text-sm font-medium group-hover:translate-x-1 transition-transform">
-                                    Ver clasificación <ArrowRight className="w-4 h-4 ml-2" />
+                                    Ver equipos <ArrowRight className="w-4 h-4 ml-2" />
                                 </div>
                             </Link>
 

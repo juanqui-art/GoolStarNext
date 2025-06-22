@@ -42,11 +42,11 @@ export default function GoleadoresError({ error, reset }: ErrorProps) {
                     </button>
 
                     <Link
-                        href="/tabla"
+                        href="/equipos"
                         className="block w-full bg-goal-blue hover:bg-goal-blue/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300"
                     >
                         <Trophy className="w-4 h-4 inline mr-2" />
-                        Ver tabla de posiciones
+                        Ver equipos
                     </Link>
 
                     <Link

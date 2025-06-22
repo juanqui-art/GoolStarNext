@@ -311,11 +311,11 @@ export default function EstadoTorneo() {
             {/* Botón de acción */}
             <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
                 <button
-                    onClick={() => window.open('/tabla', '_blank')}
+                    onClick={() => window.open('/partidos', '_blank')}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                 >
                     <BarChart3 className="w-4 h-4" />
-                    Ver Tabla Completa
+                    Ver Partidos
                 </button>
             </div>
         </div>

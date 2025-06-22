@@ -253,10 +253,10 @@ export default async function TorneoPage({ params }: TorneoPageProps) {
           {/*          Ver Partidos*/}
           {/*        </a>*/}
           {/*        <a*/}
-          {/*            href="/tabla"*/}
+          {/*            href="/equipos"*/}
           {/*            className="bg-goal-gold hover:bg-goal-gold/90 text-white px-6 py-3 rounded-lg transition-colors font-medium"*/}
           {/*        >*/}
-          {/*          Tabla de Posiciones*/}
+          {/*          Ver Equipos*/}
           {/*        </a>*/}
           {/*        <a*/}
           {/*            href="/goleadores"*/}

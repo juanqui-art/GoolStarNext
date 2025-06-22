@@ -34,7 +34,6 @@ const Navbar = ({ variant = 'transparent', className = '' }: NavbarProps) => {
         { href: '/torneos', label: 'Torneos' },
         { href: '/equipos', label: 'Equipos' },
         { href: '/partidos', label: 'Partidos' },
-        { href: '/tabla', label: 'Tabla' },
         { href: '/goleadores', label: 'Goleadores' },
         { href: '/contacto', label: 'Contacto' }
     ];

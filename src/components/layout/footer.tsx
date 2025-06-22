@@ -145,12 +145,6 @@ export default function Footer() {
                                     </Link>
                                 </li>
                                 <li className="animate-item">
-                                    <Link href="/tabla"
-                                          className="text-neutral-600 dark:text-neutral-400 hover:text-goal-gold dark:hover:text-goal-gold transition-colors duration-300">
-                                        Tabla de Posiciones
-                                    </Link>
-                                </li>
-                                <li className="animate-item">
                                     <Link href="/goleadores"
                                           className="text-neutral-600 dark:text-neutral-400 hover:text-goal-gold dark:hover:text-goal-gold transition-colors duration-300">
                                         Goleadores
