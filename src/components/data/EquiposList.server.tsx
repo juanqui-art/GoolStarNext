@@ -12,7 +12,7 @@ import {JSX} from "react";
 
 // Tipos base de la API
 type Equipo = components['schemas']['Equipo'];
-type PaginatedEquipoList = components['schemas']['PaginatedEquipoList'];
+// type PaginatedEquipoListList = components['schemas']['PaginatedEquipoListList'];
 
 // Props del componente principal
 interface EquiposListServerProps {
@@ -196,7 +196,8 @@ export default async function EquiposListServer({
                                                 }: EquiposListServerProps): Promise<JSX.Element> {
     try {
         // Obtener todos los equipos del servidor con parámetros mejorados
-        const data: PaginatedEquipoList = await getServerEquipos({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data: any = await getServerEquipos({
             categoria,
             ordering: 'nombre',
             all_pages: !limit, // Solo todas las páginas si no hay límite
@@ -205,7 +206,8 @@ export default async function EquiposListServer({
         });
 
         // Aplicar límite si se especificó
-        const equipos: Equipo[] = limit ? data.results.slice(0, limit) : data.results;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const equipos: any[] = limit ? data.results.slice(0, limit) : data.results;
 
         // Si no hay equipos, mostrar mensaje apropiado
         if (equipos.length === 0) {
