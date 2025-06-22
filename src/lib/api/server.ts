@@ -29,7 +29,7 @@ import type {
     PaginatedPartidoList, 
     TablaPosicionesAgrupada,
     Jugador,
-    PaginatedJugadorList,
+    // PaginatedJugadorList, // Temporarily disabled
     // Gol
 } from '@/types/server-api';
 import { API_CONFIG } from '@/lib/config/api';
@@ -217,9 +217,9 @@ export async function getServerEquiposStats(): Promise<EquiposStats> {
         const response = await getServerEquipos({ all_pages: true });
 
         const total = response.results.length;
-        const activos = response.results.filter(equipo => equipo.activo).length;
+        const activos = response.results.filter((equipo: Equipo) => equipo.activo).length;
 
-        const por_categoria = response.results.reduce((acc, equipo) => {
+        const por_categoria = response.results.reduce((acc: Record<string, number>, equipo: Equipo) => {
             const categoria = equipo.categoria_nombre || 'Sin categoría';
             acc[categoria] = (acc[categoria] || 0) + 1;
             return acc;
@@ -359,7 +359,7 @@ export async function getServerPartidosStats(): Promise<PartidosStats> {
         ]);
 
         const total = allPartidos.results.length;
-        const completados = allPartidos.results.filter(p => p.completado).length;
+        const completados = allPartidos.results.filter((p: Partido) => p.completado).length;
         const pendientes = total - completados;
         const proximos_7_dias = proximosPartidos.results.length;
 

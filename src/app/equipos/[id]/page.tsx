@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Trophy, Target, AlertTriangle, MapPin, Star } from 'lucide-react';
+import { Users, Trophy, Target, MapPin, Star } from 'lucide-react';
 import type { components } from '@/types/api';
 
 // ✅ TIPOS CORRECTOS - Importados de la API

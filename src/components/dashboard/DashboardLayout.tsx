@@ -3,7 +3,7 @@
 
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, Clock, LogOut, User, Home, Users, DollarSign, Calendar, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Shield, Clock, LogOut, User, Home, DollarSign, Calendar, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/useAuth';
 import { usePathname } from 'next/navigation';
 

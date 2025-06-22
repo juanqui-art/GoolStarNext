@@ -13,43 +13,7 @@ export const metadata: Metadata = {
     robots: 'noindex, nofollow'
 };
 
-// Loading component
-function JugadoresLoading() {
-    return (
-        <div className="space-y-6">
-            {/* Header skeleton */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-48 mb-2"></div>
-                    <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-64"></div>
-                </div>
-                <div className="h-10 bg-neutral-200 dark:bg-neutral-700 rounded w-32"></div>
-            </div>
-            
-            {/* Stats skeleton */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-neutral-800 rounded-xl p-4 animate-pulse">
-                        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-20 mb-2"></div>
-                        <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-12"></div>
-                    </div>
-                ))}
-            </div>
-            
-            {/* Table skeleton */}
-            <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <div className="p-6">
-                    <div className="h-10 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
-                    <div className="space-y-3">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="h-12 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+// JugadoresLoading component removed - not needed for maintenance page
 
 export default function JugadoresPage() {
     return (
