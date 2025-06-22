@@ -377,9 +377,9 @@ export default async function EquipoDetailPage({ params }: EquipoDetailPageProps
                         <EquipoInfo equipo={equipo} />
 
                         {/* Lista de jugadores */}
-                        <Suspense fallback={<JugadoresLoading />}>
-                            <JugadoresList jugadores={equipo.jugadores || []} />
-                        </Suspense>
+                        {/*<Suspense fallback={<JugadoresLoading />}>*/}
+                        {/*    <JugadoresList jugadores={equipo.jugadores || []} />*/}
+                        {/*</Suspense>*/}
 
                         {/* Acciones adicionales */}
                         <div className="bg-white dark:bg-neutral-800 rounded-xl p-6">
