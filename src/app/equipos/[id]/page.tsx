@@ -4,13 +4,11 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { Users, Trophy, Target, AlertTriangle, MapPin, Star } from 'lucide-react';
 import type { components } from '@/types/api';
 
 // ✅ TIPOS CORRECTOS - Importados de la API
 type EquipoDetalle = components['schemas']['EquipoDetalle'];
-type Jugador = components['schemas']['Jugador'];
 // type Categoria = components['schemas']['Categoria'];
 
 // Props corregidas para Next.js 15
@@ -54,19 +52,6 @@ export async function generateMetadata({ params }: EquipoDetailPageProps): Promi
     }
 }
 
-// Componente de loading para jugadores con tipo específico
-function JugadoresLoading() {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-neutral-100 dark:bg-neutral-700 rounded-lg p-4 animate-pulse">
-                    <div className="h-4 bg-neutral-200 dark:bg-neutral-600 rounded mb-2"></div>
-                    <div className="h-3 bg-neutral-200 dark:bg-neutral-600 rounded w-3/4"></div>
-                </div>
-            ))}
-        </div>
-    );
-}
 
 // ✅ COMPONENTE CON TIPOS CORRECTOS
 function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
@@ -235,101 +220,6 @@ function EquipoInfo({ equipo }: { equipo: EquipoDetalle }) {
     );
 }
 
-// ✅ COMPONENTE CON TIPOS CORRECTOS
-function JugadoresList({ jugadores }: { jugadores: Jugador[] }) {
-    if (!jugadores || jugadores.length === 0) {
-        return (
-            <div className="bg-white dark:bg-neutral-800 rounded-xl p-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-700 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                    </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                    Sin jugadores registrados
-                </h3>
-                <p className="text-neutral-500 dark:text-neutral-400">
-                    Este equipo aún no tiene jugadores registrados en el sistema.
-                </p>
-            </div>
-        );
-    }
-
-    // Limitar a solo 12 jugadores
-    const jugadoresLimitados = jugadores.slice(0, 12);
-    const jugadoresTotal = jugadores.length;
-
-    return (
-        <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden">
-            <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-                <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-goal-blue" />
-                    Plantilla del Equipo
-                    {jugadoresTotal > 12 && <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">(mostrando primeros 12)</span>}
-                </h2>
-            </div>
-
-            <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {jugadoresLimitados.map((jugador) => (
-                        <div
-                            key={jugador.id}
-                            className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"
-                        >
-                            <div className="flex items-center gap-3">
-                                {jugador.foto ? (
-                                    <div className="relative w-12 h-12">
-                                        <Image
-                                            src={jugador.foto}
-                                            alt={jugador.nombre_completo}
-                                            fill
-                                            className="object-cover rounded-full"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="w-12 h-12 bg-goal-gold/20 rounded-full flex items-center justify-center">
-                                        <span className="text-goal-gold font-bold text-lg">
-                                            {jugador.primer_nombre?.charAt(0) || '?'}
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-medium text-neutral-800 dark:text-neutral-200 truncate">
-                                        {jugador.nombre_completo}
-                                    </h3>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        {jugador.numero_dorsal && (
-                                            <span className="bg-goal-blue text-white text-xs px-2 py-1 rounded">
-                                                #{jugador.numero_dorsal}
-                                            </span>
-                                        )}
-                                        {jugador.posicion && (
-                                            <span className="text-neutral-500 dark:text-neutral-400 text-sm">
-                                                {jugador.posicion}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {jugador.suspendido && (
-                                <div className="mt-3 p-2 bg-red-100 dark:bg-red-900/30 rounded text-red-700 dark:text-red-300 text-sm">
-                                    <span className="font-medium">Suspendido</span>
-                                    {jugador.partidos_suspension_restantes && jugador.partidos_suspension_restantes > 0 && (
-                                        <span className="ml-1">
-                                            ({jugador.partidos_suspension_restantes} partidos)
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // ✅ FUNCIÓN HELPER CON TIPOS CORRECTOS
 async function obtenerEquipo(id: string): Promise<EquipoDetalle> {

@@ -4,7 +4,7 @@
 import {apiClient} from '@/lib/api/client';
 import type {components} from '@/types/api';
 import {AlertTriangle, Grid3X3, List, Plus, RefreshCw, Search, UserPlus, Users, X} from 'lucide-react';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {toast} from 'sonner';
 import JugadorCard from './JugadorCard';
 import JugadoresTable from './JugadoresTable';
@@ -47,11 +47,6 @@ export default function JugadoresManager() {
     const [showForm, setShowForm] = useState(false);
     const [jugadorEditando, setJugadorEditando] = useState<Jugador | null>(null);
     const [jugadorDetalle, setJugadorDetalle] = useState<Jugador | null>(null);
-
-    // Cargar datos iniciales
-    useEffect(() => {
-        cargarDatos();
-    }, []);
 
     // Función para cargar todos los datos paginados
     const cargarTodosPaginado = async <T, >(endpoint: string): Promise<T[]> => {
@@ -96,7 +91,7 @@ export default function JugadoresManager() {
         return allResults;
     };
 
-    const cargarDatos = async () => {
+    const cargarDatos = useCallback(async () => {
         try {
             setLoading(true);
 
@@ -126,7 +121,12 @@ export default function JugadoresManager() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    // Cargar datos iniciales
+    useEffect(() => {
+        cargarDatos();
+    }, [cargarDatos]);
 
     // Filtrar jugadores por búsqueda, estado y equipo
     const jugadoresFiltrados = jugadores.filter(jugador => {
